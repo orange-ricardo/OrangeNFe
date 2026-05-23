@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Manifestação do Destinatário</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
+    .filters input,.filters select {
+      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+    }
+    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
+    .filters input[type=text] { min-width:260px; }
+
+    .summary-strip { display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap; }
+    .sum-chip {
+      display:flex;align-items:center;gap:5px;padding:5px 12px;
+      border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+      border:1.5px solid transparent;transition:all 0.15s;white-space:nowrap;
+    }
+    .sum-chip.all    { background:#f4f6f9;color:#555; }
+    .sum-chip.pend   { background:#fffbeb;color:#d97706;border-color:#fde68a; }
+    .sum-chip.conf   { background:#f0fdf4;color:#16a34a;border-color:#bbf7d0; }
+    .sum-chip.neg    { background:#fef2f2;color:#dc2626;border-color:#fecaca; }
+    .sum-chip.active-filter { box-shadow:0 0 0 2px #f97316; }
+
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:6px 12px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;text-decoration:none;
+    }
+    .tb-btn:hover { background:#f4f6f9; }
+
+    .prazo-chip {
+      display:inline-flex;align-items:center;padding:2px 8px;
+      border-radius:12px;font-size:11px;font-weight:700;
+    }
+    .prazo-chip.ok      { background:#f0fdf4;color:#16a34a; }
+    .prazo-chip.urgent  { background:#fffbeb;color:#d97706; }
+    .prazo-chip.expired { background:#fef2f2;color:#dc2626; }
+
+    .manifest-action {
+      display:inline-flex;align-items:center;gap:4px;padding:5px 11px;
+      border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;
+      border:none;transition:all 0.15s;
+    }
+    .manifest-action.confirm { background:#f97316;color:#fff; }
+    .manifest-action.confirm:hover { background:#ea6c0a; }
+    .manifest-action.deny    { background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca; }
+    .manifest-action.deny:hover { background:#fee2e2; }
+    .manifest-action.unknown { background:#fffbeb;color:#d97706;border:1.5px solid #fde68a; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item active"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Manifestação do Destinatário</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn ghost" onclick="sincronizar()">🔄 Sincronizar</button>
+      <button class="topbar-btn primary" onclick="manifestarPendentes()">✅ Confirmar todos pendentes</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#1d4ed8;">
+      <strong>ℹ️ Manifestação do Destinatário (MDe):</strong> O prazo para manifestar NF-e recebidas é de <strong>30 dias</strong> após a data de emissão. Notas não manifestadas ficam disponíveis para que o emitente solicite cancelamento extemporâneo.
+    </div>
+
+    <div class="summary-strip">
+      <div class="sum-chip all active-filter" onclick="filtrarStatus('',this)">📋 Todas (28)</div>
+      <div class="sum-chip pend" onclick="filtrarStatus('pendente',this)">⏳ Pendentes (7)</div>
+      <div class="sum-chip conf" onclick="filtrarStatus('confirmada',this)">✅ Confirmadas (18)</div>
+      <div class="sum-chip neg" onclick="filtrarStatus('negada',this)">🚫 Negadas (1)</div>
+      <div class="sum-chip" style="background:#fdf4ff;color:#9333ea;border-color:#e9d5ff;" onclick="filtrarStatus('desconhecida',this)">❓ Desconhecidas (2)</div>
+    </div>
+
+    <div class="filters">
+      <input type="text" id="search-input" placeholder="🔍  Buscar por emitente ou número..." oninput="filtrar()"/>
+      <select id="sit-filter" onchange="filtrar()">
+        <option value="">Todas as situações</option>
+        <option value="pendente">Sem manifestação</option>
+        <option value="confirmada">Confirmada</option>
+        <option value="negada">Negada</option>
+        <option value="desconhecida">Desconhecida</option>
+      </select>
+      <div style="flex:1"></div>
+      <span id="count-label" style="font-size:12px;color:#aaa;font-weight:600;"></span>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-wrap">
+        <table id="manifest-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"/></th>
+              <th>Emitente</th>
+              <th>Nº / Série</th>
+              <th>Emissão</th>
+              <th>Valor</th>
+              <th>Prazo restante</th>
+              <th>Situação</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="manifest-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let statusFiltro = '';
+let notas = [
+  { id:1, emitente:'Distribuidora ABC Ltda', num:'101', serie:'1', data:'23/05/2026', valor:4520.80, prazo:28, manifest:'pendente' },
+  { id:2, emitente:'Indústria XYZ S.A.', num:'205', serie:'1', data:'22/05/2026', valor:18200.00, prazo:27, manifest:'pendente' },
+  { id:3, emitente:'Fornecedora Beta Ltda', num:'44', serie:'1', data:'21/05/2026', valor:890.50, prazo:26, manifest:'confirmada' },
+  { id:4, emitente:'Comércio Gama ME', num:'312', serie:'1', data:'20/05/2026', valor:2340.00, prazo:25, manifest:'desconhecida' },
+  { id:5, emitente:'Atacado Delta Ltda', num:'88', serie:'2', data:'19/05/2026', valor:7650.30, prazo:24, manifest:'pendente' },
+  { id:6, emitente:'Revenda Épsilon', num:'19', serie:'1', data:'18/05/2026', valor:450.00, prazo:1, manifest:'negada' },
+  { id:7, emitente:'Tech Supplies Ltda', num:'560', serie:'1', data:'17/05/2026', valor:12400.00, prazo:0, manifest:'pendente' },
+];
+
+function prazoChip(p) {
+  if (p <= 0)  return `<span class="prazo-chip expired">Expirado</span>`;
+  if (p <= 3)  return `<span class="prazo-chip urgent">${p} dia${p>1?'s':''}</span>`;
+  return `<span class="prazo-chip ok">${p} dias</span>`;
+}
+
+function manifestChip(m) {
+  const cfg = {
+    pendente:     { cls:'badge pendente',  text:'Pendente' },
+    confirmada:   { cls:'badge autorizada',text:'Confirmada' },
+    negada:       { cls:'badge cancelada', text:'Negada' },
+    desconhecida: { cls:'badge rejeitada', text:'Desconhecida' },
+  };
+  return cfg[m] ? `<span class="${cfg[m].cls}">${cfg[m].text}</span>` : '—';
+}
+
+function render(data) {
+  const tbody = document.getElementById('manifest-body');
+  document.getElementById('count-label').textContent = data.length + ' nota' + (data.length !== 1 ? 's' : '');
+  tbody.innerHTML = data.map(n => `
+    <tr>
+      <td><input type="checkbox" class="row-chk"/></td>
+      <td><div style="font-weight:600;color:#1a1a2e">${n.emitente}</div></td>
+      <td style="font-family:monospace;font-size:12px">Nº ${n.num} / ${n.serie}</td>
+      <td style="font-size:12px;color:#555">${n.data}</td>
+      <td style="font-weight:700;color:#1a1a2e">R$ ${n.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+      <td>${prazoChip(n.prazo)}</td>
+      <td>${manifestChip(n.manifest)}</td>
+      <td>
+        ${n.manifest === 'pendente' || n.manifest === 'desconhecida' ? `
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="manifest-action confirm" onclick="manifestar(${n.id},'confirmada')">✅ Confirmar</button>
+            <button class="manifest-action unknown" onclick="manifestar(${n.id},'desconhecida')">❓ Desconhecida</button>
+            <button class="manifest-action deny" onclick="manifestar(${n.id},'negada')">🚫 Negar</button>
+          </div>` : `<span style="font-size:12px;color:#aaa">Já manifestada</span>`}
+      </td>
+    </tr>`).join('');
+}
+
+function filtrar() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const sit = document.getElementById('sit-filter').value || statusFiltro;
+  const r = notas.filter(n =>
+    (!sit || n.manifest === sit) &&
+    (!q || n.emitente.toLowerCase().includes(q) || n.num.includes(q))
+  );
+  render(r);
+}
+
+function filtrarStatus(s, el) {
+  statusFiltro = s;
+  document.getElementById('sit-filter').value = '';
+  document.querySelectorAll('.sum-chip').forEach(c => c.classList.remove('active-filter'));
+  el.classList.add('active-filter');
+  filtrar();
+}
+
+function manifestar(id, tipo) {
+  const n = notas.find(x => x.id === id);
+  const labels = { confirmada:'Confirmada ✅', desconhecida:'Desconhecida ❓', negada:'Negada 🚫' };
+  if (confirm(`Manifestar nota ${n.num} como "${labels[tipo]}"?\nEsta ação será transmitida ao SEFAZ.`)) {
+    n.manifest = tipo;
+    filtrar();
+  }
+}
+
+function manifestarPendentes() {
+  const pend = notas.filter(n => n.manifest === 'pendente');
+  if (pend.length === 0) { alert('Não há notas pendentes.'); return; }
+  if (confirm(`Confirmar todas as ${pend.length} notas pendentes?\nEsta ação será transmitida ao SEFAZ.`)) {
+    pend.forEach(n => n.manifest = 'confirmada');
+    filtrar();
+    alert('✅ ' + pend.length + ' notas manifestadas com sucesso!');
+  }
+}
+
+function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c => c.checked = cb.checked); }
+function sincronizar() { alert('🔄 Consultando NSU no SEFAZ...\n\n3 novas notas encontradas.'); }
+
+filtrar();
+</script>
+</body>
+</html>

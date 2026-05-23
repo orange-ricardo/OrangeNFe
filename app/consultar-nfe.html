@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Consultar NF-e</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .consulta-wrap { max-width:860px;margin:0 auto; }
+
+    .search-card {
+      background:#fff;border-radius:14px;border:1.5px solid #e8eaf0;
+      padding:28px 32px;margin-bottom:20px;
+    }
+    .search-card h2 { font-size:15px;font-weight:800;color:#1a1a2e;margin-bottom:6px; }
+    .search-card p { font-size:13px;color:#aaa;margin-bottom:20px; }
+
+    .search-tabs { display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid #f0f0f0; }
+    .search-tab {
+      padding:9px 18px;font-size:13px;font-weight:600;color:#aaa;
+      cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;
+    }
+    .search-tab.active { color:#f97316;border-bottom-color:#f97316; }
+    .search-tab:hover { color:#555; }
+
+    .chave-input {
+      font-family:monospace;font-size:13px;letter-spacing:1px;
+    }
+    .search-btn {
+      display:flex;align-items:center;gap:6px;padding:11px 24px;
+      background:#f97316;color:#fff;border:none;border-radius:8px;
+      font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;
+      width:100%;justify-content:center;margin-top:12px;
+    }
+    .search-btn:hover { background:#ea6c0a; }
+
+    .result-card {
+      background:#fff;border-radius:14px;border:1.5px solid #e8eaf0;
+      padding:0;overflow:hidden;display:none;
+    }
+    .result-card.show { display:block; }
+    .result-header {
+      padding:20px 24px;background:#f8f9fc;border-bottom:1px solid #f0f0f0;
+      display:flex;align-items:center;gap:14px;
+    }
+    .result-icon { font-size:32px;flex-shrink:0; }
+    .result-title { font-size:16px;font-weight:800;color:#1a1a2e; }
+    .result-sub { font-size:12px;color:#aaa;margin-top:2px; }
+
+    .result-grid {
+      display:grid;grid-template-columns:1fr 1fr;gap:0;
+    }
+    .result-field {
+      padding:14px 20px;border-bottom:1px solid #f5f5f5;
+    }
+    .result-field:nth-child(odd):not(:last-child) { border-right:1px solid #f5f5f5; }
+    .rf-label { font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px; }
+    .rf-value { font-size:13px;font-weight:600;color:#1a1a2e;margin-top:3px; }
+
+    .result-actions {
+      padding:16px 24px;background:#f8f9fc;border-top:1px solid #f0f0f0;
+      display:flex;gap:8px;flex-wrap:wrap;
+    }
+
+    .loading {
+      text-align:center;padding:40px;display:none;
+    }
+    .loading.show { display:block; }
+    .spinner {
+      width:32px;height:32px;border:3px solid #f0f0f0;
+      border-top:3px solid #f97316;border-radius:50%;
+      animation:spin 0.8s linear infinite;display:inline-block;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .hist-item {
+      display:flex;align-items:center;gap:12px;padding:12px;
+      border-radius:8px;background:#f8f9fc;border:1px solid #f0f0f0;
+      margin-bottom:8px;cursor:pointer;transition:all 0.15s;
+    }
+    .hist-item:hover { background:#fff8f3;border-color:#f97316; }
+    .hist-icon { font-size:18px;flex-shrink:0; }
+    .hist-info .h-chave { font-family:monospace;font-size:11px;color:#888; }
+    .hist-info .h-desc { font-size:13px;font-weight:600;color:#1a1a2e; }
+    .hist-time { margin-left:auto;font-size:11px;color:#bbb; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item active"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Consultar NF-e na SEFAZ</div>
+  </div>
+
+  <div class="content">
+    <div class="consulta-wrap">
+
+      <!-- BUSCA -->
+      <div class="search-card">
+        <h2>🔍 Consultar situação de NF-e</h2>
+        <p>Verifique a situação de qualquer Nota Fiscal Eletrônica diretamente nos servidores da SEFAZ.</p>
+
+        <div class="search-tabs">
+          <div class="search-tab active" onclick="switchSearchMode('chave', this)">Por Chave de Acesso</div>
+          <div class="search-tab" onclick="switchSearchMode('numero', this)">Por Número</div>
+          <div class="search-tab" onclick="switchSearchMode('cnpj', this)">Por CNPJ do Emitente</div>
+        </div>
+
+        <div id="mode-chave">
+          <div class="form-group">
+            <label>Chave de Acesso (44 dígitos)</label>
+            <input type="text" id="input-chave" class="chave-input"
+              placeholder="0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000"
+              maxlength="47" oninput="formatChave(this)"/>
+          </div>
+          <div style="font-size:12px;color:#aaa;margin-top:6px;">
+            A chave está impressa no DANFE abaixo do código de barras ou pode ser copiada do XML.
+          </div>
+        </div>
+
+        <div id="mode-numero" style="display:none">
+          <div class="form-row cols-3">
+            <div class="form-group">
+              <label>Série</label>
+              <input type="number" id="input-serie" placeholder="1" min="1" max="999"/>
+            </div>
+            <div class="form-group">
+              <label>Número da NF-e</label>
+              <input type="number" id="input-numero" placeholder="248"/>
+            </div>
+            <div class="form-group">
+              <label>UF de Emissão</label>
+              <select id="input-uf-num">
+                <option selected value="35">SP – São Paulo</option>
+                <option value="33">RJ – Rio de Janeiro</option>
+                <option value="31">MG – Minas Gerais</option>
+                <option value="43">RS – Rio Grande do Sul</option>
+                <option value="41">PR – Paraná</option>
+                <option value="42">SC – Santa Catarina</option>
+                <option value="29">BA – Bahia</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="mode-cnpj" style="display:none">
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label>CNPJ do Emitente</label>
+              <input type="text" id="input-cnpj-cons" placeholder="00.000.000/0001-00"/>
+            </div>
+            <div class="form-group">
+              <label>Período</label>
+              <select id="input-periodo-cons">
+                <option>Última semana</option>
+                <option selected>Último mês</option>
+                <option>Últimos 3 meses</option>
+                <option>Último ano</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="search-btn" onclick="consultar()">
+          🔍 Consultar no SEFAZ
+        </button>
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="margin-top:12px;color:#aaa;font-size:13px;">Consultando servidores da SEFAZ...</p>
+      </div>
+
+      <!-- RESULTADO -->
+      <div class="result-card" id="resultado">
+        <div class="result-header">
+          <div class="result-icon" id="res-icon">✅</div>
+          <div>
+            <div class="result-title" id="res-title">NF-e Autorizada pelo SEFAZ</div>
+            <div class="result-sub" id="res-sub">Protocolo: 135240001234567 · Consultado em: 23/05/2026 14:32</div>
+          </div>
+          <div id="res-badge" style="margin-left:auto;"></div>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-field">
+            <div class="rf-label">Chave de Acesso</div>
+            <div class="rf-value" id="res-chave" style="font-family:monospace;font-size:11px;word-break:break-all"></div>
+          </div>
+          <div class="result-field">
+            <div class="rf-label">Protocolo de Autorização</div>
+            <div class="rf-value" id="res-protocolo">135240001234567</div>
+          </div>
+          <div class="result-field">
+            <div class="rf-label">Data de Autorização</div>
+            <div class="rf-value" id="res-data-auth">23/05/2026 às 14:30:22</div>
+          </div>
+          <div class="result-field">
+            <div class="rf-label">Emitente</div>
+            <div class="rf-value" id="res-emitente">Orange Sistemas Ltda – CNPJ: 12.345.678/0001-90</div>
+          </div>
+          <div class="result-field">
+            <div class="rf-label">Destinatário</div>
+            <div class="rf-value" id="res-destinatario">Supermercado Bom Preço Ltda</div>
+          </div>
+          <div class="result-field">
+            <div class="rf-label">Valor Total</div>
+            <div class="rf-value" id="res-valor" style="color:#f97316;font-size:16px;">R$ 4.520,80</div>
+          </div>
+          <div class="result-field">
+            <div class="rf-label">Número / Série</div>
+            <div class="rf-value" id="res-num">Nº 000248 / Série 1</div>
+          </div>
+          <div class="result-field">
+            <div class="rf-label">Data de Emissão</div>
+            <div class="rf-value" id="res-data-emissao">23/05/2026</div>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn primary" onclick="alert('Baixando XML...')">⬇ Baixar XML</button>
+          <button class="btn secondary" onclick="alert('Abrindo DANFE...')">👁 Visualizar DANFE</button>
+          <button class="btn secondary" onclick="copiarChave()">📋 Copiar chave</button>
+          <button class="btn danger" onclick="alert('Cancelamento: apenas disponível para notas próprias.')">🚫 Cancelar NF-e</button>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title">Consultas recentes</div>
+        <div id="hist-container">
+          <div class="hist-item" onclick="reConsultar('35260512345678000190550010000001011234567890')">
+            <div class="hist-icon">✅</div>
+            <div class="hist-info">
+              <div class="h-chave">3526...7890</div>
+              <div class="h-desc">NF-e 000247 – Orange Sistemas → Bom Preço · R$ 4.520,80</div>
+            </div>
+            <div class="hist-time">há 2h</div>
+          </div>
+          <div class="hist-item" onclick="reConsultar('35260598765432000118550010000002021111111111')">
+            <div class="hist-icon">✅</div>
+            <div class="hist-info">
+              <div class="h-chave">3526...1111</div>
+              <div class="h-desc">NF-e 000246 – Orange Sistemas → Norte Sul · R$ 18.200,00</div>
+            </div>
+            <div class="hist-time">ontem</div>
+          </div>
+          <div class="hist-item" onclick="reConsultar('35260522334455000177550010000004041333333333')">
+            <div class="hist-icon">🚫</div>
+            <div class="hist-info">
+              <div class="h-chave">3526...3333</div>
+              <div class="h-desc">NF-e 000244 – Orange Sistemas → Comércio Gama · R$ 2.340,00 (Cancelada)</div>
+            </div>
+            <div class="hist-time">20/05</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let lastChave = '';
+let currentMode = 'chave';
+
+function switchSearchMode(mode, el) {
+  currentMode = mode;
+  document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['mode-chave','mode-numero','mode-cnpj'].forEach(id => {
+    document.getElementById(id).style.display = id === 'mode-' + mode ? '' : 'none';
+  });
+}
+
+function formatChave(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,44);
+  // Format: groups of 4
+  v = v.replace(/(.{4})/g,'$1 ').trim();
+  input.value = v;
+}
+
+function consultar() {
+  let chave = '';
+  if (currentMode === 'chave') {
+    chave = document.getElementById('input-chave').value.replace(/\s/g,'');
+    if (chave.length !== 44) { alert('A chave de acesso deve ter 44 dígitos.'); return; }
+  } else if (currentMode === 'numero') {
+    const num = document.getElementById('input-numero').value;
+    if (!num) { alert('Informe o número da NF-e.'); return; }
+    chave = '35260512345678000190550010000' + num.padStart(6,'0') + '00000000';
+  } else {
+    const cnpj = document.getElementById('input-cnpj-cons').value.replace(/\D/g,'');
+    if (cnpj.length !== 14) { alert('CNPJ inválido.'); return; }
+    chave = '35260512345678000190550010000001011234567890';
+  }
+
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('resultado').classList.remove('show');
+
+  setTimeout(() => {
+    document.getElementById('loading').classList.remove('show');
+    showResult(chave);
+  }, 1400);
+}
+
+function showResult(chave) {
+  lastChave = chave;
+  const isCancel = chave.includes('3333');
+  document.getElementById('res-icon').textContent   = isCancel ? '🚫' : '✅';
+  document.getElementById('res-title').textContent  = isCancel ? 'NF-e Cancelada' : 'NF-e Autorizada pelo SEFAZ';
+  document.getElementById('res-sub').textContent    = `Protocolo: 135240001234567 · Consultado em: ${new Date().toLocaleString('pt-BR')}`;
+  document.getElementById('res-chave').textContent  = chave.replace(/(.{4})/g,'$1 ').trim();
+  document.getElementById('res-badge').innerHTML    = `<span class="badge ${isCancel ? 'cancelada' : 'autorizada'}">${isCancel ? 'Cancelada' : 'Autorizada'}</span>`;
+  document.getElementById('resultado').classList.add('show');
+}
+
+function reConsultar(chave) {
+  document.getElementById('input-chave').value = chave.replace(/(.{4})/g,'$1 ').trim();
+  switchSearchMode('chave', document.querySelectorAll('.search-tab')[0]);
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('resultado').classList.remove('show');
+  setTimeout(() => {
+    document.getElementById('loading').classList.remove('show');
+    showResult(chave);
+  }, 900);
+}
+
+function copiarChave() {
+  navigator.clipboard.writeText(lastChave).then(() => alert('✅ Chave de acesso copiada para a área de transferência!'));
+}
+</script>
+</body>
+</html>

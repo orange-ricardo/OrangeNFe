@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Minha Empresa</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .tab-nav {
+      display:flex;gap:4px;margin-bottom:24px;
+      background:#fff;border-radius:10px;border:1px solid #e8eaf0;
+      padding:4px;
+    }
+    .tab-nav .t {
+      padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;
+      color:#888;cursor:pointer;transition:all 0.15s;flex:1;text-align:center;
+    }
+    .tab-nav .t.active { background:#f97316;color:#fff; }
+    .tab-nav .t:not(.active):hover { background:#f4f6f9;color:#333; }
+
+    .cert-card {
+      border:1.5px solid #e8eaf0;border-radius:10px;
+      padding:16px 20px;background:#fafbfc;
+      display:flex;align-items:center;gap:14px;margin-bottom:12px;
+    }
+    .cert-card .cert-icon { font-size:28px;flex-shrink:0; }
+    .cert-card .cert-info { flex:1; }
+    .cert-card .cert-info .cert-name { font-size:14px;font-weight:700;color:#1a1a2e; }
+    .cert-card .cert-info .cert-sub { font-size:12px;color:#aaa;margin-top:2px; }
+    .cert-card .cert-status {
+      display:inline-flex;align-items:center;gap:5px;
+      padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;
+    }
+    .cert-status.valid { background:#f0fdf4;color:#16a34a; }
+    .cert-status.expired { background:#fef2f2;color:#dc2626; }
+    .cert-status.expiring { background:#fffbeb;color:#d97706; }
+
+    .env-toggle { display:flex;gap:8px;margin-bottom:16px; }
+    .env-btn {
+      flex:1;padding:12px;border-radius:8px;border:1.5px solid #e8eaf0;
+      cursor:pointer;text-align:center;transition:all 0.15s;
+      font-size:13px;font-weight:600;
+    }
+    .env-btn.prod { color:#16a34a; }
+    .env-btn.hom  { color:#d97706; }
+    .env-btn.prod.active { background:#f0fdf4;border-color:#16a34a; }
+    .env-btn.hom.active  { background:#fffbeb;border-color:#d97706; }
+
+    .section-divider {
+      display:flex;align-items:center;gap:10px;margin:24px 0 16px;
+    }
+    .section-divider span {
+      font-size:11px;font-weight:700;color:#f97316;
+      text-transform:uppercase;letter-spacing:1px;white-space:nowrap;
+    }
+    .section-divider::before,.section-divider::after {
+      content:'';flex:1;height:1px;background:#f0f0f0;
+    }
+
+    .logo-upload {
+      border:1.5px dashed #e8eaf0;border-radius:10px;padding:28px;
+      text-align:center;background:#fafbfc;cursor:pointer;transition:all 0.15s;
+    }
+    .logo-upload:hover { border-color:#f97316;background:#fff8f3; }
+    .logo-upload .lu-icon { font-size:32px;margin-bottom:8px; }
+    .logo-upload p { font-size:13px;color:#aaa; }
+    .logo-upload p strong { color:#f97316; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="minha-empresa.html" class="nav-item active"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Minha Empresa</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn primary" onclick="salvar()">💾 Salvar alterações</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="tab-nav">
+      <div class="t active" onclick="switchTab('tab-dados-emp',this)">🏢 Dados da Empresa</div>
+      <div class="t" onclick="switchTab('tab-certificado',this)">🔐 Certificado Digital</div>
+      <div class="t" onclick="switchTab('tab-nfe-config',this)">📄 Config. NF-e</div>
+      <div class="t" onclick="switchTab('tab-logo',this)">🖼 Logo / DANFE</div>
+    </div>
+
+    <!-- DADOS DA EMPRESA -->
+    <div id="tab-dados-emp">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Identificação</div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>CNPJ</label>
+            <input type="text" value="12.345.678/0001-90" id="e-cnpj"/>
+          </div>
+          <div class="form-group">
+            <label>Inscrição Estadual</label>
+            <input type="text" value="123.456.789.110" id="e-ie"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Razão Social</label>
+            <input type="text" value="Orange Sistemas Ltda" id="e-razao"/>
+          </div>
+          <div class="form-group">
+            <label>Nome Fantasia</label>
+            <input type="text" value="OrangeNFe" id="e-fantasia"/>
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Inscrição Municipal</label>
+            <input type="text" placeholder="Número" id="e-im"/>
+          </div>
+          <div class="form-group">
+            <label>CNAE Principal</label>
+            <input type="text" value="6201-5/01" id="e-cnae"/>
+          </div>
+          <div class="form-group">
+            <label>Regime Tributário</label>
+            <select id="e-regime">
+              <option value="1" selected>1 – Simples Nacional</option>
+              <option value="2">2 – Simples Nacional – Excesso</option>
+              <option value="3">3 – Regime Normal</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Endereço</div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>CEP</label>
+            <input type="text" value="01310-100" id="e-cep"/>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Logradouro</label>
+            <input type="text" value="Avenida Paulista" id="e-end"/>
+          </div>
+        </div>
+        <div class="form-row cols-4">
+          <div class="form-group">
+            <label>Número</label>
+            <input type="text" value="1000" id="e-num"/>
+          </div>
+          <div class="form-group">
+            <label>Complemento</label>
+            <input type="text" value="Sala 501" id="e-comp"/>
+          </div>
+          <div class="form-group">
+            <label>Bairro</label>
+            <input type="text" value="Bela Vista" id="e-bairro"/>
+          </div>
+          <div class="form-group">
+            <label>Município</label>
+            <input type="text" value="São Paulo" id="e-municipio"/>
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>UF</label>
+            <select id="e-uf">
+              <option selected>SP</option><option>RJ</option><option>MG</option>
+              <option>RS</option><option>PR</option><option>SC</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Código IBGE do Município</label>
+            <input type="text" value="3550308" id="e-ibge"/>
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" value="(11) 4321-5678" id="e-tel"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Contato e Responsável</div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>E-mail da Empresa</label>
+            <input type="email" value="contato@orangenfe.com.br" id="e-email"/>
+          </div>
+          <div class="form-group">
+            <label>E-mail para NF-e / Alertas</label>
+            <input type="email" value="nfe@orangenfe.com.br" id="e-email-nfe"/>
+          </div>
+          <div class="form-group">
+            <label>Responsável Fiscal</label>
+            <input type="text" value="Ricardo Barbosa" id="e-resp"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CERTIFICADO DIGITAL -->
+    <div id="tab-certificado" style="display:none">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Certificado A1 instalado</div>
+
+        <div class="cert-card">
+          <div class="cert-icon">🔐</div>
+          <div class="cert-info">
+            <div class="cert-name">ORANGE SISTEMAS LTDA:12345678000190</div>
+            <div class="cert-sub">Emitido por: AC SAFEWEB RFB v5 • Série: 07B4F2A103</div>
+            <div class="cert-sub">Validade: 15/03/2027 • Tipo: A1 (PFX)</div>
+          </div>
+          <span class="cert-status valid">✓ Válido</span>
+        </div>
+
+        <div class="section-divider"><span>Trocar certificado</span></div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Arquivo .PFX / .P12</label>
+            <input type="file" accept=".pfx,.p12" id="cert-file"/>
+          </div>
+          <div class="form-group">
+            <label>Senha do certificado</label>
+            <input type="password" id="cert-senha" placeholder="Digite a senha"/>
+          </div>
+        </div>
+        <button class="btn primary" onclick="instalarCert()" style="margin-top:4px">🔐 Instalar certificado</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ambiente SEFAZ</div>
+        <div class="env-toggle">
+          <div class="env-btn prod active" onclick="setAmbiente('prod', this)">
+            <div style="font-size:20px;margin-bottom:4px;">✅</div>
+            Produção
+            <div style="font-size:11px;font-weight:400;margin-top:2px;">Notas válidas com valor legal</div>
+          </div>
+          <div class="env-btn hom" onclick="setAmbiente('hom', this)">
+            <div style="font-size:20px;margin-bottom:4px;">🧪</div>
+            Homologação
+            <div style="font-size:11px;font-weight:400;margin-top:2px;">Apenas para testes</div>
+          </div>
+        </div>
+        <div style="padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:13px;color:#16a34a;font-weight:600;">
+          ✅ Conexão com SEFAZ ativa — Último teste: 23/05/2026 às 14:32
+        </div>
+        <button class="btn secondary" onclick="testarConexao()" style="margin-top:12px">🔄 Testar conexão</button>
+      </div>
+    </div>
+
+    <!-- CONFIG NF-e -->
+    <div id="tab-nfe-config" style="display:none">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Séries e Numeração</div>
+        <div class="form-row cols-4">
+          <div class="form-group">
+            <label>Série NF-e</label>
+            <input type="number" value="1" min="1" max="999"/>
+          </div>
+          <div class="form-group">
+            <label>Próximo Nº NF-e</label>
+            <input type="number" value="248" min="1"/>
+          </div>
+          <div class="form-group">
+            <label>Série NFS-e</label>
+            <input type="number" value="1" min="1"/>
+          </div>
+          <div class="form-group">
+            <label>Próximo Nº NFS-e</label>
+            <input type="number" value="89" min="1"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Padrões de Emissão</div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>CFOP Padrão (saída)</label>
+            <input type="text" value="5102"/>
+          </div>
+          <div class="form-group">
+            <label>CST / CSOSN Padrão</label>
+            <select>
+              <option selected>102 – Simples Nacional</option>
+              <option>400 – Isento</option>
+              <option>500 – Com crédito</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Modalidade de Frete Padrão</label>
+            <select>
+              <option value="9" selected>9 – Sem frete</option>
+              <option value="0">0 – Emitente (CIF)</option>
+              <option value="1">1 – Destinatário (FOB)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Alíquota ICMS padrão (%)</label>
+            <input type="number" value="12" step="0.01"/>
+          </div>
+          <div class="form-group">
+            <label>Info. adicional padrão</label>
+            <input type="text" placeholder="Texto que aparece em todas as notas" value="Documento emitido por ME/EPP optante pelo Simples Nacional"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">E-mail automático</div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;">
+              <input type="checkbox" checked style="width:auto"/>
+              Enviar XML + DANFE ao destinatário após emissão
+            </label>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;">
+              <input type="checkbox" checked style="width:auto"/>
+              Notificar por e-mail sobre cancelamentos e inutilizações
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Texto de e-mail padrão</label>
+          <textarea style="min-height:80px;">Prezado(a) cliente, segue em anexo a Nota Fiscal Eletrônica referente à sua compra. Qualquer dúvida, entre em contato.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGO -->
+    <div id="tab-logo" style="display:none">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Logotipo da Empresa</div>
+        <div class="logo-upload" onclick="document.getElementById('logo-input').click()">
+          <div class="lu-icon">🖼</div>
+          <p><strong>Clique para enviar</strong> ou arraste sua logo aqui</p>
+          <p style="margin-top:4px;font-size:11px;">PNG, JPG ou SVG · máx. 2MB · Recomendado: 300×100 px</p>
+          <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="previewLogo(this)"/>
+        </div>
+        <div id="logo-preview" style="display:none;margin-top:12px;text-align:center;">
+          <img id="logo-img" style="max-height:80px;border-radius:8px;border:1px solid #e8eaf0;padding:8px;"/>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Personalização do DANFE</div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Cor primária do DANFE</label>
+            <input type="color" value="#f97316" style="height:40px;cursor:pointer;"/>
+          </div>
+          <div class="form-group">
+            <label>Fonte do DANFE</label>
+            <select>
+              <option>Arial (padrão)</option>
+              <option>Helvetica</option>
+              <option>Times New Roman</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;">
+              <input type="checkbox" checked style="width:auto"/>
+              Exibir logo no DANFE
+            </label>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;">
+              <input type="checkbox" style="width:auto"/>
+              Imprimir em paisagem (A4 horizontal)
+            </label>
+          </div>
+        </div>
+        <button class="btn secondary" onclick="alert('DANFE de exemplo gerado!')">👁 Visualizar DANFE de exemplo</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-nav .t').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-dados-emp','tab-certificado','tab-nfe-config','tab-logo'].forEach(t => {
+    document.getElementById(t).style.display = t === id ? '' : 'none';
+  });
+}
+
+function setAmbiente(amb, btn) {
+  document.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function instalarCert() {
+  const f = document.getElementById('cert-file').files[0];
+  const s = document.getElementById('cert-senha').value;
+  if (!f) { alert('Selecione o arquivo .PFX.'); return; }
+  if (!s) { alert('Informe a senha do certificado.'); return; }
+  alert('✅ Certificado instalado com sucesso!\n\nVigência: até 15/03/2027');
+}
+
+function testarConexao() {
+  const btn = event.target;
+  btn.textContent = '🔄 Testando...';
+  setTimeout(() => {
+    btn.textContent = '🔄 Testar conexão';
+    alert('✅ Conexão com SEFAZ OK!\nLatência: 42ms');
+  }, 1500);
+}
+
+function previewLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('logo-img').src = e.target.result;
+    document.getElementById('logo-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function salvar() {
+  alert('✅ Dados da empresa salvos com sucesso!');
+}
+</script>
+</body>
+</html>

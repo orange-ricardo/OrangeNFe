@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Notas Recebidas</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
+    .filters input,.filters select {
+      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+    }
+    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
+    .filters input[type=text] { min-width:260px; }
+
+    .summary-strip { display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap; }
+    .sum-chip {
+      display:flex;align-items:center;gap:5px;padding:5px 12px;
+      border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+      border:1.5px solid transparent;transition:all 0.15s;white-space:nowrap;
+    }
+    .sum-chip.all    { background:#f4f6f9;color:#555; }
+    .sum-chip.auth   { background:#f0fdf4;color:#16a34a;border-color:#bbf7d0; }
+    .sum-chip.pend   { background:#fffbeb;color:#d97706;border-color:#fde68a; }
+    .sum-chip.man    { background:#eff6ff;color:#2563eb;border-color:#bfdbfe; }
+    .sum-chip.active-filter { box-shadow:0 0 0 2px #f97316; }
+
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:6px 12px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;text-decoration:none;
+    }
+    .tb-btn:hover { background:#f4f6f9; }
+    .tb-btn.orange { background:#f97316;color:#fff;border-color:#f97316; }
+    .tb-btn.orange:hover { background:#ea6c0a; }
+
+    .manifest-btn {
+      display:inline-flex;align-items:center;gap:4px;padding:4px 10px;
+      border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;
+      border:none;transition:all 0.15s;
+    }
+    .manifest-btn.confirm { background:#f0fdf4;color:#16a34a; }
+    .manifest-btn.confirm:hover { background:#dcfce7; }
+    .manifest-btn.deny    { background:#fef2f2;color:#dc2626; }
+    .manifest-btn.deny:hover    { background:#fee2e2; }
+    .manifest-btn.unknown { background:#fffbeb;color:#d97706; }
+    .manifest-btn.unknown:hover { background:#fef3c7; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item active"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Notas Recebidas</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn ghost" onclick="sincronizar()">🔄 Sincronizar SEFAZ</button>
+      <button class="topbar-btn primary" onclick="importarXML()">⬆ Importar XML</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="summary-strip">
+      <div class="sum-chip all active-filter" onclick="filtrarStatus('',this)">📥 Todas (28)</div>
+      <div class="sum-chip auth" onclick="filtrarStatus('confirmada',this)">✅ Confirmadas (18)</div>
+      <div class="sum-chip pend" onclick="filtrarStatus('pendente',this)">⏳ Sem manifestação (7)</div>
+      <div class="sum-chip man" onclick="filtrarStatus('desconhecida',this)">❓ Desconhecida (2)</div>
+      <div class="sum-chip" style="background:#fef2f2;color:#dc2626;border-color:#fecaca;" onclick="filtrarStatus('negada',this)">🚫 Negadas (1)</div>
+    </div>
+
+    <div class="filters">
+      <input type="text" id="search-input" placeholder="🔍  Buscar por emitente, chave ou número..." oninput="filtrar()"/>
+      <select id="periodo-filter" onchange="filtrar()">
+        <option value="">Todos os períodos</option>
+        <option value="7">Últimos 7 dias</option>
+        <option value="30">Últimos 30 dias</option>
+        <option value="90">Últimos 3 meses</option>
+      </select>
+      <select id="uf-filter" onchange="filtrar()">
+        <option value="">Todos os estados</option>
+        <option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option>
+      </select>
+      <div style="flex:1"></div>
+      <span id="count-label" style="font-size:12px;color:#aaa;font-weight:600;"></span>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f8f9fc;border-bottom:1px solid #f0f0f0;gap:8px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;">
+          <button class="tb-btn" onclick="exportarTodos()">⬇ Exportar XMLs selecionados</button>
+          <button class="tb-btn" onclick="manifestarTodos('confirmada')">✅ Confirmar selecionados</button>
+        </div>
+        <span id="sel-info" style="font-size:12px;color:#aaa;"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="recebidas-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"/></th>
+              <th>Chave NF-e</th>
+              <th>Emitente</th>
+              <th>Nº / Série</th>
+              <th>Emissão</th>
+              <th>Valor Total</th>
+              <th>Situação SEFAZ</th>
+              <th>Manifestação</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="recebidas-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let statusFilter = '';
+const notas = [
+  { id:1, chave:'35260512345678000190550010000001011234567890', emitente:'Distribuidora ABC Ltda', uf:'SP', num:'101', serie:'1', data:'23/05/2026', valor:4520.80, sit:'autorizada', manifest:'confirmada' },
+  { id:2, chave:'35260598765432000118550010000002021111111111', emitente:'Indústria XYZ S.A.', uf:'SP', num:'205', serie:'1', data:'22/05/2026', valor:18200.00, sit:'autorizada', manifest:'pendente' },
+  { id:3, chave:'35260511223344000155550010000003031222222222', emitente:'Fornecedora Beta Ltda', uf:'RJ', num:'44', serie:'1', data:'21/05/2026', valor:890.50, sit:'autorizada', manifest:'confirmada' },
+  { id:4, chave:'31260522334455000177550010000004041333333333', emitente:'Comércio Gama ME', uf:'MG', num:'312', serie:'1', data:'20/05/2026', valor:2340.00, sit:'autorizada', manifest:'desconhecida' },
+  { id:5, chave:'35260533445566000199550010000005051444444444', emitente:'Atacado Delta Ltda', uf:'SP', num:'88', serie:'2', data:'19/05/2026', valor:7650.30, sit:'autorizada', manifest:'pendente' },
+  { id:6, chave:'41260544556677000111550010000006061555555555', emitente:'Revenda Épsilon', uf:'PR', num:'19', serie:'1', data:'18/05/2026', valor:450.00, sit:'autorizada', manifest:'negada' },
+  { id:7, chave:'35260555667788000133550010000007071666666666', emitente:'Tech Supplies Ltda', uf:'SP', num:'560', serie:'1', data:'17/05/2026', valor:12400.00, sit:'autorizada', manifest:'confirmada' },
+];
+
+let statusFiltro = '';
+
+function manifestChip(m) {
+  const cfg = {
+    confirmada: { cls:'badge autorizada', text:'Confirmada' },
+    pendente:   { cls:'badge pendente',   text:'Sem manifest.' },
+    desconhecida: { cls:'badge rejeitada', text:'Desconhecida' },
+    negada:     { cls:'badge cancelada',  text:'Negada' },
+  };
+  return cfg[m] ? `<span class="${cfg[m].cls}">${cfg[m].text}</span>` : '—';
+}
+
+function render(data) {
+  const tbody = document.getElementById('recebidas-body');
+  document.getElementById('count-label').textContent = data.length + ' nota' + (data.length !== 1 ? 's' : '');
+  tbody.innerHTML = data.map(n => `
+    <tr>
+      <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
+      <td style="font-family:monospace;font-size:10px;color:#aaa;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${n.chave}">${n.chave.substring(0,20)}...</td>
+      <td>
+        <div style="font-weight:600;color:#1a1a2e">${n.emitente}</div>
+        <div style="font-size:11px;color:#aaa">UF: ${n.uf}</div>
+      </td>
+      <td style="font-family:monospace;font-size:12px">Nº ${n.num} / ${n.serie}</td>
+      <td style="color:#555;font-size:12px">${n.data}</td>
+      <td style="font-weight:700;color:#1a1a2e">R$ ${n.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+      <td><span class="badge autorizada">Autorizada</span></td>
+      <td>
+        ${n.manifest === 'pendente' ? `
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="manifest-btn confirm" onclick="manifestar(${n.id},'confirmada')">✅ Confirmar</button>
+            <button class="manifest-btn unknown" onclick="manifestar(${n.id},'desconhecida')">❓</button>
+            <button class="manifest-btn deny" onclick="manifestar(${n.id},'negada')">🚫</button>
+          </div>` : manifestChip(n.manifest)}
+      </td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="tb-btn" onclick="baixarXML(${n.id})" title="Baixar XML">⬇</button>
+          <button class="tb-btn" onclick="verDanfe(${n.id})" title="DANFE">👁</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filtrar() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const uf = document.getElementById('uf-filter').value;
+  const r = notas.filter(n =>
+    (!statusFiltro || n.manifest === statusFiltro ||
+      (statusFiltro === 'confirmada' && n.manifest === 'confirmada') ||
+      (statusFiltro === 'pendente' && n.manifest === 'pendente')) &&
+    (!q || n.emitente.toLowerCase().includes(q) || n.chave.includes(q) || n.num.includes(q)) &&
+    (!uf || n.uf === uf)
+  );
+  render(r);
+}
+
+function filtrarStatus(s, el) {
+  statusFiltro = s;
+  document.querySelectorAll('.sum-chip').forEach(c => c.classList.remove('active-filter'));
+  el.classList.add('active-filter');
+  filtrar();
+}
+
+function manifestar(id, tipo) {
+  const n = notas.find(x => x.id === id);
+  if (!n) return;
+  const labels = { confirmada:'Confirmada ✅', desconhecida:'Desconhecida ❓', negada:'Negada 🚫' };
+  if (confirm(`Manifestar nota Nº ${n.num} como "${labels[tipo]}"?\nEsta ação será enviada ao SEFAZ.`)) {
+    n.manifest = tipo;
+    filtrar();
+  }
+}
+
+function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c => c.checked = cb.checked); updateSel(); }
+function updateSel() {
+  const n = document.querySelectorAll('.row-chk:checked').length;
+  document.getElementById('sel-info').textContent = n > 0 ? n + ' selecionado(s)' : '';
+}
+
+function sincronizar() { alert('🔄 Sincronizando notas recebidas com SEFAZ...\n\nNenhuma nota nova encontrada.'); }
+function importarXML() { alert('Selecione um arquivo XML para importar.'); }
+function baixarXML(id) { alert(`Download XML da nota ${notas.find(x=>x.id===id).num}.xml`); }
+function verDanfe(id) { alert(`Abrindo DANFE da nota ${notas.find(x=>x.id===id).num}...`); }
+function exportarTodos() { alert('Exportando XMLs selecionados...'); }
+function manifestarTodos(tipo) {
+  const sels = document.querySelectorAll('.row-chk:checked').length;
+  if (sels === 0) { alert('Selecione ao menos uma nota.'); return; }
+  if (confirm(`Confirmar ${sels} nota(s) selecionada(s) como "Confirmada"?`)) {
+    alert('✅ Manifestação enviada ao SEFAZ com sucesso!');
+  }
+}
+
+filtrar();
+</script>
+</body>
+</html>

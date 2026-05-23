@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Produtos</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
+    .filters input,.filters select {
+      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+    }
+    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
+    .filters input[type=text] { min-width:280px; }
+
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:6px 12px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;text-decoration:none;
+    }
+    .tb-btn:hover { background:#f4f6f9; }
+    .tb-btn.orange { background:#f97316;color:#fff;border-color:#f97316; }
+    .tb-btn.orange:hover { background:#ea6c0a; }
+
+    .estoque-badge {
+      display:inline-flex;align-items:center;gap:4px;
+      padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;
+    }
+    .estoque-badge.ok     { background:#f0fdf4;color:#16a34a; }
+    .estoque-badge.low    { background:#fffbeb;color:#d97706; }
+    .estoque-badge.out    { background:#fef2f2;color:#dc2626; }
+
+    /* MODAL */
+    .modal-overlay {
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+      z-index:1000;align-items:center;justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:#fff;border-radius:14px;width:700px;max-width:95vw;
+      max-height:90vh;overflow-y:auto;
+      box-shadow:0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:20px 24px;border-bottom:1px solid #f0f0f0;
+    }
+    .modal-header h2 { font-size:15px;font-weight:800;color:#1a1a2e; }
+    .modal-close { background:none;border:none;font-size:20px;cursor:pointer;color:#aaa; }
+    .modal-body { padding:24px; }
+    .modal-footer { padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px; }
+
+    .tab-strip { display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px; }
+    .tab-strip .tab {
+      padding:8px 16px;font-size:13px;font-weight:600;color:#aaa;cursor:pointer;
+      border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;
+    }
+    .tab-strip .tab.active { color:#f97316;border-bottom-color:#f97316; }
+
+    .imposto-grid { display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item active"><span class="ni">📦</span> Produtos</a>
+  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Produtos / Serviços</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn primary" onclick="openModal()">＋ Novo Produto</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="filters">
+      <input type="text" id="search-input" placeholder="🔍  Buscar por código, descrição ou NCM..." oninput="filtrar()"/>
+      <select id="tipo-filter" onchange="filtrar()">
+        <option value="">Todos os tipos</option>
+        <option value="produto">Produto</option>
+        <option value="servico">Serviço</option>
+      </select>
+      <select id="categ-filter" onchange="filtrar()">
+        <option value="">Todas as categorias</option>
+        <option>Alimentos</option>
+        <option>Bebidas</option>
+        <option>Limpeza</option>
+        <option>Informática</option>
+        <option>Vestuário</option>
+        <option>Outros</option>
+      </select>
+      <div style="flex:1"></div>
+      <span id="count-label" style="font-size:12px;color:#aaa;font-weight:600;"></span>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f8f9fc;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;gap:6px;">
+          <button class="tb-btn" onclick="exportarCSV()">⬇ Exportar CSV</button>
+          <button class="tb-btn">⬆ Importar</button>
+        </div>
+        <span id="sel-info" style="font-size:12px;color:#aaa;"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="produtos-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"/></th>
+              <th>Código</th>
+              <th>Descrição</th>
+              <th>NCM</th>
+              <th>CFOP</th>
+              <th>Unid.</th>
+              <th>Valor Venda</th>
+              <th>Estoque</th>
+              <th>Categoria</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="produtos-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-produto">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-titulo">Novo Produto</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-strip">
+        <div class="tab active" onclick="modalTab('tab-geral',this)">Geral</div>
+        <div class="tab" onclick="modalTab('tab-fiscal-p',this)">Fiscal</div>
+        <div class="tab" onclick="modalTab('tab-estoque',this)">Estoque</div>
+        <div class="tab" onclick="modalTab('tab-precos',this)">Preços</div>
+      </div>
+
+      <!-- GERAL -->
+      <div id="tab-geral">
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Código Interno</label>
+            <input type="text" id="m-codigo" placeholder="SKU001"/>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Descrição do Produto / Serviço</label>
+            <input type="text" id="m-descricao" placeholder="Nome completo para a NF-e"/>
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="m-tipo-p">
+              <option value="produto">Produto</option>
+              <option value="servico">Serviço</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="m-categ">
+              <option>Alimentos</option><option>Bebidas</option>
+              <option>Limpeza</option><option>Informática</option>
+              <option>Vestuário</option><option>Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Unidade</label>
+            <select id="m-unid">
+              <option>UN</option><option>PC</option><option>CX</option>
+              <option>KG</option><option>MT</option><option>LT</option>
+              <option>DZ</option><option>M2</option><option>M3</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Informações Complementares</label>
+            <textarea id="m-info" placeholder="Observações ou detalhes adicionais do produto..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- FISCAL -->
+      <div id="tab-fiscal-p" style="display:none">
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>NCM</label>
+            <input type="text" id="m-ncm" placeholder="0000.00.00"/>
+          </div>
+          <div class="form-group">
+            <label>CFOP (saída)</label>
+            <input type="text" id="m-cfop" placeholder="5102"/>
+          </div>
+          <div class="form-group">
+            <label>CEST</label>
+            <input type="text" id="m-cest" placeholder="00.000.00"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Código de Barras (EAN)</label>
+            <input type="text" id="m-ean" placeholder="7891000000000"/>
+          </div>
+          <div class="form-group">
+            <label>Origem da Mercadoria</label>
+            <select id="m-origem">
+              <option value="0">0 – Nacional</option>
+              <option value="1">1 – Estrangeira (importação direta)</option>
+              <option value="2">2 – Estrangeira (adquirida no mercado interno)</option>
+              <option value="3">3 – Nacional com mais de 40% importado</option>
+            </select>
+          </div>
+        </div>
+        <div class="imposto-grid" style="margin-top:8px;">
+          <div class="form-group">
+            <label>CST / CSOSN (ICMS)</label>
+            <select id="m-cst-icms">
+              <option value="102">102 – Simples Nacional</option>
+              <option value="400">400 – Isento</option>
+              <option value="500">500 – Com crédito</option>
+              <option value="900">900 – Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CST PIS</label>
+            <select id="m-cst-pis">
+              <option value="01">01 – Tributável cumulativo</option>
+              <option value="07">07 – Isento</option>
+              <option value="49">49 – Outras</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CST COFINS</label>
+            <select id="m-cst-cof">
+              <option value="01">01 – Tributável cumulativo</option>
+              <option value="07">07 – Isento</option>
+              <option value="49">49 – Outras</option>
+            </select>
+          </div>
+        </div>
+        <div class="imposto-grid" style="margin-top:8px;">
+          <div class="form-group">
+            <label>Alíquota ICMS (%)</label>
+            <input type="number" id="m-aliq-icms" value="12" step="0.01"/>
+          </div>
+          <div class="form-group">
+            <label>Alíquota PIS (%)</label>
+            <input type="number" id="m-aliq-pis" value="0.65" step="0.01"/>
+          </div>
+          <div class="form-group">
+            <label>Alíquota COFINS (%)</label>
+            <input type="number" id="m-aliq-cof" value="3" step="0.01"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTOQUE -->
+      <div id="tab-estoque" style="display:none">
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Estoque Atual</label>
+            <input type="number" id="m-estoque" placeholder="0" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Estoque Mínimo</label>
+            <input type="number" id="m-estoque-min" placeholder="0" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Estoque Máximo</label>
+            <input type="number" id="m-estoque-max" placeholder="0" min="0"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Localização no Estoque</label>
+            <input type="text" id="m-localizacao" placeholder="ex: Prateleira A3"/>
+          </div>
+          <div class="form-group">
+            <label>Fornecedor Principal</label>
+            <input type="text" id="m-fornecedor" placeholder="Nome do fornecedor"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREÇOS -->
+      <div id="tab-precos" style="display:none">
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Custo (R$)</label>
+            <input type="number" id="m-custo" value="0.00" step="0.01"/>
+          </div>
+          <div class="form-group">
+            <label>Preço de Venda (R$)</label>
+            <input type="number" id="m-preco" value="0.00" step="0.01" oninput="calcMargemP()"/>
+          </div>
+          <div class="form-group">
+            <label>Margem (%)</label>
+            <input type="number" id="m-margem" value="0" step="0.01" readonly style="background:#f0f0f0"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Desconto Máximo (%)</label>
+            <input type="number" id="m-desc-max" value="5" step="0.01"/>
+          </div>
+          <div class="form-group">
+            <label>Preço Atacado (R$)</label>
+            <input type="number" id="m-preco-atac" value="0.00" step="0.01"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="salvarProduto()">💾 Salvar produto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let produtos = [
+  { id:1, codigo:'SKU001', descricao:'Arroz Tipo 1 – 5kg', ncm:'1006.30.21', cfop:'5102', unid:'SC', preco:22.90, estoque:150, estoqueMin:20, tipo:'produto', categ:'Alimentos' },
+  { id:2, codigo:'SKU002', descricao:'Feijão Carioca – 1kg', ncm:'0713.33.19', cfop:'5102', unid:'KG', preco:8.50, estoque:300, estoqueMin:50, tipo:'produto', categ:'Alimentos' },
+  { id:3, codigo:'SKU003', descricao:'Notebook Samsung Galaxy Book2 Pro', ncm:'8471.30.12', cfop:'5102', unid:'UN', preco:4299.00, estoque:5, estoqueMin:2, tipo:'produto', categ:'Informática' },
+  { id:4, codigo:'SKU004', descricao:'Detergente Líquido 500ml', ncm:'3402.20.00', cfop:'5102', unid:'UN', preco:2.99, estoque:0, estoqueMin:30, tipo:'produto', categ:'Limpeza' },
+  { id:5, codigo:'SRV001', descricao:'Instalação e Configuração de Rede', ncm:'', cfop:'5933', unid:'SV', preco:350.00, estoque:null, estoqueMin:null, tipo:'servico', categ:'Outros' },
+  { id:6, codigo:'SKU005', descricao:'Camiseta Polo Masculina GG', ncm:'6105.10.00', cfop:'5102', unid:'UN', preco:89.90, estoque:40, estoqueMin:10, tipo:'produto', categ:'Vestuário' },
+];
+
+let editingId = null;
+
+function estoqueStatus(p) {
+  if (p.tipo === 'servico') return '';
+  if (p.estoque === 0) return '<span class="estoque-badge out">Sem estoque</span>';
+  if (p.estoque <= p.estoqueMin) return `<span class="estoque-badge low">${p.estoque} (baixo)</span>`;
+  return `<span class="estoque-badge ok">${p.estoque}</span>`;
+}
+
+function render(data) {
+  const tbody = document.getElementById('produtos-body');
+  document.getElementById('count-label').textContent = data.length + ' produto' + (data.length !== 1 ? 's' : '');
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
+      <td style="font-family:monospace;font-size:12px;color:#555">${p.codigo}</td>
+      <td><div style="font-weight:600;color:#1a1a2e">${p.descricao}</div></td>
+      <td style="font-family:monospace;font-size:12px;color:#888">${p.ncm || '—'}</td>
+      <td style="font-family:monospace;font-size:12px;color:#888">${p.cfop}</td>
+      <td style="color:#555">${p.unid}</td>
+      <td style="font-weight:700;color:#1a1a2e">R$ ${p.preco.toFixed(2).replace('.',',')}</td>
+      <td>${estoqueStatus(p)}</td>
+      <td><span style="font-size:11px;color:#aaa">${p.categ}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="tb-btn" onclick="editarProduto(${p.id})" title="Editar">✏️</button>
+          <button class="tb-btn" onclick="excluirProduto(${p.id})" title="Excluir" style="color:#dc2626">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filtrar() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const tipo = document.getElementById('tipo-filter').value;
+  const categ = document.getElementById('categ-filter').value;
+  const r = produtos.filter(p =>
+    (!q || p.descricao.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q) || p.ncm.includes(q)) &&
+    (!tipo || p.tipo === tipo) &&
+    (!categ || p.categ === categ)
+  );
+  render(r);
+}
+
+function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c => c.checked = cb.checked); updateSel(); }
+function updateSel() {
+  const n = document.querySelectorAll('.row-chk:checked').length;
+  document.getElementById('sel-info').textContent = n > 0 ? n + ' selecionado(s)' : '';
+}
+
+function openModal(id) {
+  editingId = id || null;
+  document.getElementById('modal-titulo').textContent = id ? 'Editar Produto' : 'Novo Produto';
+  document.getElementById('modal-produto').classList.add('open');
+  if (id) {
+    const p = produtos.find(x => x.id === id);
+    if (p) {
+      document.getElementById('m-codigo').value = p.codigo;
+      document.getElementById('m-descricao').value = p.descricao;
+      document.getElementById('m-tipo-p').value = p.tipo;
+      document.getElementById('m-categ').value = p.categ;
+      document.getElementById('m-unid').value = p.unid;
+      document.getElementById('m-ncm').value = p.ncm;
+      document.getElementById('m-cfop').value = p.cfop;
+      document.getElementById('m-preco').value = p.preco;
+      document.getElementById('m-estoque').value = p.estoque ?? '';
+      document.getElementById('m-estoque-min').value = p.estoqueMin ?? '';
+    }
+  }
+}
+function closeModal() { document.getElementById('modal-produto').classList.remove('open'); }
+
+function modalTab(id, el) {
+  document.querySelectorAll('.tab-strip .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-geral','tab-fiscal-p','tab-estoque','tab-precos'].forEach(t => {
+    document.getElementById(t).style.display = t === id ? '' : 'none';
+  });
+}
+
+function calcMargemP() {
+  const custo = parseFloat(document.getElementById('m-custo').value) || 0;
+  const preco = parseFloat(document.getElementById('m-preco').value) || 0;
+  document.getElementById('m-margem').value = custo > 0 ? (((preco - custo) / custo) * 100).toFixed(2) : 0;
+}
+
+function salvarProduto() {
+  const desc = document.getElementById('m-descricao').value.trim();
+  if (!desc) { alert('Informe a descrição do produto.'); return; }
+  const novo = {
+    id: editingId || (Math.max(0,...produtos.map(p=>p.id))+1),
+    codigo: document.getElementById('m-codigo').value,
+    descricao: desc,
+    ncm: document.getElementById('m-ncm').value,
+    cfop: document.getElementById('m-cfop').value || '5102',
+    unid: document.getElementById('m-unid').value,
+    preco: parseFloat(document.getElementById('m-preco').value) || 0,
+    estoque: parseInt(document.getElementById('m-estoque').value) || 0,
+    estoqueMin: parseInt(document.getElementById('m-estoque-min').value) || 0,
+    tipo: document.getElementById('m-tipo-p').value,
+    categ: document.getElementById('m-categ').value,
+  };
+  if (editingId) {
+    const i = produtos.findIndex(p => p.id === editingId);
+    produtos[i] = novo;
+  } else {
+    produtos.push(novo);
+  }
+  closeModal();
+  filtrar();
+}
+
+function editarProduto(id) { openModal(id); }
+function excluirProduto(id) {
+  const p = produtos.find(x => x.id === id);
+  if (confirm(`Excluir produto "${p.descricao}"?`)) {
+    produtos = produtos.filter(x => x.id !== id);
+    filtrar();
+  }
+}
+
+function exportarCSV() {
+  const header = 'Código,Descrição,NCM,CFOP,Unid,Preço,Estoque,Categoria';
+  const rows = produtos.map(p => `"${p.codigo}","${p.descricao}","${p.ncm}","${p.cfop}","${p.unid}","${p.preco}","${p.estoque ?? ''}","${p.categ}"`);
+  const csv = [header,...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='produtos.csv'; a.click();
+}
+
+filtrar();
+document.getElementById('modal-produto').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-produto')) closeModal();
+});
+</script>
+</body>
+</html>

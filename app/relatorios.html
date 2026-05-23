@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Relatórios</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .report-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px; }
+
+    .report-card {
+      background:#fff;border-radius:12px;border:1.5px solid #e8eaf0;
+      padding:20px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;gap:10px;
+    }
+    .report-card:hover { border-color:#f97316;box-shadow:0 4px 16px rgba(249,115,22,0.1); transform:translateY(-1px); }
+    .report-card .rc-icon {
+      width:44px;height:44px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;font-size:20px;
+    }
+    .report-card h3 { font-size:14px;font-weight:700;color:#1a1a2e; }
+    .report-card p { font-size:12px;color:#aaa;line-height:1.5; }
+    .report-card .rc-footer {
+      margin-top:auto;padding-top:10px;border-top:1px solid #f5f5f5;
+      display:flex;align-items:center;gap:6px;
+      font-size:12px;font-weight:600;color:#f97316;
+    }
+
+    .period-bar {
+      display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px;
+    }
+    .period-btn {
+      padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;
+      border:1.5px solid #e8eaf0;background:#fff;color:#555;cursor:pointer;transition:all 0.15s;
+    }
+    .period-btn.active { background:#f97316;color:#fff;border-color:#f97316; }
+    .period-btn:not(.active):hover { background:#f4f6f9; }
+
+    /* MINI CHARTS */
+    .bar-chart { display:flex;align-items:flex-end;gap:6px;height:100px;padding-top:8px; }
+    .bar-col { flex:1;display:flex;flex-direction:column;align-items:center;gap:4px; }
+    .bar { width:100%;border-radius:4px 4px 0 0;transition:opacity 0.15s;cursor:default; }
+    .bar:hover { opacity:0.8; }
+    .bar-label { font-size:10px;color:#bbb;white-space:nowrap; }
+    .bar-val { font-size:10px;color:#888;font-weight:600; }
+
+    .top-table td { font-size:13px; }
+    .top-rank {
+      width:22px;height:22px;border-radius:50%;background:#f97316;color:#fff;
+      font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    }
+
+    .export-strip {
+      display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;
+    }
+    .export-btn {
+      display:flex;align-items:center;gap:6px;padding:8px 16px;
+      border:1.5px solid #e8eaf0;border-radius:8px;font-size:12px;font-weight:600;
+      cursor:pointer;background:#fff;color:#555;transition:all 0.15s;
+    }
+    .export-btn:hover { background:#f4f6f9;border-color:#d0d3db; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item active"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Relatórios</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn ghost" onclick="gerarRelatorio()">📊 Gerar relatório</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- RELATÓRIOS RÁPIDOS -->
+    <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Relatórios Rápidos</div>
+    <div class="report-grid">
+      <div class="report-card" onclick="alert('Abrindo relatório de vendas...')">
+        <div class="rc-icon" style="background:#fff5ee">📈</div>
+        <h3>Vendas por período</h3>
+        <p>Total emitido, quantidade de notas, ticket médio e comparativo com período anterior.</p>
+        <div class="rc-footer">Gerar relatório →</div>
+      </div>
+      <div class="report-card" onclick="alert('Abrindo relatório por cliente...')">
+        <div class="rc-icon" style="background:#eff6ff">👥</div>
+        <h3>Vendas por cliente</h3>
+        <p>Ranking de clientes por volume de compras, frequência e valor total no período.</p>
+        <div class="rc-footer">Gerar relatório →</div>
+      </div>
+      <div class="report-card" onclick="alert('Abrindo relatório por produto...')">
+        <div class="rc-icon" style="background:#f0fdf4">📦</div>
+        <h3>Vendas por produto</h3>
+        <p>Top produtos vendidos, quantidades, receita e margem por item.</p>
+        <div class="rc-footer">Gerar relatório →</div>
+      </div>
+      <div class="report-card" onclick="alert('Abrindo relatório fiscal...')">
+        <div class="rc-icon" style="background:#fdf4ff">📋</div>
+        <h3>Livro fiscal (SPED)</h3>
+        <p>Registro de entradas e saídas para escrituração fiscal e SPED.</p>
+        <div class="rc-footer">Gerar relatório →</div>
+      </div>
+      <div class="report-card" onclick="alert('Abrindo relatório de impostos...')">
+        <div class="rc-icon" style="background:#fef2f2">💰</div>
+        <h3>Apuração de impostos</h3>
+        <p>ICMS, PIS, COFINS e IPI apurados por competência.</p>
+        <div class="rc-footer">Gerar relatório →</div>
+      </div>
+      <div class="report-card" onclick="alert('Abrindo relatório de cancelamentos...')">
+        <div class="rc-icon" style="background:#fffbeb">❌</div>
+        <h3>Cancelamentos e inutilizações</h3>
+        <p>Notas canceladas, motivos e protocolos de cancelamento.</p>
+        <div class="rc-footer">Gerar relatório →</div>
+      </div>
+    </div>
+
+    <!-- VISÃO GERAL DO PERÍODO -->
+    <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Visão Geral</div>
+
+    <div class="period-bar">
+      <button class="period-btn" onclick="setPeriod(7,this)">7 dias</button>
+      <button class="period-btn active" onclick="setPeriod(30,this)">30 dias</button>
+      <button class="period-btn" onclick="setPeriod(90,this)">3 meses</button>
+      <button class="period-btn" onclick="setPeriod(365,this)">12 meses</button>
+      <input type="date" id="dt-de" value="2026-05-01" style="padding:7px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;"/>
+      <span style="font-size:12px;color:#aaa">até</span>
+      <input type="date" id="dt-ate" value="2026-05-23" style="padding:7px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;"/>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="stat-card">
+        <div class="stat-icon orange">📄</div>
+        <div class="label">NF-e Emitidas</div>
+        <div class="value">247</div>
+        <div class="delta up">▲ +18% vs mês anterior</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">💰</div>
+        <div class="label">Faturamento</div>
+        <div class="value" style="font-size:22px;">R$ 184.320</div>
+        <div class="delta up">▲ +12,4%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">🎫</div>
+        <div class="label">Ticket Médio</div>
+        <div class="value" style="font-size:22px;">R$ 746</div>
+        <div class="delta down">▼ -3% vs mês anterior</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">❌</div>
+        <div class="label">Canceladas</div>
+        <div class="value">3</div>
+        <div class="delta up" style="color:#16a34a">▼ -40%</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- GRÁFICO DE BARRAS -->
+      <div class="card">
+        <div class="card-title">Faturamento diário (mai/2026)</div>
+        <div id="bar-chart" class="bar-chart"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#555;">
+            <div style="width:12px;height:12px;border-radius:3px;background:#f97316;"></div> Emitidas
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#555;">
+            <div style="width:12px;height:12px;border-radius:3px;background:#fcd9b6;"></div> Canceladas
+          </div>
+        </div>
+      </div>
+
+      <!-- TOP CLIENTES -->
+      <div class="card">
+        <div class="card-title">Top 5 clientes (mai/2026)</div>
+        <table class="top-table">
+          <tbody>
+            <tr>
+              <td style="width:32px;padding:10px 6px;"><div class="top-rank">1</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Supermercado Bom Preço</div><div style="font-size:11px;color:#aaa">14 notas</div></td>
+              <td style="text-align:right;font-weight:700;color:#f97316">R$ 42.800</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#6366f1">2</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Distribuidora Norte Sul</div><div style="font-size:11px;color:#aaa">9 notas</div></td>
+              <td style="text-align:right;font-weight:700;color:#6366f1">R$ 31.200</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#16a34a">3</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Farmácia Saúde Total</div><div style="font-size:11px;color:#aaa">7 notas</div></td>
+              <td style="text-align:right;font-weight:700;color:#16a34a">R$ 18.900</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#d97706">4</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Padaria Doce Mel</div><div style="font-size:11px;color:#aaa">5 notas</div></td>
+              <td style="text-align:right;font-weight:700;color:#d97706">R$ 12.400</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#aaa">5</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Construtora Horizonte</div><div style="font-size:11px;color:#aaa">4 notas</div></td>
+              <td style="text-align:right;font-weight:700;color:#aaa">R$ 9.700</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOP PRODUTOS -->
+      <div class="card">
+        <div class="card-title">Top 5 produtos vendidos</div>
+        <table class="top-table">
+          <tbody>
+            <tr>
+              <td style="width:32px;padding:10px 6px;"><div class="top-rank">1</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Arroz Tipo 1 – 5kg</div><div style="font-size:11px;color:#aaa">420 unid.</div></td>
+              <td style="text-align:right;font-weight:700;color:#f97316">R$ 9.618</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#6366f1">2</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Feijão Carioca – 1kg</div><div style="font-size:11px;color:#aaa">890 unid.</div></td>
+              <td style="text-align:right;font-weight:700;color:#6366f1">R$ 7.565</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#16a34a">3</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Notebook Samsung Galaxy</div><div style="font-size:11px;color:#aaa">3 unid.</div></td>
+              <td style="text-align:right;font-weight:700;color:#16a34a">R$ 12.897</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#d97706">4</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Camiseta Polo GG</div><div style="font-size:11px;color:#aaa">68 unid.</div></td>
+              <td style="text-align:right;font-weight:700;color:#d97706">R$ 6.113</td>
+            </tr>
+            <tr>
+              <td><div class="top-rank" style="background:#aaa">5</div></td>
+              <td><div style="font-weight:600;color:#1a1a2e">Detergente Líquido 500ml</div><div style="font-size:11px;color:#aaa">1.240 unid.</div></td>
+              <td style="text-align:right;font-weight:700;color:#aaa">R$ 3.708</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- IMPOSTOS APURADOS -->
+      <div class="card">
+        <div class="card-title">Impostos apurados (mai/2026)</div>
+        <table>
+          <tbody>
+            <tr>
+              <td style="padding:10px 0;font-size:13px;font-weight:600;color:#555;">ICMS recolhido</td>
+              <td style="text-align:right;font-weight:700;color:#1a1a2e;padding:10px 0;">R$ 22.118,40</td>
+            </tr>
+            <tr style="border-top:1px solid #f5f5f5">
+              <td style="padding:10px 0;font-size:13px;font-weight:600;color:#555;">PIS</td>
+              <td style="text-align:right;font-weight:700;color:#1a1a2e;padding:10px 0;">R$ 1.198,08</td>
+            </tr>
+            <tr style="border-top:1px solid #f5f5f5">
+              <td style="padding:10px 0;font-size:13px;font-weight:600;color:#555;">COFINS</td>
+              <td style="text-align:right;font-weight:700;color:#1a1a2e;padding:10px 0;">R$ 5.529,60</td>
+            </tr>
+            <tr style="border-top:1px solid #f5f5f5">
+              <td style="padding:10px 0;font-size:13px;font-weight:600;color:#555;">IPI</td>
+              <td style="text-align:right;font-weight:700;color:#1a1a2e;padding:10px 0;">R$ 0,00</td>
+            </tr>
+            <tr style="border-top:2px solid #f0f0f0">
+              <td style="padding:12px 0;font-size:14px;font-weight:800;color:#1a1a2e;">Total impostos</td>
+              <td style="text-align:right;font-weight:800;font-size:16px;color:#f97316;padding:12px 0;">R$ 28.846,08</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="export-strip">
+      <button class="export-btn" onclick="alert('Exportando PDF...')">📄 Exportar PDF</button>
+      <button class="export-btn" onclick="alert('Exportando Excel...')">📊 Exportar Excel</button>
+      <button class="export-btn" onclick="alert('Exportando CSV...')">📋 Exportar CSV</button>
+      <button class="export-btn" onclick="alert('Agendando envio...')">📧 Enviar por e-mail</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const dadosMes = [18000,12000,22000,8000,31000,27000,14000,19000,25000,9000,33000,21000,17000,28000,11000,24000,36000,18500,29000,22000,15000,41000,12800];
+
+function renderBarChart(dados) {
+  const maxVal = Math.max(...dados);
+  const meses = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
+  const div = document.getElementById('bar-chart');
+  div.innerHTML = dados.map((v, i) => `
+    <div class="bar-col" title="Dia ${meses[i]}: R$ ${v.toLocaleString('pt-BR')}">
+      <div class="bar-val" style="font-size:9px">${v >= 10000 ? (v/1000).toFixed(0)+'k' : ''}</div>
+      <div class="bar" style="height:${Math.round((v/maxVal)*88)}px;background:${v > 30000 ? '#f97316' : '#fcd9b6'}"></div>
+      <div class="bar-label">${meses[i]}</div>
+    </div>`).join('');
+}
+
+function setPeriod(days, btn) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const hoje = new Date();
+  const de = new Date(hoje); de.setDate(hoje.getDate() - days);
+  document.getElementById('dt-de').value = de.toISOString().split('T')[0];
+  document.getElementById('dt-ate').value = hoje.toISOString().split('T')[0];
+}
+
+function gerarRelatorio() { alert('Selecione um dos relatórios acima para gerar.'); }
+
+renderBarChart(dadosMes);
+</script>
+</body>
+</html>

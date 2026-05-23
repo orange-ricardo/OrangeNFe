@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Arquivos Recebidos</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
+    .filters input,.filters select {
+      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+    }
+    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
+    .filters input[type=text] { min-width:260px; }
+
+    .file-type {
+      display:inline-flex;align-items:center;gap:5px;padding:3px 9px;
+      border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;
+    }
+    .file-type.xml  { background:#eff6ff;color:#2563eb; }
+    .file-type.pdf  { background:#fef2f2;color:#dc2626; }
+    .file-type.zip  { background:#fffbeb;color:#d97706; }
+    .file-type.xls  { background:#f0fdf4;color:#16a34a; }
+
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:6px 12px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;text-decoration:none;
+    }
+    .tb-btn:hover { background:#f4f6f9; }
+    .tb-btn.orange { background:#f97316;color:#fff;border-color:#f97316; }
+
+    .drop-zone {
+      border:2px dashed #e8eaf0;border-radius:12px;padding:40px;
+      text-align:center;background:#fafbfc;cursor:pointer;
+      transition:all 0.2s;margin-bottom:20px;
+    }
+    .drop-zone:hover,.drop-zone.drag-over {
+      border-color:#f97316;background:#fff8f3;
+    }
+    .drop-zone .dz-icon { font-size:40px;margin-bottom:12px; }
+    .drop-zone h3 { font-size:14px;font-weight:700;color:#333;margin-bottom:4px; }
+    .drop-zone p { font-size:12px;color:#aaa; }
+    .drop-zone p strong { color:#f97316; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item active"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Arquivos Recebidos</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn primary" onclick="document.getElementById('file-input').click()">⬆ Enviar arquivo</button>
+      <input type="file" id="file-input" style="display:none" multiple accept=".xml,.pdf,.zip" onchange="importarArquivos(this)"/>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DROP ZONE -->
+    <div class="drop-zone" id="drop-zone"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleDrop(event)"
+      onclick="document.getElementById('file-input').click()">
+      <div class="dz-icon">📁</div>
+      <h3>Arraste arquivos aqui ou clique para enviar</h3>
+      <p>Aceita <strong>XML de NF-e</strong>, <strong>DANFE PDF</strong> e arquivos <strong>ZIP</strong></p>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters">
+      <input type="text" id="search-input" placeholder="🔍  Buscar por nome ou chave..." oninput="filtrar()"/>
+      <select id="tipo-filter" onchange="filtrar()">
+        <option value="">Todos os tipos</option>
+        <option value="xml">XML</option>
+        <option value="pdf">PDF</option>
+        <option value="zip">ZIP</option>
+      </select>
+      <div style="flex:1"></div>
+      <span id="count-label" style="font-size:12px;color:#aaa;font-weight:600;"></span>
+    </div>
+
+    <!-- TABELA -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f8f9fc;border-bottom:1px solid #f0f0f0;gap:8px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;">
+          <button class="tb-btn" onclick="baixarSelecionados()">⬇ Baixar selecionados</button>
+          <button class="tb-btn" style="color:#dc2626;" onclick="excluirSelecionados()">🗑 Excluir</button>
+        </div>
+        <span id="sel-info" style="font-size:12px;color:#aaa;"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="arquivos-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"/></th>
+              <th>Nome do arquivo</th>
+              <th>Tipo</th>
+              <th>Tamanho</th>
+              <th>Data de recebimento</th>
+              <th>Origem</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="arquivos-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let arquivos = [
+  { id:1, nome:'NFe_35260512345678_248.xml', tipo:'xml', tamanho:'18 KB', data:'23/05/2026 14:30', origem:'Emissão automática' },
+  { id:2, nome:'DANFE_000248.pdf', tipo:'pdf', tamanho:'245 KB', data:'23/05/2026 14:30', origem:'Emissão automática' },
+  { id:3, nome:'NFe_35260598765432_101.xml', tipo:'xml', tamanho:'22 KB', data:'22/05/2026 09:15', origem:'SEFAZ – Download' },
+  { id:4, nome:'NFe_35260511223344_044.xml', tipo:'xml', tamanho:'16 KB', data:'21/05/2026 11:00', origem:'Importação manual' },
+  { id:5, nome:'backup_maio2026.zip', tipo:'zip', tamanho:'4.2 MB', data:'20/05/2026 03:00', origem:'Backup automático' },
+  { id:6, nome:'notas_maio_2026.xlsx', tipo:'xls', tamanho:'98 KB', data:'19/05/2026 18:45', origem:'Relatório exportado' },
+  { id:7, nome:'NFe_31260522334455_312.xml', tipo:'xml', tamanho:'20 KB', data:'18/05/2026 08:22', origem:'SEFAZ – Download' },
+];
+
+function render(data) {
+  const tbody = document.getElementById('arquivos-body');
+  document.getElementById('count-label').textContent = data.length + ' arquivo' + (data.length !== 1 ? 's' : '');
+  tbody.innerHTML = data.map(f => {
+    const icons = { xml:'📄', pdf:'📕', zip:'📦', xls:'📊' };
+    return `<tr>
+      <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:18px">${icons[f.tipo] || '📁'}</span>
+          <span style="font-weight:600;color:#1a1a2e">${f.nome}</span>
+        </div>
+      </td>
+      <td><span class="file-type ${f.tipo}">${f.tipo.toUpperCase()}</span></td>
+      <td style="font-size:12px;color:#555">${f.tamanho}</td>
+      <td style="font-size:12px;color:#555">${f.data}</td>
+      <td style="font-size:12px;color:#aaa">${f.origem}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="tb-btn" onclick="baixar(${f.id})" title="Baixar">⬇</button>
+          <button class="tb-btn" onclick="excluir(${f.id})" title="Excluir" style="color:#dc2626">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrar() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const tipo = document.getElementById('tipo-filter').value;
+  const r = arquivos.filter(f =>
+    (!q || f.nome.toLowerCase().includes(q)) &&
+    (!tipo || f.tipo === tipo)
+  );
+  render(r);
+}
+
+function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c => c.checked = cb.checked); updateSel(); }
+function updateSel() {
+  const n = document.querySelectorAll('.row-chk:checked').length;
+  document.getElementById('sel-info').textContent = n > 0 ? n + ' selecionado(s)' : '';
+}
+
+function baixar(id) { alert(`Baixando: ${arquivos.find(f=>f.id===id).nome}`); }
+function excluir(id) {
+  const f = arquivos.find(x=>x.id===id);
+  if (confirm(`Excluir "${f.nome}"?`)) {
+    arquivos = arquivos.filter(x=>x.id!==id);
+    filtrar();
+  }
+}
+function baixarSelecionados() { alert('Baixando arquivos selecionados em .zip...'); }
+function excluirSelecionados() {
+  const n = document.querySelectorAll('.row-chk:checked').length;
+  if (n === 0) { alert('Selecione ao menos um arquivo.'); return; }
+  if (confirm(`Excluir ${n} arquivo(s)?`)) { alert('Arquivos excluídos.'); }
+}
+
+function importarArquivos(input) {
+  const files = Array.from(input.files);
+  files.forEach(f => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    arquivos.unshift({
+      id: Date.now() + Math.random(),
+      nome: f.name,
+      tipo: ext === 'pdf' ? 'pdf' : ext === 'zip' ? 'zip' : ext === 'xlsx' ? 'xls' : 'xml',
+      tamanho: (f.size / 1024).toFixed(0) + ' KB',
+      data: new Date().toLocaleString('pt-BR'),
+      origem: 'Importação manual',
+    });
+  });
+  filtrar();
+  input.value = '';
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const dt = e.dataTransfer;
+  if (dt.files.length > 0) importarArquivos({ files: dt.files, value: '' });
+}
+
+filtrar();
+</script>
+</body>
+</html>
