@@ -110,8 +110,31 @@
     }
 
     .totais-impostos {
-      display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;
+      display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;
     }
+    /* TAX PANELS PER ITEM */
+    .tax-tabs {
+      display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;
+      padding-bottom:10px;border-bottom:1px solid #e8eaf0;
+    }
+    .ttab {
+      padding:4px 11px;font-size:11px;font-weight:700;
+      border:1.5px solid #e8eaf0;border-radius:20px;
+      background:#fff;color:#888;cursor:pointer;transition:all 0.15s;
+    }
+    .ttab:hover { border-color:#f97316;color:#f97316; }
+    .ttab.active { background:#f97316;color:#fff;border-color:#f97316; }
+    .tax-section { animation:fadeIn 0.15s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
+    .toggle-tax-btn {
+      display:inline-flex;align-items:center;gap:3px;
+      padding:4px 8px;border:1.5px solid #e8eaf0;border-radius:6px;
+      font-size:10px;font-weight:700;cursor:pointer;background:#fff;
+      color:#666;transition:all 0.15s;white-space:nowrap;
+    }
+    .toggle-tax-btn:hover { border-color:#f97316;color:#f97316; }
+    .toggle-tax-btn.open { background:#fff5ee;border-color:#f97316;color:#f97316; }
+    .tax-row > td { padding:0 !important; }
     .imposto-box {
       background:#fafbfc;border:1px solid #f0f0f0;
       border-radius:8px;padding:10px 12px;
@@ -311,11 +334,12 @@
                   <th style="width:70px">Qtd</th>
                   <th style="width:100px">Vl. Unit.</th>
                   <th style="width:100px">Vl. Total</th>
+                  <th style="width:88px">Tributos</th>
                   <th style="width:36px"></th>
                 </tr>
               </thead>
               <tbody id="items-body">
-                <tr data-idx="1">
+                <tr data-idx="1" data-item-row="1">
                   <td style="text-align:center;color:#bbb;font-size:12px;">1</td>
                   <td><input type="text" placeholder="Descrição do produto" oninput="calcItem(this)"/></td>
                   <td><input type="text" placeholder="0000.00.00"/></td>
@@ -324,10 +348,19 @@
                   <td><input type="number" value="1" min="1" oninput="calcItem(this)" class="qty"/></td>
                   <td><input type="number" value="0.00" step="0.01" oninput="calcItem(this)" class="unit"/></td>
                   <td><input type="number" value="0.00" readonly class="total-item" style="background:#f0f8f0;font-weight:700;color:#16a34a"/></td>
+                  <td><button class="toggle-tax-btn" data-tpbtn="1" onclick="toggleTax(1)">🧾 Tributos</button></td>
                   <td><button class="del-btn" onclick="removeItem(this)">🗑</button></td>
                 </tr>
               </tbody>
             </table>
+            <script>
+              // Insert static tax panel for item 1 after table renders
+              document.addEventListener('DOMContentLoaded', function() {
+                const tbody = document.getElementById('items-body');
+                const row1 = tbody.querySelector('tr[data-idx="1"]');
+                if (row1) row1.insertAdjacentHTML('afterend', taxPanel(1));
+              });
+            </script>
             <div class="add-item-row" onclick="addItem()">
               <span>＋</span> Adicionar item
             </div>
@@ -336,22 +369,41 @@
           <!-- IMPOSTOS -->
           <div class="form-section" id="sec-impostos" style="display:none">
             <div class="form-section-title">Impostos</div>
+            <div style="margin-bottom:6px;padding:7px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#92400e;font-weight:600">
+              ℹ️ CRT=1 – Simples Nacional: ICMS, PIS e COFINS são recolhidos via DAS. Apenas ICMS-ST tem destaque na NF-e quando o emitente é substituto tributário.
+            </div>
             <div class="totais-impostos">
               <div class="imposto-box">
-                <div class="imp-label">ICMS</div>
-                <div class="imp-val" id="icms-val">R$ 0,00</div>
+                <div class="imp-label">ICMS-ST</div>
+                <div class="imp-val" id="icms-val" style="color:#f97316">R$ 0,00</div>
               </div>
               <div class="imposto-box">
                 <div class="imp-label">IPI</div>
-                <div class="imp-val">R$ 0,00</div>
+                <div class="imp-val" id="ipi-val">R$ 0,00</div>
               </div>
               <div class="imposto-box">
                 <div class="imp-label">PIS</div>
-                <div class="imp-val">R$ 0,00</div>
+                <div class="imp-val" id="pis-val" style="color:#aaa">R$ 0,00 <span style="font-size:9px;font-weight:600">(DAS)</span></div>
               </div>
               <div class="imposto-box">
                 <div class="imp-label">COFINS</div>
-                <div class="imp-val">R$ 0,00</div>
+                <div class="imp-val" id="cofins-val" style="color:#aaa">R$ 0,00 <span style="font-size:9px;font-weight:600">(DAS)</span></div>
+              </div>
+              <div class="imposto-box">
+                <div class="imp-label">II</div>
+                <div class="imp-val" id="ii-val">R$ 0,00</div>
+              </div>
+              <div class="imposto-box">
+                <div class="imp-label">ISS</div>
+                <div class="imp-val" id="iss-val">R$ 0,00</div>
+              </div>
+              <div class="imposto-box" style="border-color:#e9d5ff">
+                <div class="imp-label" style="color:#7c3aed">IBS</div>
+                <div class="imp-val" id="ibs-val" style="color:#7c3aed">R$ 0,00</div>
+              </div>
+              <div class="imposto-box" style="border-color:#bfdbfe">
+                <div class="imp-label" style="color:#1d4ed8">CBS</div>
+                <div class="imp-val" id="cbs-val" style="color:#1d4ed8">R$ 0,00 <span style="font-size:9px;font-weight:600">(2027)</span></div>
               </div>
             </div>
             <div class="tab-nav-footer">
@@ -531,9 +583,11 @@
         <div class="resumo-line"><span>Série / Nº</span><span>001 / 000248</span></div>
         <div class="resumo-line"><span>Itens</span><span id="res-itens">0 itens</span></div>
         <div class="resumo-line"><span>Subtotal produtos</span><span id="res-subtotal">R$ 0,00</span></div>
-        <div class="resumo-line"><span>ICMS (12%)</span><span id="res-icms">R$ 0,00</span></div>
-        <div class="resumo-line"><span>PIS (0,65%)</span><span id="res-pis">R$ 0,00</span></div>
-        <div class="resumo-line"><span>COFINS (3%)</span><span id="res-cofins">R$ 0,00</span></div>
+        <div class="resumo-line"><span style="display:flex;align-items:center;gap:4px">ICMS-ST <span style="font-size:10px;background:#fff5ee;color:#f97316;border-radius:3px;padding:1px 4px;font-weight:700">CRT=1</span></span><span id="res-icms">R$ 0,00</span></div>
+        <div class="resumo-line"><span style="display:flex;align-items:center;gap:4px">IPI</span><span id="res-ipi">R$ 0,00</span></div>
+        <div class="resumo-line"><span style="display:flex;align-items:center;gap:4px">PIS/COFINS <span style="font-size:10px;background:#f0fdf4;color:#16a34a;border-radius:3px;padding:1px 4px;font-weight:700">DAS</span></span><span id="res-pis" style="color:#aaa">R$ 0,00</span></div>
+        <div class="resumo-line" style="display:none"><span>COFINS</span><span id="res-cofins">R$ 0,00</span></div>
+        <div class="resumo-line"><span style="display:flex;align-items:center;gap:4px">IBS/CBS <span style="font-size:10px;background:#faf5ff;color:#7c3aed;border-radius:3px;padding:1px 4px;font-weight:700">2027</span></span><span id="res-ibs" style="color:#7c3aed">R$ 0,00</span></div>
         <div class="resumo-line"><span>Desconto</span><span>R$ 0,00</span></div>
         <div class="resumo-line total"><span>Total NF-e</span><span id="res-total">R$ 0,00</span></div>
 
@@ -555,6 +609,309 @@
 <script>
 let itemCount = 1;
 let parcelaCount = 1;
+
+/* ── Tax panel template ── */
+function taxPanel(idx) {
+  return `<tr id="tp-${idx}" class="tax-row" style="display:none"><td colspan="10" style="padding:0">
+  <div style="padding:14px 16px;background:#f8f9fc;border-bottom:2px solid #f0f0f0">
+    <div class="tax-tabs">
+      <button class="ttab active" onclick="switchTax(${idx},'icms',this)">ICMS</button>
+      <button class="ttab" onclick="switchTax(${idx},'ipi',this)">IPI</button>
+      <button class="ttab" onclick="switchTax(${idx},'pis',this)">PIS</button>
+      <button class="ttab" onclick="switchTax(${idx},'cofins',this)">COFINS</button>
+      <button class="ttab" onclick="switchTax(${idx},'ii',this)">II</button>
+      <button class="ttab" onclick="switchTax(${idx},'iss',this)">ISS</button>
+      <button class="ttab" onclick="switchTax(${idx},'ibscbs',this)">IBS / CBS</button>
+    </div>
+    <div class="tax-section" id="ts-icms-${idx}">
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>CSOSN <span style="font-size:10px;color:#aaa">(Simples Nacional)</span></label>
+          <select>
+            <option value="102">102 – Tributada SN sem permissão de crédito</option>
+            <option value="101">101 – Tributada SN com permissão de crédito</option>
+            <option value="103">103 – Isenta SN – faixa de receita bruta</option>
+            <option value="201">201 – Tributada SN c/ crédito + ST</option>
+            <option value="202">202 – Tributada SN sem crédito + ST</option>
+            <option value="203">203 – Isenta SN + ST</option>
+            <option value="300">300 – Imune</option>
+            <option value="400">400 – Não tributada pelo SN</option>
+            <option value="500">500 – ICMS cobrado anteriormente por ST</option>
+            <option value="900">900 – Outros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Modalidade BC ICMS-ST</label>
+          <select>
+            <option value="">N/A</option>
+            <option value="0">0 – Margem de valor agregado</option>
+            <option value="1">1 – Pauta (valor)</option>
+            <option value="2">2 – Preço tabelado máximo</option>
+            <option value="3">3 – Valor da operação</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>MVA ST (%)</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+      </div>
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>Base de Cálculo ICMS-ST</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Alíq. ICMS-ST (%)</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Valor ICMS-ST</label>
+          <input type="number" step="0.01" value="0.00" readonly class="icms-st-val" style="background:#fff8f3;font-weight:700;color:#f97316"/>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:8px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#92400e">
+        ℹ️ <b>CRT=1:</b> ICMS é recolhido via DAS — sem destaque de ICMS próprio na NF-e. ICMS-ST é destacado apenas quando o emitente é substituto tributário.
+      </div>
+    </div>
+    <div class="tax-section" id="ts-ipi-${idx}" style="display:none">
+      <div class="form-row cols-4">
+        <div class="form-group">
+          <label>CST IPI</label>
+          <select>
+            <option value="99">99 – Outras saídas</option>
+            <option value="50">50 – Saída tributada</option>
+            <option value="51">51 – Tributável alíq. zero</option>
+            <option value="52">52 – Isenta</option>
+            <option value="53">53 – Não tributada</option>
+            <option value="54">54 – Imune</option>
+            <option value="55">55 – Com suspensão</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cód. Enquadramento</label>
+          <input type="text" value="999" placeholder="999"/>
+        </div>
+        <div class="form-group">
+          <label>Alíq. IPI (%)</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Valor IPI</label>
+          <input type="number" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:8px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#92400e">
+        ℹ️ <b>CRT=1:</b> IPI geralmente não se aplica ao Simples Nacional, exceto para estabelecimentos industriais ou equiparados à indústria.
+      </div>
+    </div>
+    <div class="tax-section" id="ts-pis-${idx}" style="display:none">
+      <div class="form-row cols-4">
+        <div class="form-group">
+          <label>CST PIS</label>
+          <select>
+            <option value="07">07 – Operação isenta</option>
+            <option value="49">49 – Outras operações de saída</option>
+            <option value="01">01 – Tributável (alíq. normal)</option>
+            <option value="02">02 – Tributável (alíq. diferenciada)</option>
+            <option value="03">03 – Tributável (qtd. por unidade)</option>
+            <option value="04">04 – Monofásica</option>
+            <option value="05">05 – Com ST</option>
+            <option value="06">06 – Alíquota zero</option>
+            <option value="08">08 – Sem incidência</option>
+            <option value="09">09 – Com suspensão</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Base de Cálculo</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Alíq. PIS (%)</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Valor PIS</label>
+          <input type="number" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/>
+        </div>
+      </div>
+    </div>
+    <div class="tax-section" id="ts-cofins-${idx}" style="display:none">
+      <div class="form-row cols-4">
+        <div class="form-group">
+          <label>CST COFINS</label>
+          <select>
+            <option value="07">07 – Operação isenta</option>
+            <option value="49">49 – Outras operações de saída</option>
+            <option value="01">01 – Tributável (alíq. normal)</option>
+            <option value="02">02 – Tributável (alíq. diferenciada)</option>
+            <option value="03">03 – Tributável (qtd. por unidade)</option>
+            <option value="04">04 – Monofásica</option>
+            <option value="05">05 – Com ST</option>
+            <option value="06">06 – Alíquota zero</option>
+            <option value="08">08 – Sem incidência</option>
+            <option value="09">09 – Com suspensão</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Base de Cálculo</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Alíq. COFINS (%)</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Valor COFINS</label>
+          <input type="number" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/>
+        </div>
+      </div>
+    </div>
+    <div class="tax-section" id="ts-ii-${idx}" style="display:none">
+      <div class="form-row cols-4">
+        <div class="form-group">
+          <label>BC Imp. Importação</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Valor II</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Valor IOF</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Despesas Aduaneiras</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:8px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;color:#1e40af">
+        ℹ️ Aplicável apenas para produtos importados (CFOP 3xxx) ou com origem estrangeira (cOrigem ≥ 1).
+      </div>
+    </div>
+    <div class="tax-section" id="ts-iss-${idx}" style="display:none">
+      <div class="form-row cols-4">
+        <div class="form-group">
+          <label>Cód. Lista de Serviços</label>
+          <input type="text" placeholder="ex: 01.01"/>
+        </div>
+        <div class="form-group">
+          <label>Município Fato Gerador (IBGE)</label>
+          <input type="text" placeholder="7 dígitos"/>
+        </div>
+        <div class="form-group">
+          <label>Alíq. ISS (%)</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Valor ISS</label>
+          <input type="number" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:8px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;color:#1e40af">
+        ℹ️ ISS na NF-e é para operações mistas (produtos + serviços). Para serviços puros, emita NFS-e.
+      </div>
+    </div>
+    <div class="tax-section" id="ts-ibscbs-${idx}" style="display:none">
+      <div style="padding:7px 10px;background:#fff5ee;border:1px solid #fed7aa;border-radius:6px;font-size:11px;color:#c2410c;font-weight:600;margin-bottom:10px">
+        🔶 Reforma Tributária NT 2025.002 — <b>CRT=1 Simples Nacional:</b> IBS e CBS obrigatórios a partir de <b>01/01/2027</b>. Campos informativos por ora.
+      </div>
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>CST IBS/CBS</label>
+          <select>
+            <option value="">— Selecionar —</option>
+            <option value="01">01 – Tributado à alíquota padrão</option>
+            <option value="02">02 – Tributado redução 30%</option>
+            <option value="03">03 – Tributado redução 60%</option>
+            <option value="04">04 – Tributado alíquota zero</option>
+            <option value="05">05 – Isento</option>
+            <option value="06">06 – Imune</option>
+            <option value="07">07 – Suspenso</option>
+            <option value="08">08 – Regime específico / especial</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>cClassTrib <span style="font-size:10px;color:#aaa">(LC 214/2025)</span></label>
+          <input type="text" placeholder="ex: 01.01"/>
+        </div>
+        <div class="form-group">
+          <label>Base de Cálculo IBS/CBS</label>
+          <input type="number" step="0.01" value="0.00"/>
+        </div>
+      </div>
+      <div class="form-row cols-2" style="margin-top:8px">
+        <div style="border:1.5px solid #e9d5ff;border-radius:8px;padding:10px 12px;background:#faf5ff">
+          <div style="font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">🏛 IBS — Estadual + Municipal</div>
+          <div class="form-row cols-3">
+            <div class="form-group">
+              <label>Alíq. UF (%)</label>
+              <input type="number" step="0.0001" value="0.0000"/>
+            </div>
+            <div class="form-group">
+              <label>Alíq. Município (%)</label>
+              <input type="number" step="0.0001" value="0.0000"/>
+            </div>
+            <div class="form-group">
+              <label>Valor IBS</label>
+              <input type="number" step="0.01" value="0.00" readonly style="background:#f5f3ff;font-weight:700;color:#7c3aed"/>
+            </div>
+          </div>
+        </div>
+        <div style="border:1.5px solid #bfdbfe;border-radius:8px;padding:10px 12px;background:#eff6ff">
+          <div style="font-size:10px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">🏦 CBS — Federal</div>
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label>Alíquota CBS (%)</label>
+              <input type="number" step="0.0001" value="0.0000"/>
+            </div>
+            <div class="form-group">
+              <label>Valor CBS</label>
+              <input type="number" step="0.01" value="0.00" readonly style="background:#dbeafe;font-weight:700;color:#1d4ed8"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</td></tr>`;
+}
+
+function itemRow(idx) {
+  return `<tr data-idx="${idx}" data-item-row="1">
+    <td style="text-align:center;color:#bbb;font-size:12px;">${idx}</td>
+    <td><input type="text" placeholder="Descrição do produto" oninput="calcItem(this)"/></td>
+    <td><input type="text" placeholder="0000.00.00"/></td>
+    <td><input type="text" placeholder="5102"/></td>
+    <td><select><option>UN</option><option>PC</option><option>CX</option><option>KG</option><option>MT</option><option>LT</option></select></td>
+    <td><input type="number" value="1" min="1" oninput="calcItem(this)" class="qty"/></td>
+    <td><input type="number" value="0.00" step="0.01" oninput="calcItem(this)" class="unit"/></td>
+    <td><input type="number" value="0.00" readonly class="total-item" style="background:#f0f8f0;font-weight:700;color:#16a34a"/></td>
+    <td><button class="toggle-tax-btn" data-tpbtn="${idx}" onclick="toggleTax(${idx})">🧾 Tributos</button></td>
+    <td><button class="del-btn" onclick="removeItem(this)">🗑</button></td>
+  </tr>`;
+}
+
+function toggleTax(idx) {
+  const panel = document.getElementById('tp-' + idx);
+  const btn   = document.querySelector(`[data-tpbtn="${idx}"]`);
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : '';
+  btn.classList.toggle('open', !isOpen);
+  btn.textContent = isOpen ? '🧾 Tributos' : '× Fechar';
+}
+
+function switchTax(idx, type, btn) {
+  ['icms','ipi','pis','cofins','ii','iss','ibscbs'].forEach(t => {
+    const el = document.getElementById(`ts-${t}-${idx}`);
+    if (el) el.style.display = 'none';
+  });
+  document.querySelectorAll(`#tp-${idx} .ttab`).forEach(b => b.classList.remove('active'));
+  const target = document.getElementById(`ts-${type}-${idx}`);
+  if (target) target.style.display = '';
+  btn.classList.add('active');
+}
 
 /* ── Tab definitions ── */
 const TABS = [
@@ -649,22 +1006,26 @@ function calcItem(el) {
 }
 
 function updateResumo() {
-  const totals = Array.from(document.querySelectorAll('.total-item'))
+  const totals = Array.from(document.querySelectorAll('#items-body tr[data-item-row] .total-item'))
     .map(i => parseFloat(i.value) || 0);
-  const sub = totals.reduce((a, b) => a + b, 0);
-  const icms = sub * 0.12;
-  const pis  = sub * 0.0065;
-  const cof  = sub * 0.03;
-  const total = sub + icms + pis + cof;
-  const count = document.querySelectorAll('#items-body tr').length;
+  const sub   = totals.reduce((a, b) => a + b, 0);
+  // CRT=1: ICMS próprio = 0 (DAS); PIS/COFINS = 0 (DAS)
+  // Apenas ICMS-ST é destacado — somamos dos campos do painel de tributos
+  const icmsST = Array.from(document.querySelectorAll('[id^="ts-icms-"] input.icms-st-val'))
+    .reduce((a, el) => a + (parseFloat(el.value) || 0), 0);
+  const total = sub + icmsST;
+  const count = document.querySelectorAll('#items-body tr[data-item-row]').length;
 
   document.getElementById('res-itens').textContent    = count + (count === 1 ? ' item' : ' itens');
   document.getElementById('res-subtotal').textContent = fmt(sub);
-  document.getElementById('res-icms').textContent     = fmt(icms);
-  document.getElementById('res-pis').textContent      = fmt(pis);
-  document.getElementById('res-cofins').textContent   = fmt(cof);
+  document.getElementById('res-icms').textContent     = fmt(icmsST);
+  const resPis = document.getElementById('res-pis');
+  if (resPis) resPis.textContent = 'R$ 0,00';
+  const resIbs = document.getElementById('res-ibs');
+  if (resIbs) resIbs.textContent = 'R$ 0,00';
   document.getElementById('res-total').textContent    = fmt(total);
-  document.getElementById('icms-val').textContent     = fmt(icms);
+  const icmsEl = document.getElementById('icms-val');
+  if (icmsEl) icmsEl.textContent = fmt(icmsST);
   const pgtoEl = document.getElementById('pgto-total');
   if (pgtoEl) pgtoEl.textContent = fmt(total);
 }
@@ -672,26 +1033,18 @@ function updateResumo() {
 function addItem() {
   itemCount++;
   const tbody = document.getElementById('items-body');
-  const tr = document.createElement('tr');
-  tr.dataset.idx = itemCount;
-  tr.innerHTML = `
-    <td style="text-align:center;color:#bbb;font-size:12px;">${itemCount}</td>
-    <td><input type="text" placeholder="Descrição do produto" oninput="calcItem(this)"/></td>
-    <td><input type="text" placeholder="0000.00.00"/></td>
-    <td><input type="text" placeholder="5102"/></td>
-    <td><select><option>UN</option><option>PC</option><option>CX</option><option>KG</option><option>MT</option><option>LT</option></select></td>
-    <td><input type="number" value="1" min="1" oninput="calcItem(this)" class="qty"/></td>
-    <td><input type="number" value="0.00" step="0.01" oninput="calcItem(this)" class="unit"/></td>
-    <td><input type="number" value="0.00" readonly class="total-item" style="background:#f0f8f0;font-weight:700;color:#16a34a"/></td>
-    <td><button class="del-btn" onclick="removeItem(this)">🗑</button></td>`;
-  tbody.appendChild(tr);
+  tbody.insertAdjacentHTML('beforeend', itemRow(itemCount) + taxPanel(itemCount));
   updateResumo();
 }
 
 function removeItem(btn) {
-  const rows = document.querySelectorAll('#items-body tr');
-  if (rows.length <= 1) return;
-  btn.closest('tr').remove();
+  const itemRows = document.querySelectorAll('#items-body tr[data-item-row]');
+  if (itemRows.length <= 1) return;
+  const row = btn.closest('tr');
+  const idx = row.dataset.idx;
+  const panel = document.getElementById('tp-' + idx);
+  if (panel) panel.remove();
+  row.remove();
   updateResumo();
 }
 
