@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Emitir NF-e</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .emissao-wrap { display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start; }
+
+    /* ITENS */
+    .items-table { width:100%;border-collapse:collapse;margin-bottom:10px; }
+    .items-table thead th {
+      font-size:11px;font-weight:700;color:#aaa;
+      text-transform:uppercase;letter-spacing:0.6px;
+      padding:8px 10px;border-bottom:2px solid #f0f0f0;text-align:left;
+    }
+    .items-table tbody td { padding:6px 6px;vertical-align:middle; }
+    .items-table tbody td input,
+    .items-table tbody td select {
+      width:100%;padding:7px 8px;
+      border:1.5px solid #e8eaf0;border-radius:6px;
+      font-size:12px;background:#fafbfc;
+    }
+    .items-table tbody td input:focus,
+    .items-table tbody td select:focus {
+      outline:none;border-color:#f97316;background:#fff;
+    }
+    .del-btn {
+      background:none;border:none;cursor:pointer;
+      font-size:16px;padding:4px 8px;border-radius:4px;
+      color:#ccc;transition:color 0.1s;
+    }
+    .del-btn:hover { color:#dc2626; }
+
+    .add-item-row {
+      padding:8px 10px;
+      background:#fff8f3;border:1.5px dashed #fcd9b6;
+      border-radius:8px;cursor:pointer;
+      display:flex;align-items:center;gap:8px;
+      font-size:13px;font-weight:600;color:#f97316;
+      transition:all 0.15s;margin-top:6px;
+    }
+    .add-item-row:hover { background:#fff0e0; }
+
+    /* RESUMO */
+    .resumo-card {
+      background:#fff;border-radius:12px;
+      border:1.5px solid #e8eaf0;
+      padding:20px;position:sticky;top:24px;
+    }
+    .resumo-card h3 { font-size:13px;font-weight:700;color:#888;
+      text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px; }
+    .resumo-line {
+      display:flex;justify-content:space-between;
+      font-size:13px;padding:6px 0;color:#555;
+      border-bottom:1px solid #f5f5f5;
+    }
+    .resumo-line:last-of-type { border-bottom:none; }
+    .resumo-line.total {
+      font-size:18px;font-weight:800;color:#1a1a2e;
+      padding-top:12px;margin-top:6px;
+      border-top:2px solid #f0f0f0;
+    }
+    .resumo-line.total span:last-child { color:#f97316; }
+    .resumo-actions { margin-top:20px;display:flex;flex-direction:column;gap:8px; }
+    .resumo-actions .btn { justify-content:center;width:100%; }
+
+    .tab-bar {
+      display:flex;gap:0;
+      border-bottom:2px solid #f0f0f0;
+      margin-bottom:20px;
+    }
+    .tab {
+      padding:10px 18px;font-size:13px;font-weight:600;
+      color:#aaa;cursor:pointer;border-bottom:2px solid transparent;
+      margin-bottom:-2px;transition:all 0.15s;
+    }
+    .tab.active { color:#f97316;border-bottom-color:#f97316; }
+    .tab:hover { color:#555; }
+
+    .info-tag {
+      display:inline-flex;align-items:center;gap:4px;
+      background:#eff6ff;color:#1d4ed8;
+      font-size:11px;font-weight:600;
+      padding:3px 8px;border-radius:4px;margin-bottom:12px;
+    }
+
+    .cnpj-search { display:flex;gap:8px; }
+    .cnpj-search input { flex:1; }
+    .cnpj-search button {
+      padding:9px 14px;background:#f97316;color:#fff;
+      border:none;border-radius:7px;cursor:pointer;
+      font-size:13px;font-weight:700;white-space:nowrap;
+    }
+
+    .totais-impostos {
+      display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;
+    }
+    .imposto-box {
+      background:#fafbfc;border:1px solid #f0f0f0;
+      border-radius:8px;padding:10px 12px;
+    }
+    .imposto-box .imp-label { font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase; }
+    .imposto-box .imp-val { font-size:16px;font-weight:800;color:#1a1a2e;margin-top:2px; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item active"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="#" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="#" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="#" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="#" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="#" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="#" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="#" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="#" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="#" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="#" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Emitir NF-e</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn ghost">💾 Salvar rascunho</button>
+      <button class="topbar-btn ghost" onclick="history.back()">✕ Cancelar</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="emissao-wrap">
+
+      <!-- FORMULÁRIO -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- IDENTIFICAÇÃO -->
+        <div class="card">
+          <div class="tab-bar">
+            <div class="tab active" onclick="goTab('sec-identificacao',this)">1. Identificação</div>
+            <div class="tab" onclick="goTab('sec-destinatario',this)">2. Destinatário</div>
+            <div class="tab" onclick="goTab('sec-itens',this)">3. Itens</div>
+            <div class="tab" onclick="goTab('sec-transporte',this)">4. Transporte</div>
+            <div class="tab" onclick="goTab('sec-pagamento',this)">5. Pagamento</div>
+          </div>
+
+          <div class="form-section" id="sec-identificacao">
+            <div class="form-section-title">Dados da Nota</div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Natureza da Operação</label>
+                <select>
+                  <option>Venda de mercadoria</option>
+                  <option>Remessa para conserto</option>
+                  <option>Devolução de compra</option>
+                  <option>Transferência entre filiais</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tipo de Operação</label>
+                <select>
+                  <option>Saída</option>
+                  <option>Entrada</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Finalidade</label>
+                <select>
+                  <option>NF-e Normal</option>
+                  <option>NF-e Complementar</option>
+                  <option>NF-e de Ajuste</option>
+                  <option>Devolução / Retorno</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>Série</label>
+                <input type="number" value="1" min="1"/>
+              </div>
+              <div class="form-group">
+                <label>Número</label>
+                <input type="number" value="248" readonly style="background:#f0f0f0"/>
+              </div>
+              <div class="form-group">
+                <label>Data de Emissão</label>
+                <input type="date" value="2026-05-23"/>
+              </div>
+              <div class="form-group">
+                <label>Data de Saída</label>
+                <input type="date" value="2026-05-23"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section" id="sec-destinatario">
+            <div class="form-section-title">Destinatário</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>CNPJ / CPF do Destinatário</label>
+                <div class="cnpj-search">
+                  <input type="text" placeholder="00.000.000/0001-00 ou 000.000.000-00" id="cnpj-input"/>
+                  <button onclick="buscarCNPJ()">🔍 Buscar</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Razão Social / Nome</label>
+                <input type="text" placeholder="Nome do destinatário" id="razao-social"/>
+              </div>
+              <div class="form-group">
+                <label>Inscrição Estadual</label>
+                <input type="text" placeholder="Isento ou número"/>
+              </div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>CEP</label>
+                <input type="text" placeholder="00000-000"/>
+              </div>
+              <div class="form-group">
+                <label>Logradouro</label>
+                <input type="text" placeholder="Rua, Avenida..."/>
+              </div>
+              <div class="form-group">
+                <label>Número</label>
+                <input type="text" placeholder="Nº"/>
+              </div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>Complemento</label>
+                <input type="text" placeholder="Apto, Sala..."/>
+              </div>
+              <div class="form-group">
+                <label>Bairro</label>
+                <input type="text" placeholder="Bairro"/>
+              </div>
+              <div class="form-group">
+                <label>Município</label>
+                <input type="text" placeholder="Cidade"/>
+              </div>
+              <div class="form-group">
+                <label>UF</label>
+                <select>
+                  <option>SP</option><option>RJ</option><option>MG</option>
+                  <option>RS</option><option>PR</option><option>SC</option>
+                  <option>BA</option><option>GO</option><option>DF</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITENS -->
+          <div class="form-section" id="sec-itens">
+            <div class="form-section-title">Itens da Nota</div>
+            <table class="items-table" id="items-table">
+              <thead>
+                <tr>
+                  <th style="width:30px">#</th>
+                  <th>Produto / Descrição</th>
+                  <th style="width:80px">NCM</th>
+                  <th style="width:70px">CFOP</th>
+                  <th style="width:60px">Und</th>
+                  <th style="width:70px">Qtd</th>
+                  <th style="width:100px">Vl. Unit.</th>
+                  <th style="width:100px">Vl. Total</th>
+                  <th style="width:36px"></th>
+                </tr>
+              </thead>
+              <tbody id="items-body">
+                <tr data-idx="1">
+                  <td style="text-align:center;color:#bbb;font-size:12px;">1</td>
+                  <td><input type="text" placeholder="Descrição do produto" oninput="calcItem(this)"/></td>
+                  <td><input type="text" placeholder="0000.00.00"/></td>
+                  <td><input type="text" placeholder="5102"/></td>
+                  <td><select><option>UN</option><option>PC</option><option>CX</option><option>KG</option><option>MT</option><option>LT</option></select></td>
+                  <td><input type="number" value="1" min="1" oninput="calcItem(this)" class="qty"/></td>
+                  <td><input type="number" value="0.00" step="0.01" oninput="calcItem(this)" class="unit"/></td>
+                  <td><input type="number" value="0.00" readonly class="total-item" style="background:#f0f8f0;font-weight:700;color:#16a34a"/></td>
+                  <td><button class="del-btn" onclick="removeItem(this)">🗑</button></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="add-item-row" onclick="addItem()">
+              <span>＋</span> Adicionar item
+            </div>
+          </div>
+
+          <!-- IMPOSTOS -->
+          <div class="form-section">
+            <div class="form-section-title">Impostos</div>
+            <div class="totais-impostos">
+              <div class="imposto-box">
+                <div class="imp-label">ICMS</div>
+                <div class="imp-val" id="icms-val">R$ 0,00</div>
+              </div>
+              <div class="imposto-box">
+                <div class="imp-label">IPI</div>
+                <div class="imp-val">R$ 0,00</div>
+              </div>
+              <div class="imposto-box">
+                <div class="imp-label">PIS</div>
+                <div class="imp-val">R$ 0,00</div>
+              </div>
+              <div class="imposto-box">
+                <div class="imp-label">COFINS</div>
+                <div class="imp-val">R$ 0,00</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TRANSPORTE -->
+          <div class="form-section" id="sec-transporte">
+            <div class="form-section-title">Transporte</div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Modalidade do Frete</label>
+                <select>
+                  <option value="0">0 – Emitente (CIF)</option>
+                  <option value="1">1 – Destinatário (FOB)</option>
+                  <option value="2">2 – Terceiros</option>
+                  <option value="9">9 – Sem frete</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>CNPJ da Transportadora</label>
+                <input type="text" placeholder="00.000.000/0001-00"/>
+              </div>
+              <div class="form-group">
+                <label>Razão Social</label>
+                <input type="text" placeholder="Nome da transportadora"/>
+              </div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>IE da Transportadora</label>
+                <input type="text" placeholder="Isento ou nº"/>
+              </div>
+              <div class="form-group">
+                <label>Endereço</label>
+                <input type="text" placeholder="Logradouro"/>
+              </div>
+              <div class="form-group">
+                <label>Município</label>
+                <input type="text" placeholder="Cidade"/>
+              </div>
+              <div class="form-group">
+                <label>UF</label>
+                <select>
+                  <option>SP</option><option>RJ</option><option>MG</option>
+                  <option>RS</option><option>PR</option><option>SC</option>
+                  <option>BA</option><option>GO</option><option>DF</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-section-title" style="margin-top:12px">Volumes</div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>Quantidade</label>
+                <input type="number" placeholder="1" min="0"/>
+              </div>
+              <div class="form-group">
+                <label>Espécie</label>
+                <input type="text" placeholder="ex: CAIXA, FARDO"/>
+              </div>
+              <div class="form-group">
+                <label>Peso Bruto (kg)</label>
+                <input type="number" step="0.001" placeholder="0.000"/>
+              </div>
+              <div class="form-group">
+                <label>Peso Líquido (kg)</label>
+                <input type="number" step="0.001" placeholder="0.000"/>
+              </div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Marca</label>
+                <input type="text" placeholder="Marca dos volumes"/>
+              </div>
+              <div class="form-group">
+                <label>Numeração</label>
+                <input type="text" placeholder="ex: 001 a 010"/>
+              </div>
+              <div class="form-group">
+                <label>Lacres</label>
+                <input type="text" placeholder="Número dos lacres (sep. por vírgula)"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGAMENTO -->
+          <div class="form-section" id="sec-pagamento">
+            <div class="form-section-title">Pagamento</div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Forma de Pagamento</label>
+                <select id="forma-pgto" onchange="toggleParcelas()">
+                  <option value="01">01 – Dinheiro</option>
+                  <option value="02">02 – Cheque</option>
+                  <option value="03">03 – Cartão de crédito</option>
+                  <option value="04">04 – Cartão de débito</option>
+                  <option value="05">05 – Crédito loja</option>
+                  <option value="10">10 – Vale alimentação</option>
+                  <option value="11">11 – Vale refeição</option>
+                  <option value="13">13 – Boleto bancário</option>
+                  <option value="14">14 – Duplicata mercantil</option>
+                  <option value="15">15 – Pix</option>
+                  <option value="90">90 – Sem pagamento</option>
+                  <option value="99">99 – Outros</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Condição de Pagamento</label>
+                <select id="cond-pgto" onchange="toggleParcelas()">
+                  <option value="0">À vista</option>
+                  <option value="1">A prazo</option>
+                  <option value="2">Outros</option>
+                </select>
+              </div>
+            </div>
+            <div id="parcelas-wrap" style="display:none">
+              <div class="form-section-title" style="margin-top:8px">Parcelas</div>
+              <table class="items-table" id="parcelas-table">
+                <thead>
+                  <tr>
+                    <th style="width:40px">#</th>
+                    <th>Vencimento</th>
+                    <th>Valor (R$)</th>
+                    <th style="width:36px"></th>
+                  </tr>
+                </thead>
+                <tbody id="parcelas-body">
+                  <tr>
+                    <td style="text-align:center;color:#bbb;font-size:12px;">1</td>
+                    <td><input type="date" style="width:100%;padding:7px 8px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px"/></td>
+                    <td><input type="number" step="0.01" placeholder="0,00" style="width:100%;padding:7px 8px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px"/></td>
+                    <td><button class="del-btn" onclick="removeParcela(this)">🗑</button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="add-item-row" onclick="addParcela()" style="margin-top:6px">
+                <span>＋</span> Adicionar parcela
+              </div>
+            </div>
+            <div style="margin-top:12px;padding:10px 14px;background:#f8f9fc;border:1px solid #f0f0f0;border-radius:8px;font-size:13px;color:#555">
+              <div style="display:flex;justify-content:space-between">
+                <span>Total a pagar</span>
+                <b id="pgto-total">R$ 0,00</b>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFO ADICIONAL -->
+          <div class="form-section">
+            <div class="form-section-title">Informações Adicionais</div>
+            <div class="form-group">
+              <label>Informações complementares</label>
+              <textarea placeholder="Observações, referências, condições de pagamento..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESUMO -->
+      <div class="resumo-card">
+        <h3>Resumo da nota</h3>
+
+        <div class="resumo-line"><span>Emitente</span><span style="font-weight:600;max-width:150px;text-align:right;font-size:12px">Orange Sistemas Ltda</span></div>
+        <div class="resumo-line"><span>Série / Nº</span><span>001 / 000248</span></div>
+        <div class="resumo-line"><span>Itens</span><span id="res-itens">0 itens</span></div>
+        <div class="resumo-line"><span>Subtotal produtos</span><span id="res-subtotal">R$ 0,00</span></div>
+        <div class="resumo-line"><span>ICMS (12%)</span><span id="res-icms">R$ 0,00</span></div>
+        <div class="resumo-line"><span>PIS (0,65%)</span><span id="res-pis">R$ 0,00</span></div>
+        <div class="resumo-line"><span>COFINS (3%)</span><span id="res-cofins">R$ 0,00</span></div>
+        <div class="resumo-line"><span>Desconto</span><span>R$ 0,00</span></div>
+        <div class="resumo-line total"><span>Total NF-e</span><span id="res-total">R$ 0,00</span></div>
+
+        <div class="resumo-actions">
+          <button class="btn primary" onclick="emitir()">⚡ Emitir NF-e</button>
+          <button class="btn secondary">👁 Pré-visualizar DANFE</button>
+          <button class="btn secondary">💾 Salvar rascunho</button>
+        </div>
+
+        <div style="margin-top:16px;padding:10px;background:#f0fdf4;border-radius:8px;font-size:11px;color:#16a34a;font-weight:600;text-align:center;">
+          🔒 Transmissão criptografada SEFAZ
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let itemCount = 1;
+let parcelaCount = 1;
+
+/* ── Tab scroll navigation ── */
+function goTab(sectionId, tabEl) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  const section = document.getElementById(sectionId);
+  if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Parcelas ── */
+function toggleParcelas() {
+  const cond = document.getElementById('cond-pgto').value;
+  document.getElementById('parcelas-wrap').style.display = cond === '1' ? 'block' : 'none';
+}
+
+function addParcela() {
+  parcelaCount++;
+  const tbody = document.getElementById('parcelas-body');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td style="text-align:center;color:#bbb;font-size:12px;">${parcelaCount}</td>
+    <td><input type="date" style="width:100%;padding:7px 8px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px"/></td>
+    <td><input type="number" step="0.01" placeholder="0,00" style="width:100%;padding:7px 8px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px"/></td>
+    <td><button class="del-btn" onclick="removeParcela(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function removeParcela(btn) {
+  const rows = document.querySelectorAll('#parcelas-body tr');
+  if (rows.length <= 1) return;
+  btn.closest('tr').remove();
+}
+
+function fmt(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
+
+function calcItem(el) {
+  const row = el.closest('tr');
+  const qty  = parseFloat(row.querySelector('.qty').value)  || 0;
+  const unit = parseFloat(row.querySelector('.unit').value) || 0;
+  row.querySelector('.total-item').value = (qty * unit).toFixed(2);
+  updateResumo();
+}
+
+function updateResumo() {
+  const totals = Array.from(document.querySelectorAll('.total-item'))
+    .map(i => parseFloat(i.value) || 0);
+  const sub = totals.reduce((a, b) => a + b, 0);
+  const icms = sub * 0.12;
+  const pis  = sub * 0.0065;
+  const cof  = sub * 0.03;
+  const total = sub + icms + pis + cof;
+  const count = document.querySelectorAll('#items-body tr').length;
+
+  document.getElementById('res-itens').textContent    = count + (count === 1 ? ' item' : ' itens');
+  document.getElementById('res-subtotal').textContent = fmt(sub);
+  document.getElementById('res-icms').textContent     = fmt(icms);
+  document.getElementById('res-pis').textContent      = fmt(pis);
+  document.getElementById('res-cofins').textContent   = fmt(cof);
+  document.getElementById('res-total').textContent    = fmt(total);
+  document.getElementById('icms-val').textContent     = fmt(icms);
+  const pgtoEl = document.getElementById('pgto-total');
+  if (pgtoEl) pgtoEl.textContent = fmt(total);
+}
+
+function addItem() {
+  itemCount++;
+  const tbody = document.getElementById('items-body');
+  const tr = document.createElement('tr');
+  tr.dataset.idx = itemCount;
+  tr.innerHTML = `
+    <td style="text-align:center;color:#bbb;font-size:12px;">${itemCount}</td>
+    <td><input type="text" placeholder="Descrição do produto" oninput="calcItem(this)"/></td>
+    <td><input type="text" placeholder="0000.00.00"/></td>
+    <td><input type="text" placeholder="5102"/></td>
+    <td><select><option>UN</option><option>PC</option><option>CX</option><option>KG</option><option>MT</option><option>LT</option></select></td>
+    <td><input type="number" value="1" min="1" oninput="calcItem(this)" class="qty"/></td>
+    <td><input type="number" value="0.00" step="0.01" oninput="calcItem(this)" class="unit"/></td>
+    <td><input type="number" value="0.00" readonly class="total-item" style="background:#f0f8f0;font-weight:700;color:#16a34a"/></td>
+    <td><button class="del-btn" onclick="removeItem(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+  updateResumo();
+}
+
+function removeItem(btn) {
+  const rows = document.querySelectorAll('#items-body tr');
+  if (rows.length <= 1) return;
+  btn.closest('tr').remove();
+  updateResumo();
+}
+
+function buscarCNPJ() {
+  const v = document.getElementById('cnpj-input').value.replace(/\D/g,'');
+  if (v.length === 14) {
+    document.getElementById('razao-social').value = 'Empresa Exemplo Ltda (via API)';
+  } else if (v.length === 11) {
+    document.getElementById('razao-social').value = 'João da Silva';
+  } else {
+    alert('Digite um CNPJ (14 dígitos) ou CPF (11 dígitos) válido.');
+  }
+}
+
+function emitir() {
+  const sub = parseFloat(document.getElementById('res-subtotal').textContent.replace('R$ ','').replace(',','.'));
+  if (!sub || sub === 0) { alert('Adicione pelo menos um item com valor para emitir.'); return; }
+  if (confirm('Confirmar emissão da NF-e 000248?\n\nEsta ação transmitirá a nota para a SEFAZ.')) {
+    alert('✅ NF-e 000248 autorizada!\nProtocolo: 135240001234567\n\nO XML e DANFE foram enviados por e-mail.');
+    window.location.href = 'notas.html';
+  }
+}
+</script>
+
+</body>
+</html>

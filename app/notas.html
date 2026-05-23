@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OrangeNFe · Notas Emitidas</title>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    /* ── FILTROS ── */
+    .filters {
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;
+    }
+    .filters input,.filters select {
+      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+    }
+    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
+    .filters input[type=text] { min-width:260px; }
+
+    /* ── CHIPS RESUMO ── */
+    .summary-strip { display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap; }
+    .sum-chip {
+      display:flex;align-items:center;gap:5px;padding:5px 12px;
+      border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+      border:1.5px solid transparent;transition:all 0.15s;white-space:nowrap;
+    }
+    .sum-chip.all    { background:#f4f6f9;color:#555; }
+    .sum-chip.auth   { background:#f0fdf4;color:#16a34a;border-color:#bbf7d0; }
+    .sum-chip.cancel { background:#fef2f2;color:#dc2626;border-color:#fecaca; }
+    .sum-chip.digit  { background:#fffbeb;color:#d97706;border-color:#fde68a; }
+    .sum-chip.valid  { background:#eff6ff;color:#2563eb;border-color:#bfdbfe; }
+    .sum-chip.rej    { background:#fdf4ff;color:#9333ea;border-color:#e9d5ff; }
+    .sum-chip.den    { background:#fff1f2;color:#9f1239;border-color:#fecdd3; }
+    .sum-chip.active-filter { box-shadow:0 0 0 2px #f97316; }
+
+    /* ── BARRA DE AÇÕES DA TABELA ── */
+    .table-toolbar {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 16px;background:#f8f9fc;border-bottom:1px solid #f0f0f0;
+      flex-wrap:wrap;gap:8px;
+    }
+    .table-toolbar-left { display:flex;gap:6px;align-items:center; }
+    .table-toolbar-right { display:flex;gap:6px;align-items:center; }
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:6px 12px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;text-decoration:none;
+    }
+    .tb-btn:hover { background:#f4f6f9;border-color:#d0d3db; }
+    .tb-btn.orange { background:#f97316;color:#fff;border-color:#f97316; }
+    .tb-btn.orange:hover { background:#ea6c0a; }
+    .tb-btn.green { background:#f0fdf4;color:#16a34a;border-color:#bbf7d0; }
+    .tb-btn.green:hover { background:#dcfce7; }
+
+    /* ── TAGS DE TIPO ── */
+    .tipo-tag {
+      display:inline-flex;align-items:center;gap:3px;
+      padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;
+      margin-bottom:3px;
+    }
+    .tipo-nfe  { background:#eff6ff;color:#2563eb; }
+    .tipo-nfce { background:#fdf4ff;color:#7c3aed; }
+    .tipo-saida  { background:#fff5ee;color:#f97316; }
+    .tipo-entrada{ background:#f0fdf4;color:#16a34a; }
+
+    /* ── AMBIENTE TAG ── */
+    .amb-tag {
+      font-size:10px;font-weight:600;padding:1px 6px;border-radius:4px;
+    }
+    .amb-prod { background:#f0fdf4;color:#15803d; }
+    .amb-homo { background:#fef2f2;color:#dc2626; }
+
+    /* ── BADGES EXPANDIDOS ── */
+    .badge.digitacao   { background:#fffbeb;color:#d97706; }
+    .badge.digitacao::before { background:#d97706; }
+    .badge.validada    { background:#eff6ff;color:#2563eb; }
+    .badge.validada::before { background:#2563eb; }
+    .badge.assinando   { background:#f0f9ff;color:#0369a1; }
+    .badge.assinando::before { background:#0369a1; }
+    .badge.processando { background:#f0f9ff;color:#0369a1; }
+    .badge.processando::before { background:#0369a1; }
+    .badge.enviada     { background:#f0f9ff;color:#0369a1; }
+    .badge.enviada::before { background:#0369a1; }
+    .badge.denegada    { background:#fff1f2;color:#9f1239; }
+    .badge.denegada::before { background:#9f1239; }
+
+    /* ── AÇÕES POR LINHA ── */
+    .row-actions { display:flex;gap:3px;flex-wrap:wrap; }
+    .act-btn {
+      display:inline-flex;align-items:center;gap:3px;
+      padding:4px 8px;border-radius:5px;font-size:11px;font-weight:600;
+      cursor:pointer;border:1px solid #e8eaf0;background:#fff;color:#555;
+      transition:all 0.12s;white-space:nowrap;
+    }
+    .act-btn:hover { background:#f4f6f9; }
+    .act-btn.red:hover { border-color:#fecaca;color:#dc2626;background:#fef2f2; }
+    .act-btn.blue:hover { border-color:#bfdbfe;color:#2563eb;background:#eff6ff; }
+    .act-btn.green:hover { border-color:#bbf7d0;color:#16a34a;background:#f0fdf4; }
+    .act-btn.amber:hover { border-color:#fde68a;color:#d97706;background:#fffbeb; }
+
+    /* ── NOTA Nº ── */
+    .nota-num { font-weight:700;color:#1a1a2e; }
+    .nota-chave { font-size:10px;color:#bbb;margin-top:2px;font-family:monospace;word-break:break-all; }
+
+    /* ── PAGINAÇÃO ── */
+    .pagination { display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#888; }
+    .page-btns { display:flex;gap:4px; }
+    .page-btn {
+      width:30px;height:30px;border-radius:6px;border:1.5px solid #e8eaf0;
+      background:#fff;cursor:pointer;font-size:12px;font-weight:600;color:#555;transition:all 0.15s;
+    }
+    .page-btn:hover { border-color:#f97316;color:#f97316; }
+    .page-btn.active { background:#f97316;border-color:#f97316;color:#fff; }
+
+    /* ── LEGENDA COLLAPSIBLE ── */
+    .legenda-toggle {
+      display:flex;align-items:center;gap:6px;font-size:12px;color:#888;
+      cursor:pointer;padding:8px 0;user-select:none;margin-top:12px;
+    }
+    .legenda-toggle:hover { color:#f97316; }
+    .legenda-body {
+      display:none;border:1px solid #f0f0f0;border-radius:8px;
+      overflow:hidden;margin-top:6px;
+    }
+    .legenda-body.open { display:block; }
+    .leg-row {
+      display:flex;align-items:flex-start;gap:16px;padding:8px 16px;
+      border-bottom:1px solid #f7f7f7;font-size:12px;
+    }
+    .leg-row:last-child { border-bottom:none; }
+    .leg-status { width:140px;font-weight:700;flex-shrink:0; }
+    .leg-desc { color:#777; }
+
+    /* ── MODAIS ── */
+    .modal-backdrop {
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);
+      z-index:9000;align-items:center;justify-content:center;
+    }
+    .modal-backdrop.open { display:flex; }
+    .modal-box {
+      background:#fff;border-radius:14px;width:540px;max-width:95vw;
+      max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-box.wide { width:720px; }
+    .modal-header {
+      padding:18px 24px;border-bottom:1px solid #f0f0f0;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .modal-title { font-size:15px;font-weight:700;color:#1a1a2e; }
+    .modal-close {
+      width:28px;height:28px;border-radius:6px;border:none;
+      background:#f4f6f9;cursor:pointer;font-size:16px;color:#888;
+      display:flex;align-items:center;justify-content:center;transition:all 0.15s;
+    }
+    .modal-close:hover { background:#fef2f2;color:#dc2626; }
+    .modal-body { padding:20px 24px; }
+    .modal-footer {
+      padding:14px 24px;border-top:1px solid #f0f0f0;
+      display:flex;gap:8px;justify-content:flex-end;
+    }
+    .modal-section { margin-bottom:18px; }
+    .modal-section-title {
+      font-size:11px;font-weight:700;color:#999;text-transform:uppercase;
+      letter-spacing:0.6px;margin-bottom:10px;
+    }
+    .radio-group { display:flex;flex-direction:column;gap:8px; }
+    .radio-option {
+      display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
+      border:1.5px solid #e8eaf0;border-radius:8px;cursor:pointer;transition:all 0.15s;
+    }
+    .radio-option:hover { border-color:#f97316; }
+    .radio-option input[type=radio] { accent-color:#f97316;margin-top:2px; }
+    .radio-option-content { flex:1; }
+    .radio-option-label { font-size:13px;font-weight:600;color:#1a1a2e; }
+    .radio-option-sub { font-size:11px;color:#aaa;margin-top:2px; }
+    .inline-fields { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px; }
+    .inline-fields.cols3 { grid-template-columns:1fr 1fr 1fr; }
+
+    /* checkbox select-all highlight */
+    tbody tr.selected td { background:#fff8f3!important; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon">🟠</div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="#" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item active"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="#" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="#" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="#" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="#" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="#" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="#" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="#" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="#" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="#" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Notas Emitidas</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn ghost" onclick="openModal('modal-inutilizar')">⚠️ Inutilizar numeração</button>
+      <button class="topbar-btn ghost" onclick="openModal('modal-importar')">📤 Importar TXT/XML/XLSX</button>
+      <button class="topbar-btn ghost" onclick="openModal('modal-clonar')">📋 Copiar nota</button>
+      <a href="emissao-nfe.html" class="topbar-btn primary">＋ Nova NF-e</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- CHIPS RESUMO -->
+    <div class="summary-strip">
+      <div class="sum-chip all active-filter" onclick="filterStatus(this,'all')">Todas · 247</div>
+      <div class="sum-chip auth" onclick="filterStatus(this,'auth')">✅ Autorizadas · 218</div>
+      <div class="sum-chip cancel" onclick="filterStatus(this,'cancel')">❌ Canceladas · 15</div>
+      <div class="sum-chip digit" onclick="filterStatus(this,'digit')">✏️ Em digitação · 3</div>
+      <div class="sum-chip valid" onclick="filterStatus(this,'valid')">🔵 Validadas · 2</div>
+      <div class="sum-chip rej" onclick="filterStatus(this,'rej')">⚠️ Rejeitadas · 6</div>
+      <div class="sum-chip den" onclick="filterStatus(this,'den')">🚫 Denegadas · 3</div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters">
+      <input type="text" placeholder="🔍  Buscar por nº, destinatário, CNPJ ou chave..."/>
+      <select>
+        <option>Todos os status</option>
+        <option>Autorizada</option><option>Cancelada</option><option>Em digitação</option>
+        <option>Validada</option><option>Rejeitada</option><option>Denegada</option>
+        <option>Assinando</option><option>Processando</option><option>Enviada</option>
+      </select>
+      <select>
+        <option>Todos os tipos</option>
+        <option>NF-e saída</option><option>NF-e entrada</option><option>NFC-e</option>
+      </select>
+      <select>
+        <option>Produção + Homologação</option>
+        <option>Somente produção</option><option>Somente homologação</option>
+      </select>
+      <select>
+        <option>Este mês</option><option>Mês anterior</option>
+        <option>Últimos 3 meses</option><option>Este ano</option><option>Período customizado</option>
+      </select>
+      <button class="topbar-btn ghost" onclick="openModal('modal-filtro')">⚙️ Filtro avançado</button>
+    </div>
+
+    <!-- TABELA -->
+    <div class="card" style="padding:0;overflow:hidden;">
+
+      <!-- TOOLBAR DA TABELA -->
+      <div class="table-toolbar">
+        <div class="table-toolbar-left">
+          <input type="checkbox" id="chkTodos" style="accent-color:#f97316" onclick="toggleAll(this)"/>
+          <label for="chkTodos" style="font-size:12px;color:#888;cursor:pointer;">Selecionar todos</label>
+          <span id="selCount" style="font-size:12px;color:#aaa;margin-left:4px;"></span>
+        </div>
+        <div class="table-toolbar-right">
+          <button class="tb-btn green" onclick="openModal('modal-multiemissao')">▶ Emitir validadas (2)</button>
+          <button class="tb-btn" onclick="openModal('modal-exportar')">📊 Exportar relatório</button>
+          <button class="tb-btn" style="font-size:11px;color:#888" onclick="toggleLegenda()">❓ Legenda</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32px"></th>
+              <th>Nº / Chave de acesso</th>
+              <th>Destinatário / CNPJ</th>
+              <th>Tipo</th>
+              <th>Emissão</th>
+              <th>Valor</th>
+              <th>Ambiente</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- AUTORIZADA -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000247</div>
+                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 7195 2460 4481</div>
+              </td>
+              <td>Mercado São Paulo Ltda<br><span style="font-size:11px;color:#aaa;">12.345.678/0001-90</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-saida">saída</span></div>
+              </td>
+              <td style="white-space:nowrap">23/05/2026<br><span style="font-size:11px;color:#aaa">14:32</span></td>
+              <td><b>R$ 3.200,00</b></td>
+              <td><span class="amb-tag amb-prod">produção</span></td>
+              <td><span class="badge autorizada">Autorizada</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn" title="Baixar DANFE">📄 DANFE</button>
+                  <button class="act-btn" title="Baixar XML">📥 XML</button>
+                  <button class="act-btn blue" title="Reenviar por e-mail" onclick="openModal('modal-email')">✉️</button>
+                  <button class="act-btn amber" title="Carta de correção">🔧 CCe</button>
+                  <button class="act-btn red" title="Cancelar nota" onclick="openModal('modal-cancelar')">✕ Cancelar</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- AUTORIZADA -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000246</div>
+                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 6195 2460 4480</div>
+              </td>
+              <td>Tech Distribuidora ME<br><span style="font-size:11px;color:#aaa;">98.765.432/0001-10</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-saida">saída</span></div>
+              </td>
+              <td style="white-space:nowrap">23/05/2026<br><span style="font-size:11px;color:#aaa">11:15</span></td>
+              <td><b>R$ 780,50</b></td>
+              <td><span class="amb-tag amb-prod">produção</span></td>
+              <td><span class="badge autorizada">Autorizada</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn">📄 DANFE</button>
+                  <button class="act-btn">📥 XML</button>
+                  <button class="act-btn blue" onclick="openModal('modal-email')">✉️</button>
+                  <button class="act-btn amber">🔧 CCe</button>
+                  <button class="act-btn red" onclick="openModal('modal-cancelar')">✕ Cancelar</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- CANCELADA -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000245</div>
+                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 5195 2460 4479</div>
+              </td>
+              <td>João da Silva<br><span style="font-size:11px;color:#aaa;">123.456.789-00</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-saida">saída</span></div>
+              </td>
+              <td style="white-space:nowrap">22/05/2026<br><span style="font-size:11px;color:#aaa">16:45</span></td>
+              <td><b>R$ 150,00</b></td>
+              <td><span class="amb-tag amb-prod">produção</span></td>
+              <td><span class="badge cancelada">Cancelada</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn">📄 DANFE</button>
+                  <button class="act-btn">📥 XML</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- AUTORIZADA ENTRADA -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000244</div>
+                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 4195 2460 4478</div>
+              </td>
+              <td>Construtora Omega S/A<br><span style="font-size:11px;color:#aaa;">55.123.456/0001-77</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-entrada">entrada</span></div>
+              </td>
+              <td style="white-space:nowrap">22/05/2026<br><span style="font-size:11px;color:#aaa">09:20</span></td>
+              <td><b>R$ 12.400,00</b></td>
+              <td><span class="amb-tag amb-prod">produção</span></td>
+              <td><span class="badge autorizada">Autorizada</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn">📄 DANFE</button>
+                  <button class="act-btn">📥 XML</button>
+                  <button class="act-btn blue" onclick="openModal('modal-email')">✉️</button>
+                  <button class="act-btn amber">🔧 CCe</button>
+                  <button class="act-btn red" onclick="openModal('modal-cancelar')">✕ Cancelar</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- EM DIGITAÇÃO -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000243</div>
+                <div class="nota-chave" style="color:#e0e0e0">— rascunho, não enviada —</div>
+              </td>
+              <td>Supermercado Norte ME<br><span style="font-size:11px;color:#aaa;">77.654.321/0001-33</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-saida">saída</span></div>
+              </td>
+              <td style="white-space:nowrap">21/05/2026<br><span style="font-size:11px;color:#aaa">18:05</span></td>
+              <td><b>R$ 920,00</b></td>
+              <td><span class="amb-tag amb-homo">homolog.</span></td>
+              <td><span class="badge digitacao">Em digitação</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn green">✏️ Editar</button>
+                  <button class="act-btn red">🗑️ Excluir</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- VALIDADA -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000242</div>
+                <div class="nota-chave" style="color:#e0e0e0">— validada, pronta para emissão —</div>
+              </td>
+              <td>Distribuidora ABC Ltda<br><span style="font-size:11px;color:#aaa;">33.987.654/0001-44</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-saida">saída</span></div>
+              </td>
+              <td style="white-space:nowrap">21/05/2026<br><span style="font-size:11px;color:#aaa">16:30</span></td>
+              <td><b>R$ 4.500,00</b></td>
+              <td><span class="amb-tag amb-homo">homolog.</span></td>
+              <td><span class="badge validada">Validada</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn green">✏️ Editar</button>
+                  <button class="act-btn red">🗑️ Excluir</button>
+                  <button class="act-btn" style="background:#f0fdf4;border-color:#bbf7d0;color:#16a34a">▶ Emitir</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- REJEITADA -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000241</div>
+                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 1195 2460 4474</div>
+              </td>
+              <td>Farmácia Saúde Total<br><span style="font-size:11px;color:#aaa;">44.321.654/0001-22</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-saida">saída</span></div>
+              </td>
+              <td style="white-space:nowrap">21/05/2026<br><span style="font-size:11px;color:#aaa">14:12</span></td>
+              <td><b>R$ 2.100,00</b></td>
+              <td><span class="amb-tag amb-prod">produção</span></td>
+              <td><span class="badge rejeitada">Rejeitada</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn amber">✏️ Corrigir</button>
+                  <button class="act-btn">📥 XML</button>
+                  <button class="act-btn red">🗑️ Excluir</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- DENEGADA -->
+            <tr>
+              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+              <td>
+                <div class="nota-num">000240</div>
+                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 0195 2460 4473</div>
+              </td>
+              <td>Indústria XYZ S/A<br><span style="font-size:11px;color:#aaa;">66.111.222/0001-55</span></td>
+              <td>
+                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
+                <div><span class="tipo-tag tipo-saida">saída</span></div>
+              </td>
+              <td style="white-space:nowrap">20/05/2026<br><span style="font-size:11px;color:#aaa">10:00</span></td>
+              <td><b>R$ 8.750,00</b></td>
+              <td><span class="amb-tag amb-prod">produção</span></td>
+              <td><span class="badge denegada">Denegada</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="act-btn">📥 XML</button>
+                  <span style="font-size:11px;color:#9f1239;padding:4px 6px">Irregularidade fiscal</span>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINAÇÃO -->
+      <div style="padding:12px 20px;border-top:1px solid #f0f0f0;">
+        <div class="pagination">
+          <span>Exibindo 1–8 de 247 notas</span>
+          <div class="page-btns">
+            <button class="page-btn">‹</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">…</button>
+            <button class="page-btn">42</button>
+            <button class="page-btn">›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEGENDA COLLAPSIBLE -->
+    <div class="legenda-toggle" onclick="toggleLegenda()" id="legendaToggle">
+      <span>❓</span> <span>Legenda das situações</span> <span id="legendaArrow">▼</span>
+    </div>
+    <div class="legenda-body" id="legendaBody">
+      <div class="leg-row"><span class="leg-status"><span class="badge digitacao" style="font-size:11px">Em digitação</span></span><span class="leg-desc">Nota aberta para edição. Ainda não foi enviada à SEFAZ.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge validada" style="font-size:11px">Validada</span></span><span class="leg-desc">Passou nos testes básicos de estrutura. Pronta para emissão.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge assinando" style="font-size:11px">Assinando</span></span><span class="leg-desc">Sendo assinada com o certificado digital.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge processando" style="font-size:11px">Processando</span></span><span class="leg-desc">Aguardando autorização da SEFAZ para processamento.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge enviada" style="font-size:11px">Enviada</span></span><span class="leg-desc">Enviada à SEFAZ. Aguardando retorno do processamento.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge autorizada" style="font-size:11px">Autorizada</span></span><span class="leg-desc">Enviada e autorizada pela SEFAZ. Com valor fiscal.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge rejeitada" style="font-size:11px">Rejeitada</span></span><span class="leg-desc">Rejeitada pela SEFAZ. Corrija e reenvie.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge cancelada" style="font-size:11px">Cancelada</span></span><span class="leg-desc">Cancelada após autorização da SEFAZ.</span></div>
+      <div class="leg-row"><span class="leg-status"><span class="badge denegada" style="font-size:11px">Denegada</span></span><span class="leg-desc">Denegada pela SEFAZ por irregularidade fiscal. Não reutilizável.</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAIS
+══════════════════════════════════════════════════════════ -->
+
+<!-- MODAL: FILTRO AVANÇADO -->
+<div class="modal-backdrop" id="modal-filtro" onclick="closeOnBackdrop(event,'modal-filtro')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">🔍 Filtro avançado</span>
+      <button class="modal-close" onclick="closeModal('modal-filtro')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="filtro" value="data" checked/>
+          <div class="radio-option-content">
+            <div class="radio-option-label">Por período de emissão</div>
+            <div class="inline-fields" style="margin-top:8px">
+              <div class="form-group"><label>Data inicial</label><input type="text" placeholder="dd/mm/aaaa" class="form-group input"/></div>
+              <div class="form-group"><label>Data final</label><input type="text" placeholder="dd/mm/aaaa"/></div>
+            </div>
+            <div style="margin-top:6px;display:flex;gap:10px">
+              <a href="#" style="font-size:12px;color:#f97316">Mês atual</a>
+              <a href="#" style="font-size:12px;color:#f97316">Mês anterior</a>
+              <a href="#" style="font-size:12px;color:#f97316">Últimos 3 meses</a>
+            </div>
+          </div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="filtro" value="numero"/>
+          <div class="radio-option-content">
+            <div class="radio-option-label">Por faixa de numeração</div>
+            <div class="inline-fields" style="margin-top:8px">
+              <div class="form-group"><label>Número inicial</label><input type="number" placeholder="1"/></div>
+              <div class="form-group"><label>Número final</label><input type="number" placeholder="999"/></div>
+            </div>
+          </div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="filtro" value="dest"/>
+          <div class="radio-option-content">
+            <div class="radio-option-label">Por destinatário</div>
+            <div style="margin-top:8px">
+              <select style="width:100%;padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px">
+                <option>Selecione o destinatário...</option>
+                <option>Mercado São Paulo Ltda</option>
+                <option>Tech Distribuidora ME</option>
+              </select>
+            </div>
+          </div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="filtro" value="usuario"/>
+          <div class="radio-option-content">
+            <div class="radio-option-label">Por usuário emissor</div>
+            <div style="margin-top:8px">
+              <select style="width:100%;padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px">
+                <option>Selecione o usuário...</option>
+                <option>Ricardo B. (Administrador)</option>
+              </select>
+            </div>
+          </div>
+        </label>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0;">
+        <div class="modal-section-title">Filtros adicionais</div>
+        <div class="inline-fields cols3">
+          <div class="form-group">
+            <label>Tipo</label>
+            <select style="width:100%;padding:8px 10px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px">
+              <option>Saída + entrada</option><option>Somente saída</option><option>Somente entrada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ambiente</label>
+            <select style="width:100%;padding:8px 10px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px">
+              <option>Ambos</option><option>Produção</option><option>Homologação</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Situação</label>
+            <select style="width:100%;padding:8px 10px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px">
+              <option>Todas</option><option>Autorizada</option><option>Cancelada</option>
+              <option>Em digitação</option><option>Rejeitada</option><option>Denegada</option>
+            </select>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer">
+          <input type="checkbox" style="accent-color:#f97316"/>
+          Exibir somente NF-e que possuem Carta de Correção (CCe)
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-filtro')">Cancelar</button>
+      <button class="btn primary">🔍 Buscar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CANCELAR NOTA -->
+<div class="modal-backdrop" id="modal-cancelar" onclick="closeOnBackdrop(event,'modal-cancelar')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">✕ Cancelar nota fiscal</span>
+      <button class="modal-close" onclick="closeModal('modal-cancelar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#dc2626">
+        ⚠️ Tem certeza que deseja cancelar a NF-e <b>nº 000247</b>? Esta ação não pode ser desfeita.
+      </div>
+      <div class="form-group">
+        <label>Motivo do cancelamento <span style="color:#aaa;font-weight:400">(mínimo 15 caracteres)</span></label>
+        <textarea rows="3" placeholder="Descreva o motivo do cancelamento..." style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px;resize:vertical;font-family:inherit" id="motivoCancelamento" oninput="checkMotivo()"></textarea>
+        <div id="motivoCount" style="font-size:11px;color:#aaa;margin-top:4px;text-align:right">0 / 255 caracteres (mín. 15)</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-cancelar')">Voltar</button>
+      <button class="btn danger" id="btnCancelarConfirm">✕ Confirmar cancelamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: REENVIAR E-MAIL -->
+<div class="modal-backdrop" id="modal-email" onclick="closeOnBackdrop(event,'modal-email')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">✉️ Reenviar nota por e-mail</span>
+      <button class="modal-close" onclick="closeModal('modal-email')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#92400e">
+        A nota já foi enviada no momento da emissão. Você realizará um <b>reenvio</b> se continuar.
+      </div>
+      <div class="form-group">
+        <label>E-mail(s) destinatário(s)</label>
+        <input type="email" placeholder="email@exemplo.com" style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px"/>
+        <div style="font-size:11px;color:#aaa;margin-top:4px">Para múltiplos e-mails, separe com vírgula. Ex.: a@x.com, b@x.com</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-email')">Cancelar</button>
+      <button class="btn primary">✉️ Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: IMPORTAR -->
+<div class="modal-backdrop" id="modal-importar" onclick="closeOnBackdrop(event,'modal-importar')">
+  <div class="modal-box wide">
+    <div class="modal-header">
+      <span class="modal-title">📤 Importar notas fiscais</span>
+      <button class="modal-close" onclick="closeModal('modal-importar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="border:2px dashed #e8eaf0;border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='#e8eaf0'">
+        <div style="font-size:32px;margin-bottom:8px">📁</div>
+        <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:4px">Arraste ou clique para selecionar o arquivo</div>
+        <div style="font-size:12px;color:#aaa">Formatos aceitos: <b>TXT</b>, <b>XML</b>, <b>XLSX</b></div>
+        <input type="file" accept=".txt,.xml,.xlsx" style="display:none"/>
+        <button class="btn secondary sm" style="margin-top:16px">Selecionar arquivo</button>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;cursor:pointer">
+        <input type="checkbox" style="accent-color:#f97316"/>
+        Emitir a nota fiscal automaticamente após importação
+      </label>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0">
+        <div class="modal-section-title">Histórico recente de importação</div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse">
+          <tr style="border-bottom:1px solid #f0f0f0">
+            <td style="padding:6px 0;color:#555">planilha_maio_2026.xlsx</td>
+            <td style="color:#aaa">23/05/2026 10:15</td>
+            <td><span class="badge autorizada" style="font-size:10px">3 notas</span></td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#555">nfe_206.xml</td>
+            <td style="color:#aaa">21/05/2026 11:30</td>
+            <td><span class="badge digitacao" style="font-size:10px">1 nota</span></td>
+          </tr>
+        </table>
+        <a href="#" style="font-size:12px;color:#f97316;margin-top:8px;display:block">» Ver todo o histórico de importação</a>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-importar')">Cancelar</button>
+      <button class="btn primary">📤 Importar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: COPIAR NOTA -->
+<div class="modal-backdrop" id="modal-clonar" onclick="closeOnBackdrop(event,'modal-clonar')">
+  <div class="modal-box wide">
+    <div class="modal-header">
+      <span class="modal-title">📋 Copiar nota fiscal</span>
+      <button class="modal-close" onclick="closeModal('modal-clonar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-title">Buscar nota de origem</div>
+      <div class="inline-fields cols3">
+        <div class="form-group">
+          <label>Número</label>
+          <input type="number" placeholder="ex: 247"/>
+        </div>
+        <div class="form-group">
+          <label>Data inicial</label>
+          <input type="text" placeholder="dd/mm/aaaa"/>
+        </div>
+        <div class="form-group">
+          <label>Data final</label>
+          <input type="text" placeholder="dd/mm/aaaa"/>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <label>Destinatário</label>
+        <select style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px">
+          <option>Todos os destinatários</option>
+          <option>Mercado São Paulo Ltda</option>
+          <option>Tech Distribuidora ME</option>
+        </select>
+      </div>
+      <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;margin-top:16px">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f8f9fc">
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Selecionar</th>
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Nº</th>
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Destinatário</th>
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Valor</th>
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top:1px solid #f7f7f7">
+              <td style="padding:10px 12px"><input type="radio" name="notaClonar" style="accent-color:#f97316"/></td>
+              <td style="padding:10px 12px;font-weight:700">000247</td>
+              <td style="padding:10px 12px">Mercado São Paulo Ltda</td>
+              <td style="padding:10px 12px">R$ 3.200,00</td>
+              <td style="padding:10px 12px"><span class="badge autorizada" style="font-size:10px">Autorizada</span></td>
+            </tr>
+            <tr style="border-top:1px solid #f7f7f7">
+              <td style="padding:10px 12px"><input type="radio" name="notaClonar" style="accent-color:#f97316"/></td>
+              <td style="padding:10px 12px;font-weight:700">000246</td>
+              <td style="padding:10px 12px">Tech Distribuidora ME</td>
+              <td style="padding:10px 12px">R$ 780,50</td>
+              <td style="padding:10px 12px"><span class="badge autorizada" style="font-size:10px">Autorizada</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="border:1px solid #f0f0f0;border-radius:8px;padding:12px 16px;margin-top:12px;background:#f8f9fc">
+        <div class="modal-section-title">Opções ao copiar</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:8px">
+          <input type="checkbox" style="accent-color:#f97316"/>
+          Atualizar CFOP para:
+          <select style="padding:5px 10px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px;margin-left:4px">
+            <option>5102 — Venda de mercadoria</option>
+            <option>5101 — Venda de produto industrializado</option>
+            <option>6102 — Venda p/ outra UF</option>
+          </select>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" style="accent-color:#f97316"/>
+          Atualizar impostos para o padrão do CFOP selecionado
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-clonar')">Cancelar</button>
+      <button class="btn primary">📋 Criar cópia</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MULTI-EMISSÃO -->
+<div class="modal-backdrop" id="modal-multiemissao" onclick="closeOnBackdrop(event,'modal-multiemissao')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">▶ Emitir notas validadas</span>
+      <button class="modal-close" onclick="closeModal('modal-multiemissao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:#555;margin-bottom:16px">
+        As seguintes notas estão <b>validadas</b> e prontas para emissão à SEFAZ:
+      </div>
+      <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f8f9fc">
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa">
+                <input type="checkbox" checked style="accent-color:#f97316"/>
+              </th>
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Nº</th>
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Destinatário</th>
+              <th style="padding:8px 12px;text-align:left;font-size:11px;color:#aaa;font-weight:700">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top:1px solid #f7f7f7">
+              <td style="padding:10px 12px"><input type="checkbox" checked style="accent-color:#f97316"/></td>
+              <td style="padding:10px 12px;font-weight:700">000242</td>
+              <td style="padding:10px 12px">Distribuidora ABC Ltda</td>
+              <td style="padding:10px 12px">R$ 4.500,00</td>
+            </tr>
+            <tr style="border-top:1px solid #f7f7f7">
+              <td style="padding:10px 12px"><input type="checkbox" checked style="accent-color:#f97316"/></td>
+              <td style="padding:10px 12px;font-weight:700">000238</td>
+              <td style="padding:10px 12px">Comércio Geral ME</td>
+              <td style="padding:10px 12px">R$ 1.200,00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-multiemissao')">Cancelar</button>
+      <button class="btn primary">▶ Emitir 2 notas selecionadas</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EXPORTAR RELATÓRIO -->
+<div class="modal-backdrop" id="modal-exportar" onclick="closeOnBackdrop(event,'modal-exportar')">
+  <div class="modal-box wide">
+    <div class="modal-header">
+      <span class="modal-title">📊 Exportar relatório</span>
+      <button class="modal-close" onclick="closeModal('modal-exportar')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- PERÍODO -->
+      <div class="modal-section">
+        <div class="modal-section-title">Período</div>
+        <div class="inline-fields">
+          <div class="form-group">
+            <label>Data inicial</label>
+            <input type="text" placeholder="dd/mm/aaaa" value="01/05/2026" style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px"/>
+          </div>
+          <div class="form-group">
+            <label>Data final</label>
+            <input type="text" placeholder="dd/mm/aaaa" value="23/05/2026" style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px"/>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="tb-btn" onclick="setPeriodo(this,'mes')">Este mês</button>
+          <button class="tb-btn" onclick="setPeriodo(this,'ant')">Mês anterior</button>
+          <button class="tb-btn" onclick="setPeriodo(this,'3m')">Últimos 3 meses</button>
+          <button class="tb-btn" onclick="setPeriodo(this,'ano')">Este ano</button>
+        </div>
+      </div>
+
+      <!-- TIPO DE EXPORTAÇÃO -->
+      <div class="modal-section">
+        <div class="modal-section-title">Tipo de exportação</div>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="tipoExport" value="xlsx" checked/>
+            <div class="radio-option-content">
+              <div class="radio-option-label">📊 Planilha Excel (.xlsx)</div>
+              <div class="radio-option-sub">Exporta todas as NF-e do período com dados completos. Ideal para conciliação e análise.</div>
+            </div>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="tipoExport" value="csv"/>
+            <div class="radio-option-content">
+              <div class="radio-option-label">📄 CSV separado por vírgula (.csv)</div>
+              <div class="radio-option-sub">Formato simples, compatível com qualquer software de planilhas.</div>
+            </div>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="tipoExport" value="xml"/>
+            <div class="radio-option-content">
+              <div class="radio-option-label">🗜️ Pacote XML (.zip)</div>
+              <div class="radio-option-sub">Baixa todos os arquivos XML autorizados do período compactados em um único arquivo.</div>
+            </div>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="tipoExport" value="sped"/>
+            <div class="radio-option-content">
+              <div class="radio-option-label">📑 SPED Fiscal (TXT)</div>
+              <div class="radio-option-sub">Arquivo de escrituração para EFD-ICMS/IPI. Verifique compatibilidade com seu contador.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- FILTROS DO RELATÓRIO -->
+      <div class="modal-section">
+        <div class="modal-section-title">Filtros do relatório</div>
+        <div class="inline-fields cols3">
+          <div class="form-group">
+            <label>Situação</label>
+            <select style="width:100%;padding:8px 10px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px">
+              <option>Todas</option><option>Autorizada</option><option>Cancelada</option>
+              <option>Rejeitada</option><option>Denegada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipo</label>
+            <select style="width:100%;padding:8px 10px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px">
+              <option>Saída + entrada</option><option>Somente saída</option><option>Somente entrada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ambiente</label>
+            <select style="width:100%;padding:8px 10px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px">
+              <option>Ambos</option><option>Produção</option><option>Homologação</option>
+            </select>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer">
+          <input type="checkbox" checked style="accent-color:#f97316"/>
+          Incluir notas canceladas no relatório
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" style="accent-color:#f97316"/>
+          Incluir somente NF-e com Carta de Correção
+        </label>
+      </div>
+
+      <!-- PRÉVIA -->
+      <div style="background:#f8f9fc;border:1px solid #f0f0f0;border-radius:8px;padding:12px 16px;">
+        <div class="modal-section-title" style="margin-bottom:6px">Prévia do arquivo</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#555">
+          <span>Notas encontradas no período</span><b>247</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#555;margin-top:4px">
+          <span>Valor total</span><b>R$ 184.320,00</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#555;margin-top:4px">
+          <span>Tamanho estimado</span><b>~42 KB</b>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-exportar')">Cancelar</button>
+      <button class="btn primary" onclick="closeModal('modal-exportar')">📥 Baixar relatório</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: INUTILIZAR NUMERAÇÃO -->
+<div class="modal-backdrop" id="modal-inutilizar" onclick="closeOnBackdrop(event,'modal-inutilizar')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">⚠️ Inutilizar faixa de numeração</span>
+      <button class="modal-close" onclick="closeModal('modal-inutilizar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#92400e">
+        ⚠️ A inutilização é irreversível. Use apenas quando números de série forem pulados ou utilizados incorretamente.
+      </div>
+      <div class="inline-fields">
+        <div class="form-group">
+          <label>Série</label>
+          <input type="number" placeholder="ex: 1" style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px"/>
+        </div>
+        <div class="form-group">
+          <label>Ano</label>
+          <input type="number" placeholder="ex: 2026" style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px"/>
+        </div>
+      </div>
+      <div class="inline-fields" style="margin-top:8px">
+        <div class="form-group">
+          <label>Número inicial</label>
+          <input type="number" placeholder="ex: 100" style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px"/>
+        </div>
+        <div class="form-group">
+          <label>Número final</label>
+          <input type="number" placeholder="ex: 110" style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px"/>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <label>Justificativa <span style="color:#aaa;font-weight:400">(mínimo 15 caracteres)</span></label>
+        <textarea rows="2" placeholder="Informe o motivo da inutilização..." style="width:100%;padding:9px 12px;border:1.5px solid #e8eaf0;border-radius:7px;font-size:13px;resize:vertical;font-family:inherit"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('modal-inutilizar')">Cancelar</button>
+      <button class="btn danger">⚠️ Inutilizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+  // ── Modais ──
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function closeOnBackdrop(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+  // ── Legenda ──
+  function toggleLegenda() {
+    const body = document.getElementById('legendaBody');
+    const arrow = document.getElementById('legendaArrow');
+    body.classList.toggle('open');
+    arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+  }
+
+  // ── Chips de status ──
+  function filterStatus(el, status) {
+    document.querySelectorAll('.sum-chip').forEach(c => c.classList.remove('active-filter'));
+    el.classList.add('active-filter');
+  }
+
+  // ── Checkbox select all ──
+  function toggleAll(master) {
+    document.querySelectorAll('.row-chk').forEach(c => c.checked = master.checked);
+    updateCount();
+  }
+  function updateCount() {
+    const checked = document.querySelectorAll('.row-chk:checked').length;
+    document.getElementById('selCount').textContent = checked > 0 ? `(${checked} selecionadas)` : '';
+    document.getElementById('chkTodos').checked = checked === document.querySelectorAll('.row-chk').length;
+  }
+
+  // ── Valida motivo cancelamento ──
+  function checkMotivo() {
+    const txt = document.getElementById('motivoCancelamento').value;
+    document.getElementById('motivoCount').textContent = txt.length + ' / 255 caracteres (mín. 15)';
+    document.getElementById('motivoCount').style.color = txt.length >= 15 ? '#16a34a' : '#aaa';
+  }
+
+  // ── Período rápido (modal exportar) ──
+  function setPeriodo(btn, tipo) {
+    document.querySelectorAll('#modal-exportar .tb-btn').forEach(b => b.style.background = '');
+    btn.style.background = '#fff5ee';
+    btn.style.borderColor = '#f97316';
+    btn.style.color = '#f97316';
+  }
+
+  // Fechar modais com ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+  });
+</script>
+</body>
+</html>
