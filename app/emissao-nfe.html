@@ -73,10 +73,26 @@
     .tab {
       padding:10px 18px;font-size:13px;font-weight:600;
       color:#aaa;cursor:pointer;border-bottom:2px solid transparent;
-      margin-bottom:-2px;transition:all 0.15s;
+      margin-bottom:-2px;transition:all 0.15s;display:flex;align-items:center;gap:6px;
     }
     .tab.active { color:#f97316;border-bottom-color:#f97316; }
-    .tab:hover { color:#555; }
+    .tab:hover:not(.active) { color:#555; }
+    .tab.done { color:#16a34a; }
+    .tab.done::before { content:'✓';font-size:11px;font-weight:800; }
+
+    .tab-nav-footer {
+      display:flex;align-items:center;justify-content:space-between;
+      margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0;
+    }
+    .tab-nav-footer .step-info { font-size:12px;color:#aaa;font-weight:600; }
+    .tab-progress {
+      display:flex;gap:6px;align-items:center;
+    }
+    .tab-progress .tp-dot {
+      width:8px;height:8px;border-radius:50%;background:#f0f0f0;transition:all 0.2s;
+    }
+    .tab-progress .tp-dot.done  { background:#16a34a; }
+    .tab-progress .tp-dot.active { background:#f97316;width:20px;border-radius:4px; }
 
     .info-tag {
       display:inline-flex;align-items:center;gap:4px;
@@ -156,11 +172,11 @@
         <!-- IDENTIFICAÇÃO -->
         <div class="card">
           <div class="tab-bar">
-            <div class="tab active" onclick="goTab('sec-identificacao',this)">1. Identificação</div>
-            <div class="tab" onclick="goTab('sec-destinatario',this)">2. Destinatário</div>
-            <div class="tab" onclick="goTab('sec-itens',this)">3. Itens</div>
-            <div class="tab" onclick="goTab('sec-transporte',this)">4. Transporte</div>
-            <div class="tab" onclick="goTab('sec-pagamento',this)">5. Pagamento</div>
+            <div class="tab active" onclick="goTab(0)">1. Identificação</div>
+            <div class="tab" onclick="goTab(1)">2. Destinatário</div>
+            <div class="tab" onclick="goTab(2)">3. Itens</div>
+            <div class="tab" onclick="goTab(3)">4. Transporte</div>
+            <div class="tab" onclick="goTab(4)">5. Pagamento</div>
           </div>
 
           <div class="form-section" id="sec-identificacao">
@@ -210,9 +226,14 @@
                 <input type="date" value="2026-05-23"/>
               </div>
             </div>
+            <div class="tab-nav-footer">
+              <span class="step-info">Passo 1 de 5</span>
+              <div class="tab-progress" id="prog-1"></div>
+              <button class="btn primary" onclick="nextTab()">Próximo: Destinatário →</button>
+            </div>
           </div>
 
-          <div class="form-section" id="sec-destinatario">
+          <div class="form-section" id="sec-destinatario" style="display:none">
             <div class="form-section-title">Destinatário</div>
             <div class="form-row">
               <div class="form-group">
@@ -269,10 +290,15 @@
                 </select>
               </div>
             </div>
+            <div class="tab-nav-footer">
+              <button class="btn secondary" onclick="prevTab()">← Identificação</button>
+              <div class="tab-progress" id="prog-2"></div>
+              <button class="btn primary" onclick="nextTab()">Próximo: Itens →</button>
+            </div>
           </div>
 
           <!-- ITENS -->
-          <div class="form-section" id="sec-itens">
+          <div class="form-section" id="sec-itens" style="display:none">
             <div class="form-section-title">Itens da Nota</div>
             <table class="items-table" id="items-table">
               <thead>
@@ -308,7 +334,7 @@
           </div>
 
           <!-- IMPOSTOS -->
-          <div class="form-section">
+          <div class="form-section" id="sec-impostos" style="display:none">
             <div class="form-section-title">Impostos</div>
             <div class="totais-impostos">
               <div class="imposto-box">
@@ -328,10 +354,15 @@
                 <div class="imp-val">R$ 0,00</div>
               </div>
             </div>
+            <div class="tab-nav-footer">
+              <button class="btn secondary" onclick="prevTab()">← Destinatário</button>
+              <div class="tab-progress" id="prog-3"></div>
+              <button class="btn primary" onclick="nextTab()">Próximo: Transporte →</button>
+            </div>
           </div>
 
           <!-- TRANSPORTE -->
-          <div class="form-section" id="sec-transporte">
+          <div class="form-section" id="sec-transporte" style="display:none">
             <div class="form-section-title">Transporte</div>
             <div class="form-row cols-3">
               <div class="form-group">
@@ -407,10 +438,15 @@
                 <input type="text" placeholder="Número dos lacres (sep. por vírgula)"/>
               </div>
             </div>
+            <div class="tab-nav-footer">
+              <button class="btn secondary" onclick="prevTab()">← Itens</button>
+              <div class="tab-progress" id="prog-4"></div>
+              <button class="btn primary" onclick="nextTab()">Próximo: Pagamento →</button>
+            </div>
           </div>
 
           <!-- PAGAMENTO -->
-          <div class="form-section" id="sec-pagamento">
+          <div class="form-section" id="sec-pagamento" style="display:none">
             <div class="form-section-title">Pagamento</div>
             <div class="form-row cols-2">
               <div class="form-group">
@@ -472,11 +508,16 @@
           </div>
 
           <!-- INFO ADICIONAL -->
-          <div class="form-section">
+          <div class="form-section" id="sec-info-adicional" style="display:none">
             <div class="form-section-title">Informações Adicionais</div>
             <div class="form-group">
               <label>Informações complementares</label>
               <textarea placeholder="Observações, referências, condições de pagamento..."></textarea>
+            </div>
+            <div class="tab-nav-footer">
+              <button class="btn secondary" onclick="prevTab()">← Transporte</button>
+              <div class="tab-progress" id="prog-5"></div>
+              <span></span>
             </div>
           </div>
         </div>
@@ -515,13 +556,63 @@
 let itemCount = 1;
 let parcelaCount = 1;
 
-/* ── Tab scroll navigation ── */
-function goTab(sectionId, tabEl) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  tabEl.classList.add('active');
-  const section = document.getElementById(sectionId);
-  if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+/* ── Tab definitions ── */
+const TABS = [
+  { label:'1. Identificação',  sections:['sec-identificacao'] },
+  { label:'2. Destinatário',   sections:['sec-destinatario'] },
+  { label:'3. Itens',          sections:['sec-itens','sec-impostos'] },
+  { label:'4. Transporte',     sections:['sec-transporte'] },
+  { label:'5. Pagamento',      sections:['sec-pagamento','sec-info-adicional'] },
+];
+let currentTab = 0;
+
+function goTab(idx, fromClick) {
+  // Accept index number or section id (legacy)
+  if (typeof idx === 'string') {
+    idx = TABS.findIndex(t => t.sections.includes(idx));
+    if (idx === -1) return;
+  }
+  if (fromClick !== undefined) idx = fromClick;
+
+  // Mark previous tab as done
+  if (idx > currentTab) currentTab = idx;
+
+  // Hide all sections
+  TABS.forEach(t => t.sections.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = 'none';
+  }));
+
+  // Show current tab's sections
+  TABS[idx].sections.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = '';
+  });
+
+  // Update tab bar styling
+  document.querySelectorAll('.tab-bar .tab').forEach((t, i) => {
+    t.classList.remove('active','done');
+    if (i === idx) t.classList.add('active');
+    else if (i < idx) t.classList.add('done');
+  });
+
+  // Update all progress dots
+  TABS.forEach((_, ti) => {
+    const prog = document.getElementById('prog-' + (ti + 1));
+    if (!prog) return;
+    prog.innerHTML = TABS.map((_, di) =>
+      `<div class="tp-dot ${di < idx ? 'done' : di === idx ? 'active' : ''}"></div>`
+    ).join('');
+  });
+
+  currentTab = idx;
+  // Scroll form card to top
+  const card = document.querySelector('.emissao-wrap .card');
+  if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
 }
+
+function nextTab() { if (currentTab < TABS.length - 1) goTab(currentTab + 1); }
+function prevTab() { if (currentTab > 0) goTab(currentTab - 1); }
 
 /* ── Parcelas ── */
 function toggleParcelas() {
