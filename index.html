@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OrangeNFe | Emissão de NF-e e NFC-e</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; color:#1a1a2e; background:#fff; }
+
+    /* ─── HEADER ─── */
+    header {
+      position: sticky; top:0; z-index:100;
+      background:#fff;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 0 48px;
+      height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .logo-icon {
+      width:36px; height:36px; background:#f97316;
+      border-radius:8px; display:flex; align-items:center;
+      justify-content:center; font-size:18px;
+    }
+    .logo-name { font-size:20px; font-weight:800; color:#1a1a2e; }
+    .logo-name span { color:#f97316; }
+
+    nav { display:flex; align-items:center; gap:8px; }
+    nav a {
+      color:#555; text-decoration:none; font-size:14px;
+      padding:8px 14px; border-radius:6px; transition:all 0.15s;
+    }
+    nav a:hover { background:#fff5ee; color:#f97316; }
+    .btn-login {
+      margin-left:8px;
+      background:#f97316; color:#fff !important;
+      padding:9px 20px !important; border-radius:6px;
+      font-weight:700 !important; font-size:14px !important;
+      transition:background 0.2s !important;
+    }
+    .btn-login:hover { background:#ea6c0a !important; }
+
+    /* ─── HERO SPLIT ─── */
+    .hero {
+      display:grid; grid-template-columns:1fr 1fr;
+      min-height: 580px; align-items:center;
+      padding: 0 48px;
+      background: linear-gradient(135deg, #fff8f3 0%, #fff 60%);
+    }
+    .hero-left { padding-right:48px; }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      background:#fff5ee; border:1px solid #fcd9b6;
+      color:#f97316; font-size:12px; font-weight:600;
+      padding:5px 12px; border-radius:20px; margin-bottom:20px;
+    }
+    .hero-badge span { width:6px;height:6px;background:#f97316;border-radius:50%; }
+    .hero h1 {
+      font-size:44px; font-weight:800; line-height:1.15;
+      color:#1a1a2e; margin-bottom:18px;
+    }
+    .hero h1 em { font-style:normal; color:#f97316; }
+    .hero p {
+      font-size:16px; color:#666; line-height:1.7;
+      margin-bottom:32px; max-width:440px;
+    }
+    .hero-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .btn-primary {
+      background:#f97316; color:#fff; border:none;
+      padding:14px 28px; border-radius:8px; font-size:15px;
+      font-weight:700; cursor:pointer; text-decoration:none;
+      transition:background 0.2s;
+    }
+    .btn-primary:hover { background:#ea6c0a; }
+    .btn-ghost {
+      background:none; border:1.5px solid #ddd; color:#555;
+      padding:13px 24px; border-radius:8px; font-size:15px;
+      font-weight:600; cursor:pointer; text-decoration:none;
+      transition:all 0.2s;
+    }
+    .btn-ghost:hover { border-color:#f97316; color:#f97316; }
+
+    .hero-right {
+      display:flex; flex-direction:column; gap:12px; padding-left:12px;
+    }
+    .hero-card {
+      background:#fff; border-radius:12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding:20px; border-left:4px solid #f97316;
+    }
+    .hero-card h4 { font-size:13px; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
+    .hero-card p { font-size:12px; color:#888; }
+    .hero-card .icon { font-size:22px; margin-bottom:8px; }
+    .hero-cards-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    /* ─── LOGOS CLIENTES ─── */
+    .social-proof {
+      padding:24px 48px;
+      border-top:1px solid #f5f5f5;
+      border-bottom:1px solid #f5f5f5;
+      display:flex; align-items:center; gap:32px;
+    }
+    .social-proof p { font-size:12px; color:#aaa; white-space:nowrap; }
+    .proof-numbers { display:flex; gap:40px; }
+    .proof-num { text-align:center; }
+    .proof-num strong { display:block; font-size:22px; font-weight:800; color:#f97316; }
+    .proof-num span { font-size:11px; color:#aaa; }
+
+    /* ─── FEATURES ─── */
+    .features { padding:80px 48px; }
+    .section-label {
+      font-size:12px; font-weight:700; color:#f97316;
+      text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px;
+    }
+    .section-title { font-size:32px; font-weight:800; color:#1a1a2e; margin-bottom:12px; }
+    .section-sub { font-size:15px; color:#777; max-width:520px; margin-bottom:48px; }
+
+    .features-layout { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .feat {
+      display:flex; gap:16px; padding:24px;
+      border:1px solid #f0f0f0; border-radius:12px;
+      transition:all 0.2s;
+    }
+    .feat:hover { border-color:#fcd9b6; box-shadow:0 4px 16px rgba(249,115,22,0.08); }
+    .feat-icon {
+      width:44px; height:44px; flex-shrink:0;
+      background:#fff5ee; border-radius:10px;
+      display:flex; align-items:center; justify-content:center; font-size:20px;
+    }
+    .feat-body h3 { font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
+    .feat-body p { font-size:13px; color:#888; line-height:1.6; }
+
+    /* ─── STATS STRIP ─── */
+    .stats-strip {
+      background:#1a1a2e; padding:48px;
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:24px; text-align:center;
+    }
+    .stat strong { display:block; font-size:34px; font-weight:800; color:#f97316; }
+    .stat span { font-size:13px; color:#aaa; margin-top:4px; display:block; }
+
+    /* ─── PLANOS ─── */
+    .plans { padding:80px 48px; background:#fafafa; }
+    .plans-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:20px; max-width:900px; margin-top:48px;
+    }
+    .plan {
+      background:#fff; border-radius:14px;
+      border:1.5px solid #eee; padding:32px 28px;
+      display:flex; flex-direction:column;
+      transition:all 0.2s;
+    }
+    .plan:hover { border-color:#f97316; box-shadow:0 8px 28px rgba(249,115,22,0.1); }
+    .plan.popular { border-color:#f97316; position:relative; }
+    .popular-tag {
+      position:absolute; top:-12px; left:50%;
+      transform:translateX(-50%);
+      background:#f97316; color:#fff;
+      font-size:11px; font-weight:700;
+      padding:3px 14px; border-radius:20px;
+    }
+    .plan-name { font-size:13px; font-weight:700; color:#888; text-transform:uppercase;
+      letter-spacing:1px; margin-bottom:12px; }
+    .plan-price { font-size:36px; font-weight:800; color:#1a1a2e; }
+    .plan-price sub { font-size:14px; font-weight:400; color:#aaa; }
+    .plan-price sup { font-size:18px; }
+    .plan-desc { font-size:13px; color:#888; margin:10px 0 24px; line-height:1.6; }
+    .plan-features { list-style:none; margin-bottom:28px; flex:1; }
+    .plan-features li {
+      font-size:13px; color:#555; padding:6px 0;
+      border-bottom:1px solid #f5f5f5;
+      display:flex; gap:8px; align-items:center;
+    }
+    .plan-features li::before { content:'✓'; color:#f97316; font-weight:700; }
+    .btn-plan {
+      display:block; text-align:center; text-decoration:none;
+      padding:12px; border-radius:8px; font-size:14px;
+      font-weight:700; transition:all 0.2s;
+      border:1.5px solid #f97316; color:#f97316;
+    }
+    .btn-plan:hover, .plan.popular .btn-plan {
+      background:#f97316; color:#fff;
+    }
+
+    /* ─── CTA FINAL ─── */
+    .cta-section {
+      padding:80px 48px; text-align:center;
+      background:linear-gradient(135deg, #f97316, #fb923c);
+      color:#fff;
+    }
+    .cta-section h2 { font-size:34px; font-weight:800; margin-bottom:12px; }
+    .cta-section p { font-size:16px; opacity:0.9; margin-bottom:32px; }
+    .btn-white {
+      background:#fff; color:#f97316; border:none;
+      padding:14px 32px; border-radius:8px; font-size:15px;
+      font-weight:800; cursor:pointer; text-decoration:none;
+      transition:all 0.2s;
+    }
+    .btn-white:hover { background:#fff5ee; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background:#111827; color:#aaa;
+      padding:40px 48px;
+      display:grid; grid-template-columns:1fr auto; gap:32px;
+      align-items:center;
+    }
+    .footer-brand .logo-name { color:#fff; font-size:18px; font-weight:800; }
+    .footer-brand p { font-size:12px; color:#666; margin-top:6px; }
+    .footer-links { display:flex; gap:20px; flex-wrap:wrap; }
+    .footer-links a { color:#666; text-decoration:none; font-size:12px; }
+    .footer-links a:hover { color:#f97316; }
+
+    /* ─── WHATSAPP ─── */
+    .wa {
+      position:fixed; bottom:24px; right:24px;
+      background:#25d366; width:52px; height:52px;
+      border-radius:50%; display:flex; align-items:center;
+      justify-content:center; text-decoration:none; z-index:200;
+      box-shadow:0 4px 16px rgba(37,211,102,0.4);
+      transition:transform 0.2s;
+    }
+    .wa:hover { transform:scale(1.1); }
+    .wa svg { width:28px; height:28px; fill:#fff; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">🟠</div>
+    <div class="logo-name">Orange<span>NFe</span></div>
+  </a>
+  <nav>
+    <a href="#">Funcionalidades</a>
+    <a href="#">Planos</a>
+    <a href="#">Suporte</a>
+    <a href="#">Blog</a>
+    <a href="login.html" class="btn-login">Entrar no sistema →</a>
+  </nav>
+</header>
+
+<!-- HERO SPLIT -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge"><span></span> Novo: Emissão de NFC-e ilimitada</div>
+    <h1>Emita suas <em>notas fiscais</em> com zero complicação</h1>
+    <p>O OrangeNFe é o sistema mais ágil para emitir NF-e e NFC-e. Sem burocracia, com suporte humano sempre disponível.</p>
+    <div class="hero-actions">
+      <a href="login.html" class="btn-primary">Teste grátis por 7 dias</a>
+      <a href="#features" class="btn-ghost">Ver funcionalidades</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-cards-row">
+      <div class="hero-card">
+        <div class="icon">📄</div>
+        <h4>NF-e em segundos</h4>
+        <p>Emita, cancele e corrija sem sair do sistema</p>
+      </div>
+      <div class="hero-card">
+        <div class="icon">🧾</div>
+        <h4>NFC-e para o varejo</h4>
+        <p>Cupom fiscal com impressão automática</p>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="icon">🔔</div>
+      <h4>Monitoramento de notas recebidas</h4>
+      <p>Saiba em tempo real todas as NF-e emitidas contra o seu CNPJ, com alertas automáticos por e-mail.</p>
+    </div>
+    <div class="hero-card">
+      <div class="icon">☁️</div>
+      <h4>XMLs e DANFEs em nuvem por 10 anos</h4>
+      <p>Conformidade fiscal garantida sem custo extra.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<div class="social-proof">
+  <p>Números que importam</p>
+  <div class="proof-numbers">
+    <div class="proof-num"><strong>+12 mil</strong><span>empresas ativas</span></div>
+    <div class="proof-num"><strong>+486T</strong><span>em notas emitidas</span></div>
+    <div class="proof-num"><strong>15 anos</strong><span>no mercado</span></div>
+    <div class="proof-num"><strong>99,9%</strong><span>de uptime</span></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">Funcionalidades</div>
+  <div class="section-title">Tudo que você precisa, num só lugar</div>
+  <div class="section-sub">Do emissor ao arquivo, passando pelo controle de clientes e produtos — o OrangeNFe cobre tudo.</div>
+  <div class="features-layout">
+    <div class="feat">
+      <div class="feat-icon">📄</div>
+      <div class="feat-body"><h3>Emissão de NF-e</h3><p>Formulário inteligente com cálculo automático de impostos: ICMS, IPI, PIS, COFINS e mais.</p></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🧾</div>
+      <div class="feat-body"><h3>Emissão de NFC-e</h3><p>Cupom fiscal eletrônico com suporte a impressoras térmicas e QR Code SEFAZ.</p></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📧</div>
+      <div class="feat-body"><h3>Envio automático por e-mail</h3><p>DANFE e XML entregues ao destinatário logo após a autorização da nota.</p></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔍</div>
+      <div class="feat-body"><h3>Consulta e Cancelamento</h3><p>Consulte status, cancele ou emita carta de correção diretamente no sistema.</p></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">👥</div>
+      <div class="feat-body"><h3>Cadastro de Clientes e Produtos</h3><p>Dados salvos para agilizar emissões futuras. Importação por CNPJ automática.</p></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📊</div>
+      <div class="feat-body"><h3>Relatórios e Exportação</h3><p>Exporte XMLs em lote, gere relatórios por período e mantenha a contabilidade em dia.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat"><strong>NF-e</strong><span>Notas de produto</span></div>
+  <div class="stat"><strong>NFC-e</strong><span>Cupom fiscal varejo</span></div>
+  <div class="stat"><strong>CT-e</strong><span>Conhecimento de transporte</span></div>
+  <div class="stat"><strong>MDF-e</strong><span>Manifesto do destinatário</span></div>
+</div>
+
+<!-- PLANOS -->
+<section class="plans">
+  <div class="section-label">Preços</div>
+  <div class="section-title">Planos simples e transparentes</div>
+  <div class="section-sub">Sem surpresas na fatura. Cancele quando quiser.</div>
+  <div class="plans-grid">
+    <div class="plan">
+      <div class="plan-name">Básico</div>
+      <div class="plan-price"><sup>R$</sup>69<sub>,90/mês</sub></div>
+      <div class="plan-desc">Ideal para MEI e pequenas empresas com baixo volume.</div>
+      <ul class="plan-features">
+        <li>Até 100 NF-e/mês</li>
+        <li>NFC-e ilimitada</li>
+        <li>Suporte via chat</li>
+        <li>XMLs em nuvem</li>
+      </ul>
+      <a href="login.html" class="btn-plan">Começar grátis</a>
+    </div>
+    <div class="plan popular">
+      <div class="popular-tag">⭐ Mais escolhido</div>
+      <div class="plan-name">Profissional</div>
+      <div class="plan-price"><sup>R$</sup>99<sub>,90/mês</sub></div>
+      <div class="plan-desc">Para empresas em crescimento que precisam de mais volume.</div>
+      <ul class="plan-features">
+        <li>Até 500 NF-e/mês</li>
+        <li>NFC-e ilimitada</li>
+        <li>Suporte prioritário</li>
+        <li>Vigilante NF-e</li>
+        <li>Múltiplos usuários</li>
+      </ul>
+      <a href="login.html" class="btn-plan">Começar grátis</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Empresarial</div>
+      <div class="plan-price"><sup>R$</sup>129<sub>,90/mês</sub></div>
+      <div class="plan-desc">Volume ilimitado para operações de grande porte.</div>
+      <ul class="plan-features">
+        <li>NF-e ilimitada</li>
+        <li>NFC-e ilimitada</li>
+        <li>Suporte 24h</li>
+        <li>API de integração</li>
+        <li>Multi-empresas</li>
+      </ul>
+      <a href="login.html" class="btn-plan">Começar grátis</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Pronto para simplificar sua emissão?</h2>
+  <p>Teste o OrangeNFe gratuitamente por 7 dias. Sem cartão de crédito.</p>
+  <a href="login.html" class="btn-white">Criar conta grátis →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="logo-name">Orange<span style="color:#f97316">NFe</span></div>
+    <p>© 2026 OrangeNFe — Soluções em NF-e / NFC-e</p>
+  </div>
+  <div class="footer-links">
+    <a href="#">Sobre</a>
+    <a href="#">Blog</a>
+    <a href="#">Suporte</a>
+    <a href="#">Privacidade</a>
+    <a href="#">Termos</a>
+  </div>
+</footer>
+
+<a href="#" class="wa">
+  <svg viewBox="0 0 32 32"><path d="M16 2C8.27 2 2 8.27 2 16c0 2.46.66 4.88 1.92 7.02L2 30l7.16-1.88A13.94 13.94 0 0 0 16 30c7.73 0 14-6.27 14-14S23.73 2 16 2zm7.2 19.43c-.3.84-1.76 1.6-2.43 1.7-.63.09-1.44.13-2.32-.14a21.2 21.2 0 0 1-2.1-.78c-3.7-1.6-6.12-5.33-6.3-5.58-.18-.25-1.5-2-1.5-3.8 0-1.8.95-2.69 1.28-3.06.33-.36.73-.45.97-.45h.7c.22 0 .52-.08.81.62.3.72 1.02 2.48 1.1 2.66.1.18.16.39.03.63-.12.24-.18.39-.36.6-.18.2-.37.46-.54.62-.18.17-.36.36-.15.7.2.35.92 1.52 1.97 2.46 1.36 1.21 2.5 1.58 2.85 1.76.36.18.57.15.78-.09.22-.25.9-1.05 1.14-1.4.24-.36.48-.3.81-.18.33.12 2.1.99 2.46 1.17.36.18.6.27.69.42.1.15.1.87-.2 1.71z"/></svg>
+</a>
+
+</body>
+</html>
