@@ -1104,10 +1104,11 @@
                     <div class="form-group"><label>Alíquota (percentual)</label><input type="number" id="imod-aliq-icms" step="0.01" value="0.00" oninput="calcICMS()"/></div>
                     <div class="form-group"><label>Valor do ICMS</label><input type="number" id="imod-vl-icms" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
                   </div>
-                  <div class="form-row cols-3">
+                  <div class="form-row cols-4">
                     <div class="form-group"><label>Valor do ICMS da operação</label><input type="number" id="imod-vl-icms-op" step="0.01" value="0.00" oninput="calcICMSDif()"/></div>
                     <div class="form-group"><label>Percentual do diferimento (%)</label><input type="number" id="imod-p-dif" step="0.01" value="0.00" oninput="calcICMSDif()"/></div>
                     <div class="form-group"><label>Valor do ICMS diferido</label><input type="number" id="imod-vl-icms-dif" step="0.01" value="0.00" readonly style="background:#f8f9fc"/></div>
+                    <div class="form-group"><label>Cód. benef. fiscal red. BC (cBenefRBC) — CST 51</label><input type="text" id="imod-cbenefrbc" placeholder="ex: SP123456" maxlength="10"/></div>
                   </div>
                 </div>
 
@@ -1475,7 +1476,7 @@ function defaultItem() {
     // ICMS Normal
     cst:'00', modbcicms:'3', predbcicms:0, pbcop:0, indsomaipi:false,
     bcicms:0, aliqicms:12, vlicms:0,
-    vlicmsop:0, pdif:0, vlicmsdif:0,
+    vlicmsop:0, pdif:0, vlicmsdif:0, cbenefrbc:'',
     bcfcp:0, pfcp:0, vlfcp:0, pdiffcp:0, vlfcpdif:0, vlfcpefet:0,
     modbcstn:'', predstcn:0, mvastcn:0, bcstn:0, aliqstn:0, vlstn:0, ufst:'',
     bcfcpst:0, pfcpstn:0, vfcpstn:0,
@@ -1702,6 +1703,7 @@ function fillModal(it) {
   setVal('imod-vl-icms-op', it.vlicmsop);
   setVal('imod-p-dif', it.pdif);
   setVal('imod-vl-icms-dif', parseFloat(it.vlicmsdif).toFixed(2));
+  setVal('imod-cbenefrbc', it.cbenefrbc);
   setVal('imod-bc-fcp', it.bcfcp);
   setVal('imod-pfcp', it.pfcp);
   setVal('imod-vl-fcp', parseFloat(it.vlfcp).toFixed(2));
@@ -1882,6 +1884,7 @@ function saveItem() {
     vlicmsop: getFloat('imod-vl-icms-op'),
     pdif: getFloat('imod-p-dif'),
     vlicmsdif: getFloat('imod-vl-icms-dif'),
+    cbenefrbc: getVal('imod-cbenefrbc'),
     bcfcp: getFloat('imod-bc-fcp'),
     pfcp: getFloat('imod-pfcp'),
     vlfcp: getFloat('imod-vl-fcp'),
