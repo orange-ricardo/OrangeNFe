@@ -1347,87 +1347,286 @@
 
             <!-- IPI -->
             <div class="ts" id="imod-ts-ipi" style="display:none">
-              <div class="form-row cols-4">
-                <div class="form-group"><label>CST IPI</label><select id="imod-cst-ipi"><option value="99">99 – Outras saídas</option><option value="50">50 – Saída tributada</option><option value="51">51 – Tributável alíq. zero</option><option value="52">52 – Isenta</option><option value="53">53 – Não tributada</option><option value="54">54 – Imune</option><option value="55">55 – Com suspensão</option></select></div>
-                <div class="form-group"><label>Cód. Enquadramento Legal</label><input type="text" id="imod-cod-enq" value="999" placeholder="999"/></div>
-                <div class="form-group"><label>BC IPI</label><input type="number" id="imod-bc-ipi" step="0.01" value="0.00" oninput="calcIPI()"/></div>
-                <div class="form-group"><label>Alíq. IPI (%)</label><input type="number" id="imod-aliq-ipi" step="0.01" value="0.00" oninput="calcIPI()"/></div>
+              <div class="nfe-group">
+                <div class="nfe-group-title">IPI</div>
+                <div class="form-row cols-2" style="margin-bottom:12px">
+                  <div class="form-group">
+                    <label>Situação Tributária</label>
+                    <select id="imod-cst-ipi">
+                      <option value="00">00 – Entrada com recuperação de crédito</option>
+                      <option value="01">01 – Entrada tributada com alíq. zero</option>
+                      <option value="02">02 – Entrada isenta</option>
+                      <option value="03">03 – Entrada não-tributada</option>
+                      <option value="04">04 – Entrada imune</option>
+                      <option value="05">05 – Entrada com suspensão</option>
+                      <option value="49">49 – Outras entradas</option>
+                      <option value="50">50 – Saída tributada</option>
+                      <option value="51">51 – Saída tributável com alíq. zero</option>
+                      <option value="52">52 – Saída isenta</option>
+                      <option value="53" selected>53 – Saída não-tributada</option>
+                      <option value="54">54 – Saída imune</option>
+                      <option value="55">55 – Saída com suspensão</option>
+                      <option value="99">99 – Outras saídas</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Código de enquadramento <a href="#" style="font-size:11px;color:#f97316;text-decoration:none">ver tabela</a></label>
+                    <input type="text" id="imod-cod-enq" value="999" maxlength="3"/>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr 1fr 1fr;gap:8px;align-items:start">
+                  <div style="grid-row:1/3;padding-right:10px;border-right:1px solid #e8eaf0">
+                    <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Tipo de cálculo</div>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;margin-bottom:6px"><input type="radio" name="imod-ipi-tipo" value="P" checked onchange="onIPITipCalcChange()"/> Percentual</label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="imod-ipi-tipo" value="V" onchange="onIPITipCalcChange()"/> Em valor</label>
+                  </div>
+                  <div id="ipi-bc" class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-bc-ipi" step="0.01" value="0.00" oninput="calcIPI()"/></div>
+                  <div id="ipi-aliq" class="form-group"><label>Alíquota (percentual)</label><input type="number" id="imod-aliq-ipi" step="0.01" value="0.00" oninput="calcIPI()"/></div>
+                  <div style="grid-row:1/3" class="form-group"><label>Valor do IPI</label><input type="number" id="imod-vl-ipi" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  <div id="ipi-qtd" class="form-group" style="opacity:0.35;pointer-events:none"><label>Qtd. total da unidade padrão trib.</label><input type="number" id="imod-qunid-ipi" step="0.0001" value="0.0000" oninput="calcIPIValor()"/></div>
+                  <div id="ipi-vunid" class="form-group" style="opacity:0.35;pointer-events:none"><label>Valor por unidade tributável</label><input type="number" id="imod-vunid-ipi" step="0.0001" value="0.0000" oninput="calcIPIValor()"/></div>
+                </div>
+                <div class="form-row cols-3" style="margin-top:10px">
+                  <div class="form-group"><label>CNPJ do produtor</label><input type="text" id="imod-cnpj-prod" placeholder="00.000.000/0001-00" maxlength="14"/></div>
+                  <div class="form-group"><label>Código do selo de controle</label><input type="text" id="imod-cseloipi" maxlength="60"/></div>
+                  <div class="form-group"><label>Qtd. do selo de controle</label><input type="text" id="imod-qseloipi" maxlength="12"/></div>
+                </div>
               </div>
-              <div class="form-row cols-2">
-                <div class="form-group"><label>Valor IPI</label><input type="number" id="imod-vl-ipi" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
-                <div class="form-group"><label>Unidade tributável IPI</label><input type="text" id="imod-und-ipi" placeholder="ex: ML, G, UN"/></div>
+              <div class="nfe-group" style="margin-top:8px">
+                <div class="nfe-group-title">IPI Devolvido</div>
+                <div class="form-row cols-2">
+                  <div class="form-group"><label>% Percentual da mercadoria devolvida</label><input type="number" id="imod-pdevol-ipi" step="0.01" value="0.00" oninput="calcIPIDevol()"/></div>
+                  <div class="form-group"><label>Valor do IPI devolvido</label><input type="number" id="imod-vl-ipi-devol" step="0.01" value="0.00" readonly style="background:#f8f9fc"/></div>
+                </div>
               </div>
-              <div style="padding:7px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#92400e">ℹ️ CRT=1: IPI geralmente não se aplica ao Simples Nacional, exceto para estabelecimentos industriais.</div>
+              <div style="margin-top:8px;padding:7px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#92400e">ℹ️ CRT=1: IPI geralmente não se aplica ao Simples Nacional, exceto para estabelecimentos industriais.</div>
             </div>
 
             <!-- PIS -->
             <div class="ts" id="imod-ts-pis" style="display:none">
-              <div class="form-row cols-4">
-                <div class="form-group"><label>CST PIS</label><select id="imod-cst-pis" onchange="onCSTPisChange()"><option value="07">07 – Operação isenta</option><option value="49">49 – Outras operações de saída</option><option value="01">01 – Tributável (alíq. normal)</option><option value="02">02 – Tributável (alíq. diferenciada)</option><option value="03">03 – Tributável (qtd./unidade)</option><option value="04">04 – Monofásica</option><option value="05">05 – Com ST</option><option value="06">06 – Alíquota zero</option><option value="08">08 – Sem incidência</option><option value="09">09 – Com suspensão</option></select></div>
-                <div class="form-group"><label>BC PIS</label><input type="number" id="imod-bc-pis" step="0.01" value="0.00" oninput="calcPIS()"/></div>
-                <div class="form-group"><label>Alíq. PIS (%)</label><input type="number" id="imod-aliq-pis" step="0.01" value="0.00" oninput="calcPIS()"/></div>
-                <div class="form-group"><label>Valor PIS</label><input type="number" id="imod-vl-pis" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+              <div class="nfe-group">
+                <div class="nfe-group-title">PIS</div>
+                <div class="form-group" style="margin-bottom:12px">
+                  <label>Situação Tributária</label>
+                  <select id="imod-cst-pis" onchange="onCSTPisChange()">
+                    <option value="01">01 – Op. tributável (alíquota normal)</option>
+                    <option value="02">02 – Op. tributável (alíquota diferenciada)</option>
+                    <option value="03">03 – Op. tributável (qtd. × alíq. por unidade)</option>
+                    <option value="04">04 – Op. tributável (monofásica – revenda)</option>
+                    <option value="05">05 – Op. tributável por substituição tributária</option>
+                    <option value="06">06 – Op. tributável (alíquota zero)</option>
+                    <option value="07" selected>07 – Operação isenta da contribuição</option>
+                    <option value="08">08 – Op. sem incidência da contribuição</option>
+                    <option value="09">09 – Op. com suspensão da contribuição</option>
+                    <option value="49">49 – Outras operações de saída</option>
+                    <option value="99">99 – Outras operações</option>
+                  </select>
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr 1fr 1fr;gap:8px;align-items:start">
+                  <div style="grid-row:1/3;padding-right:10px;border-right:1px solid #e8eaf0">
+                    <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Tipo de cálculo</div>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;margin-bottom:6px"><input type="radio" name="imod-pis-tipo" value="P" checked onchange="onPISTipCalcChange()"/> Percentual</label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="imod-pis-tipo" value="V" onchange="onPISTipCalcChange()"/> Em valor</label>
+                  </div>
+                  <div id="pis-bc" class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-bc-pis" step="0.01" value="0.00" oninput="calcPIS()"/></div>
+                  <div id="pis-aliq" class="form-group">
+                    <label>Alíquota (percentual)
+                      <button type="button" onclick="changeAliq('imod-aliq-pis',0.01)" style="background:none;border:1px solid #ccc;border-radius:3px;padding:0 5px;cursor:pointer;font-size:10px;margin-left:2px">+</button>
+                      <button type="button" onclick="changeAliq('imod-aliq-pis',-0.01)" style="background:none;border:1px solid #ccc;border-radius:3px;padding:0 5px;cursor:pointer;font-size:10px">-</button>
+                    </label>
+                    <input type="number" id="imod-aliq-pis" step="0.01" value="0.00" oninput="calcPIS()"/>
+                  </div>
+                  <div style="grid-row:1/3" class="form-group"><label>Valor do PIS</label><input type="number" id="imod-vl-pis" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  <div id="pis-qtd" class="form-group" style="opacity:0.35;pointer-events:none"><label>Quantidade vendida</label><input type="number" id="imod-qbc-pis" step="0.0001" value="0.0000" oninput="calcPIS()"/></div>
+                  <div id="pis-valiq" class="form-group" style="opacity:0.35;pointer-events:none"><label>Alíquota (em reais)</label><input type="number" id="imod-valiq-pis" step="0.0001" value="0.0000" oninput="calcPIS()"/></div>
+                </div>
               </div>
-              <!-- CST 03: alíquota em R$/qtd -->
-              <div class="form-row cols-3" id="imod-pis-qtd" style="display:none;background:#f8f9fc;border-radius:8px;padding:10px 12px">
-                <div class="form-group"><label>Qtd vendida (PIS) – qBCProd</label><input type="number" id="imod-qbc-pis" step="0.0001" value="0.0000" oninput="calcPIS()"/></div>
-                <div class="form-group"><label>Alíq. PIS (R$/qtd) – vAliqProd</label><input type="number" id="imod-valiq-pis" step="0.0001" value="0.0000" oninput="calcPIS()"/></div>
-                <div style="align-self:flex-end;font-size:11px;color:#888;padding-bottom:10px">VL = Qtd × Alíq R$/un</div>
+              <div class="nfe-group" style="margin-top:8px">
+                <div class="nfe-group-title">PIS ST</div>
+                <div style="display:grid;grid-template-columns:130px 1fr 1fr 1fr;gap:8px;align-items:start">
+                  <div style="grid-row:1/3;padding-right:10px;border-right:1px solid #e8eaf0">
+                    <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Tipo de cálculo</div>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;margin-bottom:6px"><input type="radio" name="imod-pisst-tipo" value="P" checked onchange="onPISSTTipCalcChange()"/> Percentual</label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="imod-pisst-tipo" value="V" onchange="onPISSTTipCalcChange()"/> Em valor</label>
+                  </div>
+                  <div id="pisst-bc" class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-bc-pisst" step="0.01" value="0.00" oninput="calcPISST()"/></div>
+                  <div id="pisst-aliq" class="form-group"><label>Alíquota (percentual)</label><input type="number" id="imod-aliq-pisst" step="0.01" value="0.00" oninput="calcPISST()"/></div>
+                  <div style="grid-row:1/3" class="form-group"><label>Valor do PIS ST</label><input type="number" id="imod-vl-pisst" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  <div id="pisst-qtd" class="form-group" style="opacity:0.35;pointer-events:none"><label>Quantidade vendida</label><input type="number" id="imod-qbc-pisst" step="0.0001" value="0.0000" oninput="calcPISST()"/></div>
+                  <div id="pisst-valiq" class="form-group" style="opacity:0.35;pointer-events:none"><label>Alíquota (em reais)</label><input type="number" id="imod-valiq-pisst" step="0.0001" value="0.0000" oninput="calcPISST()"/></div>
+                </div>
               </div>
             </div>
 
             <!-- COFINS -->
             <div class="ts" id="imod-ts-cofins" style="display:none">
-              <div class="form-row cols-4">
-                <div class="form-group"><label>CST COFINS</label><select id="imod-cst-cofins" onchange="onCSTCofinsChange()"><option value="07">07 – Operação isenta</option><option value="49">49 – Outras operações de saída</option><option value="01">01 – Tributável (alíq. normal)</option><option value="02">02 – Tributável (alíq. diferenciada)</option><option value="03">03 – Tributável (qtd./unidade)</option><option value="04">04 – Monofásica</option><option value="05">05 – Com ST</option><option value="06">06 – Alíquota zero</option><option value="08">08 – Sem incidência</option><option value="09">09 – Com suspensão</option></select></div>
-                <div class="form-group"><label>BC COFINS</label><input type="number" id="imod-bc-cofins" step="0.01" value="0.00" oninput="calcCOFINS()"/></div>
-                <div class="form-group"><label>Alíq. COFINS (%)</label><input type="number" id="imod-aliq-cofins" step="0.01" value="0.00" oninput="calcCOFINS()"/></div>
-                <div class="form-group"><label>Valor COFINS</label><input type="number" id="imod-vl-cofins" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+              <div class="nfe-group">
+                <div class="nfe-group-title">COFINS</div>
+                <div class="form-group" style="margin-bottom:12px">
+                  <label>Situação Tributária</label>
+                  <select id="imod-cst-cofins" onchange="onCSTCofinsChange()">
+                    <option value="01">01 – Op. tributável (alíquota normal)</option>
+                    <option value="02">02 – Op. tributável (alíquota diferenciada)</option>
+                    <option value="03">03 – Op. tributável (qtd. × alíq. por unidade)</option>
+                    <option value="04">04 – Op. tributável (monofásica – revenda)</option>
+                    <option value="05">05 – Op. tributável por substituição tributária</option>
+                    <option value="06">06 – Op. tributável (alíquota zero)</option>
+                    <option value="07" selected>07 – Operação isenta da contribuição</option>
+                    <option value="08">08 – Op. sem incidência da contribuição</option>
+                    <option value="09">09 – Op. com suspensão da contribuição</option>
+                    <option value="49">49 – Outras operações de saída</option>
+                    <option value="99">99 – Outras operações</option>
+                  </select>
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr 1fr 1fr;gap:8px;align-items:start">
+                  <div style="grid-row:1/3;padding-right:10px;border-right:1px solid #e8eaf0">
+                    <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Tipo de cálculo</div>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;margin-bottom:6px"><input type="radio" name="imod-cofins-tipo" value="P" checked onchange="onCOFINSTipCalcChange()"/> Percentual</label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="imod-cofins-tipo" value="V" onchange="onCOFINSTipCalcChange()"/> Em valor</label>
+                  </div>
+                  <div id="cofins-bc" class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-bc-cofins" step="0.01" value="0.00" oninput="calcCOFINS()"/></div>
+                  <div id="cofins-aliq" class="form-group">
+                    <label>Alíquota (percentual)
+                      <button type="button" onclick="changeAliq('imod-aliq-cofins',0.01)" style="background:none;border:1px solid #ccc;border-radius:3px;padding:0 5px;cursor:pointer;font-size:10px;margin-left:2px">+</button>
+                      <button type="button" onclick="changeAliq('imod-aliq-cofins',-0.01)" style="background:none;border:1px solid #ccc;border-radius:3px;padding:0 5px;cursor:pointer;font-size:10px">-</button>
+                    </label>
+                    <input type="number" id="imod-aliq-cofins" step="0.01" value="0.00" oninput="calcCOFINS()"/>
+                  </div>
+                  <div style="grid-row:1/3" class="form-group"><label>Valor do COFINS</label><input type="number" id="imod-vl-cofins" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  <div id="cofins-qtd" class="form-group" style="opacity:0.35;pointer-events:none"><label>Quantidade vendida</label><input type="number" id="imod-qbc-cofins" step="0.0001" value="0.0000" oninput="calcCOFINS()"/></div>
+                  <div id="cofins-valiq" class="form-group" style="opacity:0.35;pointer-events:none"><label>Alíquota (em reais)</label><input type="number" id="imod-valiq-cofins" step="0.0001" value="0.0000" oninput="calcCOFINS()"/></div>
+                </div>
               </div>
-              <!-- CST 03: alíquota em R$/qtd -->
-              <div class="form-row cols-3" id="imod-cofins-qtd" style="display:none;background:#f8f9fc;border-radius:8px;padding:10px 12px">
-                <div class="form-group"><label>Qtd vendida (COFINS) – qBCProd</label><input type="number" id="imod-qbc-cofins" step="0.0001" value="0.0000" oninput="calcCOFINS()"/></div>
-                <div class="form-group"><label>Alíq. COFINS (R$/qtd) – vAliqProd</label><input type="number" id="imod-valiq-cofins" step="0.0001" value="0.0000" oninput="calcCOFINS()"/></div>
-                <div style="align-self:flex-end;font-size:11px;color:#888;padding-bottom:10px">VL = Qtd × Alíq R$/un</div>
+              <div class="nfe-group" style="margin-top:8px">
+                <div class="nfe-group-title">COFINS ST</div>
+                <div style="display:grid;grid-template-columns:130px 1fr 1fr 1fr;gap:8px;align-items:start">
+                  <div style="grid-row:1/3;padding-right:10px;border-right:1px solid #e8eaf0">
+                    <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Tipo de cálculo</div>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;margin-bottom:6px"><input type="radio" name="imod-cofinsst-tipo" value="P" checked onchange="onCOFINSSTTipCalcChange()"/> Percentual</label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="imod-cofinsst-tipo" value="V" onchange="onCOFINSSTTipCalcChange()"/> Em valor</label>
+                  </div>
+                  <div id="cofinsst-bc" class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-bc-cofinsst" step="0.01" value="0.00" oninput="calcCOFINSST()"/></div>
+                  <div id="cofinsst-aliq" class="form-group"><label>Alíquota (percentual)</label><input type="number" id="imod-aliq-cofinsst" step="0.01" value="0.00" oninput="calcCOFINSST()"/></div>
+                  <div style="grid-row:1/3" class="form-group"><label>Valor do COFINS ST</label><input type="number" id="imod-vl-cofinsst" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  <div id="cofinsst-qtd" class="form-group" style="opacity:0.35;pointer-events:none"><label>Quantidade vendida</label><input type="number" id="imod-qbc-cofinsst" step="0.0001" value="0.0000" oninput="calcCOFINSST()"/></div>
+                  <div id="cofinsst-valiq" class="form-group" style="opacity:0.35;pointer-events:none"><label>Alíquota (em reais)</label><input type="number" id="imod-valiq-cofinsst" step="0.0001" value="0.0000" oninput="calcCOFINSST()"/></div>
+                </div>
               </div>
             </div>
 
             <!-- II -->
             <div class="ts" id="imod-ts-ii" style="display:none">
-              <div class="form-row cols-4">
-                <div class="form-group"><label>BC Imp. Importação</label><input type="number" id="imod-bc-ii" step="0.01" value="0.00"/></div>
-                <div class="form-group"><label>Valor II</label><input type="number" id="imod-vl-ii" step="0.01" value="0.00"/></div>
-                <div class="form-group"><label>Valor IOF</label><input type="number" id="imod-vl-iof" step="0.01" value="0.00"/></div>
-                <div class="form-group"><label>Despesas Aduaneiras</label><input type="number" id="imod-desp-adu" step="0.01" value="0.00"/></div>
+              <div class="nfe-group">
+                <div class="nfe-group-title">Imposto de Importação</div>
+                <div class="form-row cols-4">
+                  <div class="form-group"><label>Base de cálculo II</label><input type="number" id="imod-bc-ii" step="0.01" value="0.00" oninput="calcII()"/></div>
+                  <div class="form-group"><label>Alíquota II (%)</label><input type="number" id="imod-aliq-ii" step="0.01" value="0.00" oninput="calcII()"/></div>
+                  <div class="form-group"><label>Valor II</label><input type="number" id="imod-vl-ii" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  <div class="form-group"><label>Despesas aduaneiras (Siscomex)</label><input type="number" id="imod-desp-adu" step="0.01" value="0.00"/></div>
+                </div>
+                <div class="form-row cols-4" style="margin-top:6px">
+                  <div class="form-group"><label>Valor do IOF</label><input type="number" id="imod-vl-iof" step="0.01" value="0.00"/></div>
+                </div>
               </div>
-              <div style="padding:7px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;color:#1e40af">ℹ️ Aplicável apenas para produtos importados (CFOP 3xxx) ou com cOrigem ≥ 1.</div>
+              <div style="margin-top:8px;padding:7px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;color:#1e40af">ℹ️ Aplicável apenas para produtos importados (CFOP 3xxx) ou com cOrigem ≥ 1.</div>
             </div>
 
             <!-- IBS/CBS -->
             <div class="ts" id="imod-ts-ibscbs" style="display:none">
               <div style="padding:7px 10px;background:#fff5ee;border:1px solid #fed7aa;border-radius:6px;font-size:11px;color:#c2410c;font-weight:600;margin-bottom:12px">
-                🔶 Reforma Tributária NT 2025.002 — CRT=1 Simples Nacional: IBS e CBS obrigatórios a partir de <b>01/01/2027</b>.
+                🔶 Empresas optantes pelo Simples Nacional somente passarão a destacar o IBS e a CBS em seus documentos fiscais a partir de <b>01/01/2027</b>.
               </div>
-              <div class="form-row cols-3">
-                <div class="form-group"><label>CST IBS/CBS</label><select id="imod-cst-ibscbs"><option value="">— Selecionar —</option><option value="01">01 – Tributado à alíquota padrão</option><option value="02">02 – Tributado redução 30%</option><option value="03">03 – Tributado redução 60%</option><option value="04">04 – Tributado alíquota zero</option><option value="05">05 – Isento</option><option value="06">06 – Imune</option><option value="07">07 – Suspenso</option><option value="08">08 – Regime específico / especial</option></select></div>
-                <div class="form-group"><label>cClassTrib <span style="font-size:10px;color:#aaa">(LC 214/2025)</span></label><input type="text" id="imod-classtrib" placeholder="ex: 01.01"/></div>
-                <div class="form-group"><label>Base de Cálculo IBS/CBS</label><input type="number" id="imod-bc-ibscbs" step="0.01" value="0.00" oninput="calcIBSCBS()"/></div>
-              </div>
-              <div class="form-row cols-2" style="margin-top:8px">
-                <div style="border:1.5px solid #e9d5ff;border-radius:8px;padding:12px;background:#faf5ff">
-                  <div style="font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;margin-bottom:8px">🏛 IBS — Estadual + Municipal</div>
-                  <div class="form-row cols-3">
-                    <div class="form-group"><label>Alíq. UF (%)</label><input type="number" id="imod-aliq-ibs-uf" step="0.0001" value="0.0000" oninput="calcIBSCBS()"/></div>
-                    <div class="form-group"><label>Alíq. Município (%)</label><input type="number" id="imod-aliq-ibs-mun" step="0.0001" value="0.0000" oninput="calcIBSCBS()"/></div>
-                    <div class="form-group"><label>Valor IBS</label><input type="number" id="imod-vl-ibs" step="0.01" value="0.00" readonly style="background:#f5f3ff;font-weight:700;color:#7c3aed"/></div>
+              <!-- Cabeçalho IBS/CBS -->
+              <div class="nfe-group">
+                <div class="nfe-group-title">IBS / CBS</div>
+                <div class="form-row cols-3">
+                  <div class="form-group"><label>Situação Tributária</label>
+                    <select id="imod-cst-ibscbs">
+                      <option value="">— Selecionar —</option>
+                      <option value="01">01 – Tributado à alíquota padrão</option>
+                      <option value="02">02 – Tributado redução 30%</option>
+                      <option value="03">03 – Tributado redução 60%</option>
+                      <option value="04">04 – Tributado alíquota zero</option>
+                      <option value="05">05 – Isento</option>
+                      <option value="06">06 – Imune</option>
+                      <option value="07">07 – Suspenso</option>
+                      <option value="08">08 – Regime específico / especial</option>
+                    </select>
                   </div>
+                  <div class="form-group"><label>Classificação Tributária <span style="font-size:10px;color:#aaa">(LC 214/2025)</span></label><input type="text" id="imod-classtrib" placeholder="ex: 01.01"/></div>
+                  <div class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-bc-ibscbs" step="0.01" value="0.00" oninput="calcIBSCBS()"/></div>
                 </div>
-                <div style="border:1.5px solid #bfdbfe;border-radius:8px;padding:12px;background:#eff6ff">
-                  <div style="font-size:10px;font-weight:800;color:#1d4ed8;text-transform:uppercase;margin-bottom:8px">🏦 CBS — Federal</div>
-                  <div class="form-row cols-2">
-                    <div class="form-group"><label>Alíquota CBS (%)</label><input type="number" id="imod-aliq-cbs" step="0.0001" value="0.0000" oninput="calcIBSCBS()"/></div>
-                    <div class="form-group"><label>Valor CBS</label><input type="number" id="imod-vl-cbs" step="0.01" value="0.00" readonly style="background:#dbeafe;font-weight:700;color:#1d4ed8"/></div>
+              </div>
+              <!-- IBS Estadual -->
+              <div class="nfe-group" style="margin-top:8px;border-color:#e9d5ff;background:#faf5ff">
+                <div class="nfe-group-title" style="color:#7c3aed">🏛 IBS Estadual</div>
+                <div class="form-row cols-3">
+                  <div class="form-group"><label>% Alíquota</label><input type="number" id="imod-paliq-ibs-uf" step="0.0001" value="0.0000" oninput="calcIBSUF()"/></div>
+                  <div class="form-group"><label>% Redução alíquota</label><input type="number" id="imod-pred-aliq-ibs-uf" step="0.0001" value="0.0000" oninput="calcIBSUF()"/></div>
+                  <div class="form-group"><label>% Alíquota efetiva</label><input type="number" id="imod-paliq-efet-ibs-uf" step="0.0001" value="0.0000" readonly style="background:#f5f3ff"/></div>
+                </div>
+                <div class="form-row cols-3" style="margin-top:6px">
+                  <div class="form-group"><label>Valor IBS Estadual</label><input type="number" id="imod-vl-ibs-uf" step="0.01" value="0.00" readonly style="background:#f5f3ff;font-weight:700;color:#7c3aed"/></div>
+                  <div class="form-group"><label>% Diferimento</label><input type="number" id="imod-pdif-ibs-uf" step="0.01" value="0.00" oninput="calcIBSUF()"/></div>
+                  <div class="form-group"><label>Valor Diferimento</label><input type="number" id="imod-vdif-ibs-uf" step="0.01" value="0.00" readonly style="background:#f5f3ff"/></div>
+                </div>
+              </div>
+              <!-- IBS Municipal -->
+              <div class="nfe-group" style="margin-top:8px;border-color:#c7d2fe;background:#f0f0ff">
+                <div class="nfe-group-title" style="color:#4338ca">🏙 IBS Municipal</div>
+                <div class="form-row cols-3">
+                  <div class="form-group"><label>% Alíquota</label><input type="number" id="imod-paliq-ibs-mun" step="0.0001" value="0.0000" oninput="calcIBSMun()"/></div>
+                  <div class="form-group"><label>% Redução alíquota</label><input type="number" id="imod-pred-aliq-ibs-mun" step="0.0001" value="0.0000" oninput="calcIBSMun()"/></div>
+                  <div class="form-group"><label>% Alíquota efetiva</label><input type="number" id="imod-paliq-efet-ibs-mun" step="0.0001" value="0.0000" readonly style="background:#eef2ff"/></div>
+                </div>
+                <div class="form-row cols-3" style="margin-top:6px">
+                  <div class="form-group"><label>Valor IBS Municipal</label><input type="number" id="imod-vl-ibs-mun" step="0.01" value="0.00" readonly style="background:#eef2ff;font-weight:700;color:#4338ca"/></div>
+                  <div class="form-group"><label>% Diferimento</label><input type="number" id="imod-pdif-ibs-mun" step="0.01" value="0.00" oninput="calcIBSMun()"/></div>
+                  <div class="form-group"><label>Valor Diferimento</label><input type="number" id="imod-vdif-ibs-mun" step="0.01" value="0.00" readonly style="background:#eef2ff"/></div>
+                </div>
+              </div>
+              <!-- CBS -->
+              <div class="nfe-group" style="margin-top:8px;border-color:#bfdbfe;background:#eff6ff">
+                <div class="nfe-group-title" style="color:#1d4ed8">🏦 CBS</div>
+                <div class="form-row cols-3">
+                  <div class="form-group"><label>% Alíquota</label><input type="number" id="imod-paliq-cbs" step="0.0001" value="0.0000" oninput="calcCBSImp()"/></div>
+                  <div class="form-group"><label>% Redução alíquota</label><input type="number" id="imod-pred-aliq-cbs" step="0.0001" value="0.0000" oninput="calcCBSImp()"/></div>
+                  <div class="form-group"><label>% Alíquota efetiva</label><input type="number" id="imod-paliq-efet-cbs" step="0.0001" value="0.0000" readonly style="background:#dbeafe"/></div>
+                </div>
+                <div class="form-row cols-3" style="margin-top:6px">
+                  <div class="form-group"><label>Valor CBS</label><input type="number" id="imod-vl-cbs" step="0.01" value="0.00" readonly style="background:#dbeafe;font-weight:700;color:#1d4ed8"/></div>
+                  <div class="form-group"><label>% Diferimento</label><input type="number" id="imod-pdif-cbs" step="0.01" value="0.00" oninput="calcCBSImp()"/></div>
+                  <div class="form-group"><label>Valor Diferimento</label><input type="number" id="imod-vdif-cbs" step="0.01" value="0.00" readonly style="background:#dbeafe"/></div>
+                </div>
+              </div>
+              <!-- Tributação Regular -->
+              <div class="nfe-group" style="margin-top:8px">
+                <div class="nfe-group-title">Tributação Regular</div>
+                <div class="form-row cols-2" style="margin-bottom:8px">
+                  <div class="form-group"><label>Situação Tributária</label>
+                    <select id="imod-cst-trib-reg">
+                      <option value="">— Selecionar —</option>
+                      <option value="01">01 – Tributado à alíquota padrão</option>
+                      <option value="02">02 – Tributado redução 30%</option>
+                      <option value="03">03 – Tributado redução 60%</option>
+                      <option value="04">04 – Tributado alíquota zero</option>
+                      <option value="05">05 – Isento</option>
+                      <option value="06">06 – Imune</option>
+                      <option value="07">07 – Suspenso</option>
+                      <option value="08">08 – Regime específico / especial</option>
+                    </select>
                   </div>
+                  <div class="form-group"><label>Classificação Tributária</label><input type="text" id="imod-classtrib-reg" placeholder="ex: 01.01"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group"><label>% Efetiva IBS UF</label><input type="number" id="imod-paliq-efet-ibs-uf-reg" step="0.0001" value="0.0000"/></div>
+                  <div class="form-group"><label>Valor do IBS UF</label><input type="number" id="imod-vl-ibs-uf-reg" step="0.01" value="0.00"/></div>
+                  <div class="form-group"><label>% Efetiva IBS Município</label><input type="number" id="imod-paliq-efet-ibs-mun-reg" step="0.0001" value="0.0000"/></div>
+                  <div class="form-group"><label>Valor do IBS Município</label><input type="number" id="imod-vl-ibs-mun-reg" step="0.01" value="0.00"/></div>
+                </div>
+                <div class="form-row cols-4" style="margin-top:6px">
+                  <div class="form-group"><label>% Efetiva CBS</label><input type="number" id="imod-paliq-efet-cbs-reg" step="0.0001" value="0.0000"/></div>
+                  <div class="form-group"><label>Valor da CBS</label><input type="number" id="imod-vl-cbs-reg" step="0.01" value="0.00"/></div>
                 </div>
               </div>
             </div>
@@ -1511,18 +1710,31 @@ function defaultItem() {
     picmsufdest:0, picmsinter:'', picmspartilha:'',
     vfcpufdest:0, vicmsufdest:0, vicmsufrem:0,
     // IPI
-    cstipi:'99', codenq:'999', bcipi:0, aliqipi:0, vlipi:0, undipi:'',
+    cstipi:'53', codenq:'999', ipiTipo:'P',
+    bcipi:0, aliqipi:0, vlipi:0,
+    qunidipi:0, vunidipi:0,
+    cnpjprod:'', cseloipi:'', qseloipi:'',
+    pdevolitipi:0, vlipidevol:0,
     // PIS
-    cstpis:'07', bcpis:0, aliqpis:0, vlpis:0, qbcpis:0, valiqpis:0,
+    cstpis:'07', pisTipo:'P', bcpis:0, aliqpis:0, vlpis:0, qbcpis:0, valiqpis:0,
+    // PIS ST
+    pisstTipo:'P', bcpisst:0, aliqpisst:0, vlpisst:0, qbcpisst:0, valiqpisst:0,
     // COFINS
-    cstcofins:'07', bccofins:0, aliqcofins:0, vlcofins:0, qbccofins:0, valiqcofins:0,
+    cstcofins:'07', cofinsTipo:'P', bccofins:0, aliqcofins:0, vlcofins:0, qbccofins:0, valiqcofins:0,
+    // COFINS ST
+    cofinsstTipo:'P', bccofinsst:0, aliqcofinsst:0, vlcofinsst:0, qbccofinsst:0, valiqcofinsst:0,
     // II
-    bcii:0, vlii:0, vliof:0, despadu:0,
+    bcii:0, aliqii:0, vlii:0, vliof:0, despadu:0,
     // ISS
     clistserv:'', cmunfg:'', aliqiss:0, vliss:0,
     // IBS/CBS
     cstibscbs:'', classtrib:'', bcibscbs:0,
-    aliqibsuf:0, aliqibsmun:0, vlibs:0, aliqcbs:0, vlcbs:0,
+    paliqibsuf:0, predaliqibsuf:0, paliqefetibsuf:0, vlibsuf:0, pdifibsuf:0, vdifibsuf:0,
+    paliqibsmun:0, predaliqibsmun:0, paliqefetibsmun:0, vlibsmun:0, pdifibsmun:0, vdifibsmun:0,
+    paliqcbs:0, predaliqcbs:0, paliqefetcbs:0, vlcbs:0, pdifcbs:0, vdifcbs:0,
+    csttribreg:'', classtrib_reg:'',
+    paliqefetibsufreg:0, vlibsufreg:0, paliqefetibsmunreg:0, vlibsmunreg:0,
+    paliqefetcbsreg:0, vlcbsreg:0,
     // IS
     cstis:'', bcis:0, aliqis:0, vlis:0,
     // Pedido / NVE / DI / Export
@@ -1627,6 +1839,7 @@ function newItem() {
 
 function openItemModal(i) {
   editingIdx = i;
+  gcredList = []; nveList = []; diAdicoes = []; rastroList = []; rastroEditIdx = -1;
   fillModal(items[i]);
   document.getElementById('imod-num').textContent = i + 1;
   document.getElementById('imod-sub').textContent = items[i].descricao || 'Item ' + (i+1);
@@ -1784,32 +1997,61 @@ function fillModal(it) {
   // IPI
   setVal('imod-cst-ipi', it.cstipi);
   setVal('imod-cod-enq', it.codenq);
+  setRadio('imod-ipi-tipo', it.ipiTipo||'P');
+  onIPITipCalcChange();
   setVal('imod-bc-ipi', it.bcipi);
   setVal('imod-aliq-ipi', it.aliqipi);
   setVal('imod-vl-ipi', parseFloat(it.vlipi).toFixed(2));
-  setVal('imod-und-ipi', it.undipi);
+  setVal('imod-qunid-ipi', it.qunidipi||0);
+  setVal('imod-vunid-ipi', it.vunidipi||0);
+  setVal('imod-cnpj-prod', it.cnpjprod);
+  setVal('imod-cseloipi', it.cseloipi);
+  setVal('imod-qseloipi', it.qseloipi);
+  setVal('imod-pdevol-ipi', it.pdevolitipi||0);
+  setVal('imod-vl-ipi-devol', parseFloat(it.vlipidevol||0).toFixed(2));
 
   // PIS
   setVal('imod-cst-pis', it.cstpis);
   onCSTPisChange();
+  setRadio('imod-pis-tipo', it.pisTipo||'P');
+  onPISTipCalcChange();
   setVal('imod-bc-pis', it.bcpis);
   setVal('imod-aliq-pis', it.aliqpis);
   setVal('imod-vl-pis', parseFloat(it.vlpis).toFixed(2));
   setVal('imod-qbc-pis', it.qbcpis);
   setVal('imod-valiq-pis', it.valiqpis);
+  // PIS ST
+  setRadio('imod-pisst-tipo', it.pisstTipo||'P');
+  onPISSTTipCalcChange();
+  setVal('imod-bc-pisst', it.bcpisst||0);
+  setVal('imod-aliq-pisst', it.aliqpisst||0);
+  setVal('imod-vl-pisst', parseFloat(it.vlpisst||0).toFixed(2));
+  setVal('imod-qbc-pisst', it.qbcpisst||0);
+  setVal('imod-valiq-pisst', it.valiqpisst||0);
 
   // COFINS
   setVal('imod-cst-cofins', it.cstcofins);
   onCSTCofinsChange();
+  setRadio('imod-cofins-tipo', it.cofinsTipo||'P');
+  onCOFINSTipCalcChange();
   setVal('imod-bc-cofins', it.bccofins);
   setVal('imod-aliq-cofins', it.aliqcofins);
   setVal('imod-vl-cofins', parseFloat(it.vlcofins).toFixed(2));
   setVal('imod-qbc-cofins', it.qbccofins);
   setVal('imod-valiq-cofins', it.valiqcofins);
+  // COFINS ST
+  setRadio('imod-cofinsst-tipo', it.cofinsstTipo||'P');
+  onCOFINSSTTipCalcChange();
+  setVal('imod-bc-cofinsst', it.bccofinsst||0);
+  setVal('imod-aliq-cofinsst', it.aliqcofinsst||0);
+  setVal('imod-vl-cofinsst', parseFloat(it.vlcofinsst||0).toFixed(2));
+  setVal('imod-qbc-cofinsst', it.qbccofinsst||0);
+  setVal('imod-valiq-cofinsst', it.valiqcofinsst||0);
 
   // II
   setVal('imod-bc-ii', it.bcii);
-  setVal('imod-vl-ii', it.vlii);
+  setVal('imod-aliq-ii', it.aliqii||0);
+  setVal('imod-vl-ii', parseFloat(it.vlii).toFixed(2));
   setVal('imod-vl-iof', it.vliof);
   setVal('imod-desp-adu', it.despadu);
 
@@ -1823,17 +2065,135 @@ function fillModal(it) {
   setVal('imod-cst-ibscbs', it.cstibscbs);
   setVal('imod-classtrib', it.classtrib);
   setVal('imod-bc-ibscbs', it.bcibscbs);
-  setVal('imod-aliq-ibs-uf', it.aliqibsuf);
-  setVal('imod-aliq-ibs-mun', it.aliqibsmun);
-  setVal('imod-vl-ibs', parseFloat(it.vlibs).toFixed(2));
-  setVal('imod-aliq-cbs', it.aliqcbs);
-  setVal('imod-vl-cbs', parseFloat(it.vlcbs).toFixed(2));
+  setVal('imod-paliq-ibs-uf', it.paliqibsuf||0);
+  setVal('imod-pred-aliq-ibs-uf', it.predaliqibsuf||0);
+  setVal('imod-paliq-efet-ibs-uf', parseFloat(it.paliqefetibsuf||0).toFixed(4));
+  setVal('imod-vl-ibs-uf', parseFloat(it.vlibsuf||0).toFixed(2));
+  setVal('imod-pdif-ibs-uf', it.pdifibsuf||0);
+  setVal('imod-vdif-ibs-uf', parseFloat(it.vdifibsuf||0).toFixed(2));
+  setVal('imod-paliq-ibs-mun', it.paliqibsmun||0);
+  setVal('imod-pred-aliq-ibs-mun', it.predaliqibsmun||0);
+  setVal('imod-paliq-efet-ibs-mun', parseFloat(it.paliqefetibsmun||0).toFixed(4));
+  setVal('imod-vl-ibs-mun', parseFloat(it.vlibsmun||0).toFixed(2));
+  setVal('imod-pdif-ibs-mun', it.pdifibsmun||0);
+  setVal('imod-vdif-ibs-mun', parseFloat(it.vdifibsmun||0).toFixed(2));
+  setVal('imod-paliq-cbs', it.paliqcbs||0);
+  setVal('imod-pred-aliq-cbs', it.predaliqcbs||0);
+  setVal('imod-paliq-efet-cbs', parseFloat(it.paliqefetcbs||0).toFixed(4));
+  setVal('imod-vl-cbs', parseFloat(it.vlcbs||0).toFixed(2));
+  setVal('imod-pdif-cbs', it.pdifcbs||0);
+  setVal('imod-vdif-cbs', parseFloat(it.vdifcbs||0).toFixed(2));
+  setVal('imod-cst-trib-reg', it.csttribreg);
+  setVal('imod-classtrib-reg', it.classtrib_reg);
+  setVal('imod-paliq-efet-ibs-uf-reg', it.paliqefetibsufreg||0);
+  setVal('imod-vl-ibs-uf-reg', parseFloat(it.vlibsufreg||0).toFixed(2));
+  setVal('imod-paliq-efet-ibs-mun-reg', it.paliqefetibsmunreg||0);
+  setVal('imod-vl-ibs-mun-reg', parseFloat(it.vlibsmunreg||0).toFixed(2));
+  setVal('imod-paliq-efet-cbs-reg', it.paliqefetcbsreg||0);
+  setVal('imod-vl-cbs-reg', parseFloat(it.vlcbsreg||0).toFixed(2));
 
   // IS
   setVal('imod-cst-is', it.cstis);
   setVal('imod-bc-is', it.bcis);
   setVal('imod-aliq-is', it.aliqis);
   setVal('imod-vl-is', parseFloat(it.vlis).toFixed(2));
+
+  // Outras Informações — Pedido
+  setVal('imod-xped', it.xped);
+  setVal('imod-nitemped', it.nitemped);
+  setVal('imod-nfci', it.nfci);
+  nveList = Array.isArray(it.nve) ? [...it.nve] : [];
+  renderNVE();
+
+  // DI
+  const di = it.di || {};
+  setVal('imod-di-ndi', di.nDI||'');
+  setVal('imod-di-ddi', di.dDI||'');
+  setVal('imod-di-tpvia', di.tpViaTransp||'');
+  setVal('imod-di-vafrmm', di.vAFRMM||0);
+  setVal('imod-di-tpintermedio', di.tpIntermedio||'');
+  setVal('imod-di-cnpj', di.CNPJ||'');
+  setVal('imod-di-ufterceiro', di.UFTerceiro||'');
+  setVal('imod-di-cexportador', di.cExportador||'');
+  setVal('imod-di-ufdesemb', di.UFDesemb||'');
+  setVal('imod-di-xlocdesemb', di.xLocDesemb||'');
+  setVal('imod-di-ddesemb', di.dDesemb||'');
+  diAdicoes = Array.isArray(it.diAdicoes) ? [...it.diAdicoes] : [];
+  renderDiAdicoes();
+
+  // Exportação
+  const exp = it.exp || {};
+  setVal('imod-exp-ndraw', exp.nDraw||'');
+  setVal('imod-exp-nre', exp.nRE||'');
+  setVal('imod-exp-chnfe', exp.chNFe||'');
+  setVal('imod-exp-qexport', exp.qExport||0);
+
+  // Veículo
+  const vei = it.vei || {};
+  setVal('imod-vei-tpop', vei.tpOp||'');
+  setVal('imod-vei-condveic', vei.condVeic||'');
+  setVal('imod-vei-chassi', vei.chassi||'');
+  setCheck('imod-vei-vin', vei.vin||false);
+  setVal('imod-vei-nserie', vei.nSerie||'');
+  setVal('imod-vei-nmotor', vei.nMotor||'');
+  setVal('imod-vei-pot', vei.pot||'');
+  setVal('imod-vei-cilin', vei.cilin||'');
+  setVal('imod-vei-pesol', vei.pesoL||'');
+  setVal('imod-vei-pesob', vei.pesoB||'');
+  setVal('imod-vei-cmt', vei.CMT||'');
+  setVal('imod-vei-dist', vei.dist||'');
+  setVal('imod-vei-tpcomb', vei.tpComb||'');
+  setVal('imod-vei-tpveic', vei.tpVeic||'');
+  setVal('imod-vei-espveic', vei.espVeic||'');
+  setVal('imod-vei-cmod', vei.cMod||'');
+  setVal('imod-vei-anofab', vei.anoFab||'');
+  setVal('imod-vei-anomod', vei.anoMod||'');
+  setVal('imod-vei-lota', vei.lota||'');
+  setVal('imod-vei-tprest', vei.tpRest||'0');
+  setVal('imod-vei-ccordenatran', vei.cCorDENATRAN||'');
+  setVal('imod-vei-xcor', vei.xCor||'');
+  setVal('imod-vei-ccor', vei.cCor||'');
+  setVal('imod-vei-tppint', vei.tpPint||'');
+
+  // Combustível
+  const comb = it.comb || {};
+  setVal('imod-comb-canp', comb.cProdANP||'');
+  setVal('imod-comb-descanp', comb.descANP||'');
+  setVal('imod-comb-pglp', comb.pGLP||0);
+  setVal('imod-comb-pgnn', comb.pGNn||0);
+  setVal('imod-comb-pgni', comb.pGNi||0);
+  setVal('imod-comb-vpart', comb.vPart||0);
+  setVal('imod-comb-codif', comb.CODIF||'');
+  setVal('imod-comb-qtemp', comb.qTemp||0);
+  setVal('imod-comb-ufcons', comb.UFCons||'');
+  setVal('imod-comb-pmistura', comb.pMistura||0);
+  const cide = comb.CIDE || {};
+  setVal('imod-cide-qbcprod', cide.qBCProd||0);
+  setVal('imod-cide-valiqprod', cide.vAliqProd||0);
+  setVal('imod-cide-vcide', cide.vCIDE||0);
+  const enc = comb.encerrante || {};
+  setVal('imod-enc-nbico', enc.nBico||'');
+  setVal('imod-enc-nbomba', enc.nBomba||'');
+  setVal('imod-enc-ntanque', enc.nTanque||'');
+  setVal('imod-enc-vencini', enc.vEncIni||0);
+  setVal('imod-enc-vencfin', enc.vEncFin||0);
+  const orig = comb.origComb || {};
+  setVal('imod-orig-indimport', orig.indImport||'');
+  setVal('imod-orig-cuforig', orig.cUFOrig||'');
+  setVal('imod-orig-porig', orig.pOrig||0);
+
+  // Medicamentos
+  const med = it.med || {};
+  setVal('imod-med-cprodanvisa', med.cProdANVISA||'');
+  setVal('imod-med-vpmc', med.vPMC||0);
+  setVal('imod-med-xmotivoisen', med.xMotivoIsencao||'');
+
+  // Rastreabilidade e gCred
+  rastroList = Array.isArray(it.rastro) ? [...it.rastro] : [];
+  rastroEditIdx = -1;
+  renderRastroList();
+  gcredList = Array.isArray(it.gcred) ? it.gcred.map(g=>({...g})) : [];
+  renderCreditosList();
 
   // Reset tax tabs to ICMS
   switchImodTax('icms', document.querySelector('#imod-grp-icms .ttab'));
@@ -1963,23 +2323,45 @@ function saveItem() {
     vicmsufrem: getFloat('imod-vicms-ufrem'),
     cstipi: getVal('imod-cst-ipi'),
     codenq: getVal('imod-cod-enq'),
+    ipiTipo: getRadio('imod-ipi-tipo')||'P',
     bcipi: getFloat('imod-bc-ipi'),
     aliqipi: getFloat('imod-aliq-ipi'),
     vlipi: getFloat('imod-vl-ipi'),
-    undipi: getVal('imod-und-ipi'),
+    qunidipi: getFloat('imod-qunid-ipi'),
+    vunidipi: getFloat('imod-vunid-ipi'),
+    cnpjprod: getVal('imod-cnpj-prod'),
+    cseloipi: getVal('imod-cseloipi'),
+    qseloipi: getVal('imod-qseloipi'),
+    pdevolitipi: getFloat('imod-pdevol-ipi'),
+    vlipidevol: getFloat('imod-vl-ipi-devol'),
     cstpis: getVal('imod-cst-pis'),
+    pisTipo: getRadio('imod-pis-tipo')||'P',
     bcpis: getFloat('imod-bc-pis'),
     aliqpis: getFloat('imod-aliq-pis'),
     vlpis: getFloat('imod-vl-pis'),
     qbcpis: getFloat('imod-qbc-pis'),
     valiqpis: getFloat('imod-valiq-pis'),
+    pisstTipo: getRadio('imod-pisst-tipo')||'P',
+    bcpisst: getFloat('imod-bc-pisst'),
+    aliqpisst: getFloat('imod-aliq-pisst'),
+    vlpisst: getFloat('imod-vl-pisst'),
+    qbcpisst: getFloat('imod-qbc-pisst'),
+    valiqpisst: getFloat('imod-valiq-pisst'),
     cstcofins: getVal('imod-cst-cofins'),
+    cofinsTipo: getRadio('imod-cofins-tipo')||'P',
     bccofins: getFloat('imod-bc-cofins'),
     aliqcofins: getFloat('imod-aliq-cofins'),
     vlcofins: getFloat('imod-vl-cofins'),
     qbccofins: getFloat('imod-qbc-cofins'),
     valiqcofins: getFloat('imod-valiq-cofins'),
+    cofinsstTipo: getRadio('imod-cofinsst-tipo')||'P',
+    bccofinsst: getFloat('imod-bc-cofinsst'),
+    aliqcofinsst: getFloat('imod-aliq-cofinsst'),
+    vlcofinsst: getFloat('imod-vl-cofinsst'),
+    qbccofinsst: getFloat('imod-qbc-cofinsst'),
+    valiqcofinsst: getFloat('imod-valiq-cofinsst'),
     bcii: getFloat('imod-bc-ii'),
+    aliqii: getFloat('imod-aliq-ii'),
     vlii: getFloat('imod-vl-ii'),
     vliof: getFloat('imod-vl-iof'),
     despadu: getFloat('imod-desp-adu'),
@@ -1990,15 +2372,103 @@ function saveItem() {
     cstibscbs: getVal('imod-cst-ibscbs'),
     classtrib: getVal('imod-classtrib'),
     bcibscbs: getFloat('imod-bc-ibscbs'),
-    aliqibsuf: getFloat('imod-aliq-ibs-uf'),
-    aliqibsmun: getFloat('imod-aliq-ibs-mun'),
-    vlibs: getFloat('imod-vl-ibs'),
-    aliqcbs: getFloat('imod-aliq-cbs'),
+    paliqibsuf: getFloat('imod-paliq-ibs-uf'),
+    predaliqibsuf: getFloat('imod-pred-aliq-ibs-uf'),
+    paliqefetibsuf: getFloat('imod-paliq-efet-ibs-uf'),
+    vlibsuf: getFloat('imod-vl-ibs-uf'),
+    pdifibsuf: getFloat('imod-pdif-ibs-uf'),
+    vdifibsuf: getFloat('imod-vdif-ibs-uf'),
+    paliqibsmun: getFloat('imod-paliq-ibs-mun'),
+    predaliqibsmun: getFloat('imod-pred-aliq-ibs-mun'),
+    paliqefetibsmun: getFloat('imod-paliq-efet-ibs-mun'),
+    vlibsmun: getFloat('imod-vl-ibs-mun'),
+    pdifibsmun: getFloat('imod-pdif-ibs-mun'),
+    vdifibsmun: getFloat('imod-vdif-ibs-mun'),
+    paliqcbs: getFloat('imod-paliq-cbs'),
+    predaliqcbs: getFloat('imod-pred-aliq-cbs'),
+    paliqefetcbs: getFloat('imod-paliq-efet-cbs'),
     vlcbs: getFloat('imod-vl-cbs'),
+    pdifcbs: getFloat('imod-pdif-cbs'),
+    vdifcbs: getFloat('imod-vdif-cbs'),
+    csttribreg: getVal('imod-cst-trib-reg'),
+    classtrib_reg: getVal('imod-classtrib-reg'),
+    paliqefetibsufreg: getFloat('imod-paliq-efet-ibs-uf-reg'),
+    vlibsufreg: getFloat('imod-vl-ibs-uf-reg'),
+    paliqefetibsmunreg: getFloat('imod-paliq-efet-ibs-mun-reg'),
+    vlibsmunreg: getFloat('imod-vl-ibs-mun-reg'),
+    paliqefetcbsreg: getFloat('imod-paliq-efet-cbs-reg'),
+    vlcbsreg: getFloat('imod-vl-cbs-reg'),
     cstis: getVal('imod-cst-is'),
     bcis: getFloat('imod-bc-is'),
     aliqis: getFloat('imod-aliq-is'),
     vlis: getFloat('imod-vl-is'),
+    // Outras Informações — Pedido / NVE
+    xped: getVal('imod-xped'),
+    nitemped: getVal('imod-nitemped'),
+    nfci: getVal('imod-nfci'),
+    nve: [...nveList],
+    // DI
+    di: {
+      nDI: getVal('imod-di-ndi'), dDI: getVal('imod-di-ddi'),
+      tpViaTransp: getVal('imod-di-tpvia'), vAFRMM: getFloat('imod-di-vafrmm'),
+      tpIntermedio: getVal('imod-di-tpintermedio'), CNPJ: getVal('imod-di-cnpj'),
+      UFTerceiro: getVal('imod-di-ufterceiro'), cExportador: getVal('imod-di-cexportador'),
+      UFDesemb: getVal('imod-di-ufdesemb'), xLocDesemb: getVal('imod-di-xlocdesemb'),
+      dDesemb: getVal('imod-di-ddesemb'),
+    },
+    diAdicoes: [...diAdicoes],
+    // Exportação
+    exp: {
+      nDraw: getVal('imod-exp-ndraw'), nRE: getVal('imod-exp-nre'),
+      chNFe: getVal('imod-exp-chnfe'), qExport: getFloat('imod-exp-qexport'),
+    },
+    // Veículo
+    vei: {
+      tpOp: getVal('imod-vei-tpop'), condVeic: getVal('imod-vei-condveic'),
+      chassi: getVal('imod-vei-chassi'), vin: getCheck('imod-vei-vin'),
+      nSerie: getVal('imod-vei-nserie'), nMotor: getVal('imod-vei-nmotor'),
+      pot: getVal('imod-vei-pot'), cilin: getVal('imod-vei-cilin'),
+      pesoL: getVal('imod-vei-pesol'), pesoB: getVal('imod-vei-pesob'),
+      CMT: getVal('imod-vei-cmt'), dist: getVal('imod-vei-dist'),
+      tpComb: getVal('imod-vei-tpcomb'), tpVeic: getVal('imod-vei-tpveic'),
+      espVeic: getVal('imod-vei-espveic'), cMod: getVal('imod-vei-cmod'),
+      anoFab: getVal('imod-vei-anofab'), anoMod: getVal('imod-vei-anomod'),
+      lota: getVal('imod-vei-lota'), tpRest: getVal('imod-vei-tprest'),
+      cCorDENATRAN: getVal('imod-vei-ccordenatran'), xCor: getVal('imod-vei-xcor'),
+      cCor: getVal('imod-vei-ccor'), tpPint: getVal('imod-vei-tppint'),
+    },
+    // Combustível
+    comb: {
+      cProdANP: getVal('imod-comb-canp'), descANP: getVal('imod-comb-descanp'),
+      pGLP: getFloat('imod-comb-pglp'), pGNn: getFloat('imod-comb-pgnn'),
+      pGNi: getFloat('imod-comb-pgni'), vPart: getFloat('imod-comb-vpart'),
+      CODIF: getVal('imod-comb-codif'), qTemp: getFloat('imod-comb-qtemp'),
+      UFCons: getVal('imod-comb-ufcons'), pMistura: getFloat('imod-comb-pmistura'),
+      CIDE: {
+        qBCProd: getFloat('imod-cide-qbcprod'),
+        vAliqProd: getFloat('imod-cide-valiqprod'),
+        vCIDE: getFloat('imod-cide-vcide'),
+      },
+      encerrante: {
+        nBico: getVal('imod-enc-nbico'), nBomba: getVal('imod-enc-nbomba'),
+        nTanque: getVal('imod-enc-ntanque'),
+        vEncIni: getFloat('imod-enc-vencini'), vEncFin: getFloat('imod-enc-vencfin'),
+      },
+      origComb: {
+        indImport: getVal('imod-orig-indimport'),
+        cUFOrig: getVal('imod-orig-cuforig'),
+        pOrig: getFloat('imod-orig-porig'),
+      },
+    },
+    // Medicamentos
+    med: {
+      cProdANVISA: getVal('imod-med-cprodanvisa'),
+      vPMC: getFloat('imod-med-vpmc'),
+      xMotivoIsencao: getVal('imod-med-xmotivoisen'),
+    },
+    // Rastreabilidade e gCred
+    rastro: [...rastroList],
+    gcred: gcredList.map(g=>({...g})),
   };
 
   if(editingIdx === -1) items.push(it);
@@ -2139,14 +2609,110 @@ function calcCOFINS() {
     document.getElementById('imod-vl-cofins').value = (bc * al / 100).toFixed(2);
   }
 }
-function calcIBSCBS() {
-  const bc = parseFloat(document.getElementById('imod-bc-ibscbs').value)||0;
-  const auf = parseFloat(document.getElementById('imod-aliq-ibs-uf').value)||0;
-  const amun = parseFloat(document.getElementById('imod-aliq-ibs-mun').value)||0;
-  const acbs = parseFloat(document.getElementById('imod-aliq-cbs').value)||0;
-  document.getElementById('imod-vl-ibs').value = (bc * (auf + amun) / 100).toFixed(2);
-  document.getElementById('imod-vl-cbs').value = (bc * acbs / 100).toFixed(2);
+function calcII() {
+  const bc = parseFloat(document.getElementById('imod-bc-ii').value)||0;
+  const al = parseFloat(document.getElementById('imod-aliq-ii').value)||0;
+  document.getElementById('imod-vl-ii').value = (bc * al / 100).toFixed(2);
 }
+function onIPITipCalcChange() {
+  const isP = (document.querySelector('input[name="imod-ipi-tipo"]:checked')?.value||'P') === 'P';
+  ['ipi-bc','ipi-aliq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'1':'0.35';el.style.pointerEvents=isP?'':'none';} });
+  ['ipi-qtd','ipi-vunid'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'0.35':'1';el.style.pointerEvents=isP?'none':'';} });
+}
+function calcIPIValor() {
+  const q = parseFloat(document.getElementById('imod-qunid-ipi').value)||0;
+  const v = parseFloat(document.getElementById('imod-vunid-ipi').value)||0;
+  document.getElementById('imod-vl-ipi').value = (q * v).toFixed(2);
+}
+function calcIPIDevol() {
+  const p    = parseFloat(document.getElementById('imod-pdevol-ipi').value)||0;
+  const vipi = parseFloat(document.getElementById('imod-vl-ipi').value)||0;
+  document.getElementById('imod-vl-ipi-devol').value = (vipi * p / 100).toFixed(2);
+}
+function onPISTipCalcChange() {
+  const isP = (document.querySelector('input[name="imod-pis-tipo"]:checked')?.value||'P') === 'P';
+  ['pis-bc','pis-aliq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'1':'0.35';el.style.pointerEvents=isP?'':'none';} });
+  ['pis-qtd','pis-valiq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'0.35':'1';el.style.pointerEvents=isP?'none':'';} });
+}
+function calcPISST() {
+  const isV = (document.querySelector('input[name="imod-pisst-tipo"]:checked')?.value||'P') === 'V';
+  if(isV) {
+    const q = parseFloat(document.getElementById('imod-qbc-pisst').value)||0;
+    const a = parseFloat(document.getElementById('imod-valiq-pisst').value)||0;
+    document.getElementById('imod-vl-pisst').value = (q * a).toFixed(2);
+  } else {
+    const bc = parseFloat(document.getElementById('imod-bc-pisst').value)||0;
+    const al = parseFloat(document.getElementById('imod-aliq-pisst').value)||0;
+    document.getElementById('imod-vl-pisst').value = (bc * al / 100).toFixed(2);
+  }
+}
+function onPISSTTipCalcChange() {
+  const isP = (document.querySelector('input[name="imod-pisst-tipo"]:checked')?.value||'P') === 'P';
+  ['pisst-bc','pisst-aliq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'1':'0.35';el.style.pointerEvents=isP?'':'none';} });
+  ['pisst-qtd','pisst-valiq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'0.35':'1';el.style.pointerEvents=isP?'none':'';} });
+}
+function onCOFINSTipCalcChange() {
+  const isP = (document.querySelector('input[name="imod-cofins-tipo"]:checked')?.value||'P') === 'P';
+  ['cofins-bc','cofins-aliq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'1':'0.35';el.style.pointerEvents=isP?'':'none';} });
+  ['cofins-qtd','cofins-valiq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'0.35':'1';el.style.pointerEvents=isP?'none':'';} });
+}
+function calcCOFINSST() {
+  const isV = (document.querySelector('input[name="imod-cofinsst-tipo"]:checked')?.value||'P') === 'V';
+  if(isV) {
+    const q = parseFloat(document.getElementById('imod-qbc-cofinsst').value)||0;
+    const a = parseFloat(document.getElementById('imod-valiq-cofinsst').value)||0;
+    document.getElementById('imod-vl-cofinsst').value = (q * a).toFixed(2);
+  } else {
+    const bc = parseFloat(document.getElementById('imod-bc-cofinsst').value)||0;
+    const al = parseFloat(document.getElementById('imod-aliq-cofinsst').value)||0;
+    document.getElementById('imod-vl-cofinsst').value = (bc * al / 100).toFixed(2);
+  }
+}
+function onCOFINSSTTipCalcChange() {
+  const isP = (document.querySelector('input[name="imod-cofinsst-tipo"]:checked')?.value||'P') === 'P';
+  ['cofinsst-bc','cofinsst-aliq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'1':'0.35';el.style.pointerEvents=isP?'':'none';} });
+  ['cofinsst-qtd','cofinsst-valiq'].forEach(id => { const el=document.getElementById(id); if(el){el.style.opacity=isP?'0.35':'1';el.style.pointerEvents=isP?'none':'';} });
+}
+function changeAliq(id, delta) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.value = (parseFloat(el.value)||0) + delta < 0 ? '0.00' : ((parseFloat(el.value)||0) + delta).toFixed(2);
+  el.dispatchEvent(new Event('input'));
+}
+function calcIBSUF() {
+  const bc   = parseFloat(document.getElementById('imod-bc-ibscbs').value)||0;
+  const aliq = parseFloat(document.getElementById('imod-paliq-ibs-uf').value)||0;
+  const pred = parseFloat(document.getElementById('imod-pred-aliq-ibs-uf').value)||0;
+  const efet = aliq * (1 - pred/100);
+  const vl   = bc * efet / 100;
+  const pdif = parseFloat(document.getElementById('imod-pdif-ibs-uf').value)||0;
+  document.getElementById('imod-paliq-efet-ibs-uf').value = efet.toFixed(4);
+  document.getElementById('imod-vl-ibs-uf').value = vl.toFixed(2);
+  document.getElementById('imod-vdif-ibs-uf').value = (vl * pdif / 100).toFixed(2);
+}
+function calcIBSMun() {
+  const bc   = parseFloat(document.getElementById('imod-bc-ibscbs').value)||0;
+  const aliq = parseFloat(document.getElementById('imod-paliq-ibs-mun').value)||0;
+  const pred = parseFloat(document.getElementById('imod-pred-aliq-ibs-mun').value)||0;
+  const efet = aliq * (1 - pred/100);
+  const vl   = bc * efet / 100;
+  const pdif = parseFloat(document.getElementById('imod-pdif-ibs-mun').value)||0;
+  document.getElementById('imod-paliq-efet-ibs-mun').value = efet.toFixed(4);
+  document.getElementById('imod-vl-ibs-mun').value = vl.toFixed(2);
+  document.getElementById('imod-vdif-ibs-mun').value = (vl * pdif / 100).toFixed(2);
+}
+function calcCBSImp() {
+  const bc   = parseFloat(document.getElementById('imod-bc-ibscbs').value)||0;
+  const aliq = parseFloat(document.getElementById('imod-paliq-cbs').value)||0;
+  const pred = parseFloat(document.getElementById('imod-pred-aliq-cbs').value)||0;
+  const efet = aliq * (1 - pred/100);
+  const vl   = bc * efet / 100;
+  const pdif = parseFloat(document.getElementById('imod-pdif-cbs').value)||0;
+  document.getElementById('imod-paliq-efet-cbs').value = efet.toFixed(4);
+  document.getElementById('imod-vl-cbs').value = vl.toFixed(2);
+  document.getElementById('imod-vdif-cbs').value = (vl * pdif / 100).toFixed(2);
+}
+function calcIBSCBS() { calcIBSUF(); calcIBSMun(); calcCBSImp(); }
 function calcIS() {
   const bc = parseFloat(document.getElementById('imod-bc-is').value)||0;
   const al = parseFloat(document.getElementById('imod-aliq-is').value)||0;
@@ -2166,11 +2732,18 @@ function onCSTicmsChange() {
 }
 function onCSTPisChange() {
   const v = document.getElementById('imod-cst-pis').value;
-  document.getElementById('imod-pis-qtd').style.display = v === '03' ? '' : 'none';
+  // CST 03 = qtd × valor unit → selecionar "Em valor" automaticamente
+  if (v === '03') {
+    const r = document.querySelector('input[name="imod-pis-tipo"][value="V"]');
+    if (r) { r.checked = true; onPISTipCalcChange(); }
+  }
 }
 function onCSTCofinsChange() {
   const v = document.getElementById('imod-cst-cofins').value;
-  document.getElementById('imod-cofins-qtd').style.display = v === '03' ? '' : 'none';
+  if (v === '03') {
+    const r = document.querySelector('input[name="imod-cofins-tipo"][value="V"]');
+    if (r) { r.checked = true; onCOFINSTipCalcChange(); }
+  }
 }
 
 function toggleTributavel() {
