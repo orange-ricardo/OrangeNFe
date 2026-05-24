@@ -14,16 +14,19 @@
 
     /* ─── LADO ESQUERDO ─── */
     .left-panel {
-      background:linear-gradient(145deg, #1a1a2e 0%, #2d1b0e 100%);
+      background: #1a1a2e url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
       display:flex; flex-direction:column;
       justify-content:space-between;
       padding:40px 48px;
       position:relative; overflow:hidden;
     }
+    /* Overlay duplo: escurece foto + destaca glow laranja */
     .left-panel::before {
       content:'';
       position:absolute; inset:0;
-      background:radial-gradient(ellipse at 30% 60%, rgba(249,115,22,0.25) 0%, transparent 60%);
+      background:
+        radial-gradient(ellipse at 25% 65%, rgba(249,115,22,0.35) 0%, transparent 55%),
+        linear-gradient(160deg, rgba(15,15,30,0.82) 0%, rgba(40,20,5,0.88) 100%);
     }
     .left-content { position:relative; z-index:1; }
     .left-logo { display:flex; align-items:center; gap:10px; margin-bottom:64px; }

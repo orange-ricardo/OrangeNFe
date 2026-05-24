@@ -47,7 +47,29 @@
       display:grid; grid-template-columns:1fr 1fr;
       min-height: 580px; align-items:center;
       padding: 0 48px;
-      background: linear-gradient(135deg, #fff8f3 0%, #fff 60%);
+      background: #fff;
+      position: relative;
+    }
+    /* Metade esquerda com foto de fundo */
+    .hero::before {
+      content:'';
+      position:absolute;
+      inset:0 50% 0 0;          /* cobre só a metade esquerda */
+      background:
+        url('https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&w=800&q=80')
+        center/cover no-repeat;
+      z-index:0;
+    }
+    .hero-left {
+      position:relative; z-index:1;
+      padding: 60px 48px 60px 0;
+    }
+    /* Overlay para leitura do texto */
+    .hero-left::before {
+      content:'';
+      position:absolute; inset:-60px -48px -60px -48px;
+      background: linear-gradient(100deg, rgba(255,248,243,0.93) 52%, rgba(255,248,243,0.7) 75%, transparent 100%);
+      z-index:-1;
     }
     .hero-left { padding-right:48px; }
     .hero-badge {
@@ -84,6 +106,7 @@
 
     .hero-right {
       display:flex; flex-direction:column; gap:12px; padding-left:12px;
+      position:relative; z-index:1;
     }
     .hero-card {
       background:#fff; border-radius:12px;
