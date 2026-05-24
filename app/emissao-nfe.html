@@ -132,6 +132,11 @@
     .tax-panel-body { border:1.5px solid #f0f0f0;border-top:none;border-radius:0 0 8px 8px;padding:16px;margin-bottom:0; }
     .ts { animation:fadeIn 0.12s ease; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
+    .form-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .nfe-group { border:1.5px solid #e8eaf0;border-radius:8px;padding:14px 16px;margin-bottom:8px;background:#fafbfc; }
+    .nfe-group-title { font-size:11px;font-weight:800;color:#333;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;display:flex;align-items:center;gap:8px; }
+    .nfe-subgroup { border:1px solid #e8eaf0;border-radius:6px;padding:10px 12px;background:#fff;margin-top:8px; }
+    .nfe-subgroup-title { font-size:11px;font-weight:700;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px; }
   </style>
 </head>
 <body>
@@ -706,11 +711,13 @@
                 </div>
               </div>
 
-              <!-- Normal fields -->
+              <!-- Normal fields — NFe Mail completo -->
               <div id="imod-icms-normal" style="display:none">
-                <div class="form-row cols-3">
+
+                <!-- CST -->
+                <div class="form-row cols-2" style="margin-bottom:10px">
                   <div class="form-group">
-                    <label>CST ICMS *</label>
+                    <label>Situação Tributária (CST) *</label>
                     <select id="imod-cst-icms" onchange="onCSTicmsChange()">
                       <option value="00">00 – Tributada integralmente</option>
                       <option value="10">10 – Tributada com ST</option>
@@ -720,65 +727,257 @@
                       <option value="41">41 – Não tributada</option>
                       <option value="50">50 – Com suspensão</option>
                       <option value="51">51 – Com diferimento</option>
-                      <option value="60">60 – ICMS cobrado anteriormente por ST</option>
+                      <option value="60">60 – ICMS cobrado anteriorm. por ST</option>
+                      <option value="61">61 – Tributação monofásica cobrada anteriorm.</option>
                       <option value="70">70 – Com redução de BC e ST</option>
                       <option value="90">90 – Outros</option>
                     </select>
                   </div>
-                  <div class="form-group">
-                    <label>Modalidade BC ICMS</label>
-                    <select id="imod-modbc-icms">
-                      <option value="3">3 – Valor da operação</option>
-                      <option value="0">0 – Margem valor agregado</option>
-                      <option value="1">1 – Pauta</option>
-                      <option value="2">2 – Preço tabelado máximo</option>
-                    </select>
-                  </div>
-                  <div class="form-group"><label>Redução BC ICMS (%)</label><input type="number" id="imod-pred-bc" step="0.01" value="0.00"/></div>
                 </div>
-                <div class="form-row cols-4">
-                  <div class="form-group"><label>Base de Cálculo ICMS</label><input type="number" id="imod-bc-icms" step="0.01" value="0.00" oninput="calcICMS()"/></div>
-                  <div class="form-group"><label>Alíq. ICMS (%)</label><input type="number" id="imod-aliq-icms" step="0.01" value="12.00" oninput="calcICMS()"/></div>
-                  <div class="form-group"><label>Valor ICMS</label><input type="number" id="imod-vl-icms" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
-                  <div class="form-group"><label>FCP ICMS (%)</label><input type="number" id="imod-fcp" step="0.01" value="0.00" oninput="calcICMS()"/></div>
-                </div>
-                <!-- Desoneração — CST 20/30/40/41/50/51/60/70/90 -->
-                <div class="form-row cols-2" id="imod-n-desoneracao" style="display:none">
-                  <div class="form-group">
-                    <label>Motivo Desoneração ICMS</label>
-                    <select id="imod-mot-des-icms">
-                      <option value="">— selecionar —</option>
-                      <option value="1">1 – Táxi</option>
-                      <option value="2">2 – Deficiente físico ou mental</option>
-                      <option value="3">3 – Produtor agropecuário</option>
-                      <option value="4">4 – Frotista/Locadora</option>
-                      <option value="5">5 – Diplomático/Consular</option>
-                      <option value="6">6 – Utilitários/Motocicletas da Amazônia</option>
-                      <option value="7">7 – SUFRAMA</option>
-                      <option value="8">8 – Venda a órgão público</option>
-                      <option value="9">9 – Outros</option>
-                      <option value="10">10 – Deficiente condutor</option>
-                      <option value="11">11 – Uso na agropecuária</option>
-                      <option value="12">12 – Óleo lubrificante</option>
-                      <option value="16">16 – Olimpíadas Rio 2016</option>
-                    </select>
+
+                <!-- ICMS próprio -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS</div>
+                  <div class="form-row cols-3">
+                    <div class="form-group">
+                      <label>Modalidade de determinação da base de cálculo</label>
+                      <select id="imod-modbc-icms">
+                        <option value="">:: selecione</option>
+                        <option value="3">3 – Valor da operação</option>
+                        <option value="0">0 – Margem valor agregado</option>
+                        <option value="1">1 – Pauta</option>
+                        <option value="2">2 – Preço tabelado máximo</option>
+                      </select>
+                    </div>
+                    <div class="form-group"><label>% redução da base de cálculo</label><input type="number" id="imod-pred-bc" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>% BC da operação própria</label><input type="number" id="imod-pbc-op" step="0.01" value="0.00"/></div>
                   </div>
-                  <div class="form-group">
-                    <label>Valor ICMS Desonerado</label>
-                    <input type="number" id="imod-vl-icms-deson" step="0.01" value="0.00" style="background:#f0f8f0"/>
+                  <div class="form-row cols-3">
+                    <div class="form-group">
+                      <label style="display:flex;align-items:center;gap:6px">Valor da base de cálculo <label style="font-size:11px;font-weight:500;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox" id="imod-ind-soma-ipi"/> + IPI</label></label>
+                      <input type="number" id="imod-bc-icms" step="0.01" value="0.00" oninput="calcICMS()" style="font-weight:700"/>
+                    </div>
+                    <div class="form-group"><label>Alíquota (percentual)</label><input type="number" id="imod-aliq-icms" step="0.01" value="0.00" oninput="calcICMS()"/></div>
+                    <div class="form-group"><label>Valor do ICMS</label><input type="number" id="imod-vl-icms" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  </div>
+                  <div class="form-row cols-3">
+                    <div class="form-group"><label>Valor do ICMS da operação</label><input type="number" id="imod-vl-icms-op" step="0.01" value="0.00" oninput="calcICMSDif()"/></div>
+                    <div class="form-group"><label>Percentual do diferimento (%)</label><input type="number" id="imod-p-dif" step="0.01" value="0.00" oninput="calcICMSDif()"/></div>
+                    <div class="form-group"><label>Valor do ICMS diferido</label><input type="number" id="imod-vl-icms-dif" step="0.01" value="0.00" readonly style="background:#f8f9fc"/></div>
                   </div>
                 </div>
-                <!-- ST Normal -->
-                <div class="form-row cols-4">
-                  <div class="form-group"><label>Modalidade BC ST</label><select id="imod-modbc-st-n"><option value="">N/A</option><option value="0">0 – MVA</option><option value="1">1 – Pauta</option><option value="2">2 – Preço tab. máx.</option><option value="3">3 – Operação</option></select></div>
-                  <div class="form-group"><label>BC ICMS-ST</label><input type="number" id="imod-bc-st-n" step="0.01" value="0.00" oninput="calcICMSST_n()"/></div>
-                  <div class="form-group"><label>Alíq. ICMS-ST (%)</label><input type="number" id="imod-aliq-st-n" step="0.01" value="0.00" oninput="calcICMSST_n()"/></div>
-                  <div class="form-group"><label>Valor ICMS-ST</label><input type="number" id="imod-vl-st-n" step="0.01" value="0.00" readonly style="background:#fff8f3;font-weight:700;color:#f97316"/></div>
+
+                <!-- FCP -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS relativo ao FCP (Fundo de Combate à Pobreza)</div>
+                  <div class="form-row cols-3">
+                    <div class="form-group"><label>BC ICMS FCP</label><input type="number" id="imod-bc-fcp" step="0.01" value="0.00" oninput="calcFCP()"/></div>
+                    <div class="form-group"><label>% relativo ao FCP</label><input type="number" id="imod-pfcp" step="0.01" value="0.00" oninput="calcFCP()"/></div>
+                    <div class="form-group"><label>Valor do ICMS FCP</label><input type="number" id="imod-vl-fcp" step="0.01" value="0.00" readonly style="background:#fef9c3;font-weight:700;color:#a16207"/></div>
+                  </div>
                 </div>
-                <div class="form-row cols-2">
-                  <div class="form-group"><label>FCP ST (%)</label><input type="number" id="imod-pfcp-st-n" step="0.01" value="0.00" oninput="calcICMSST_n()"/></div>
-                  <div class="form-group"><label>Valor FCP ST</label><input type="number" id="imod-vfcp-st-n" step="0.01" value="0.00" readonly style="background:#fef9c3;font-weight:700;color:#a16207"/></div>
+
+                <!-- FCP Diferido -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS diferido relativo ao FCP (Fundo de Combate à Pobreza)</div>
+                  <div class="form-row cols-3">
+                    <div class="form-group"><label>% do diferimento relativo ao FCP</label><input type="number" id="imod-pdif-fcp" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>Valor do ICMS FCP Diferido</label><input type="number" id="imod-vl-fcp-dif" step="0.01" value="0.00" readonly style="background:#f8f9fc"/></div>
+                    <div class="form-group"><label>Valor do ICMS FCP Efetivo</label><input type="number" id="imod-vl-fcp-efet" step="0.01" value="0.00" readonly style="background:#f8f9fc"/></div>
+                  </div>
                 </div>
+
+                <!-- ICMS ST -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS ST</div>
+                  <div class="form-row cols-3">
+                    <div class="form-group">
+                      <label>Modalidade de determinação da base de cálculo ST</label>
+                      <select id="imod-modbc-st-n">
+                        <option value="">N/A</option>
+                        <option value="0">0 – Margem valor agregado</option>
+                        <option value="1">1 – Lista negativa (valor)</option>
+                        <option value="2">2 – Lista positiva (valor)</option>
+                        <option value="3">3 – Lista neutra (valor)</option>
+                        <option value="4">4 – Preço Tabelado ou Máximo Sugerido</option>
+                        <option value="5">5 – Preço Tabelado Máx. Imp. pelo Poder Público</option>
+                      </select>
+                    </div>
+                    <div class="form-group"><label>% redução da base de cálculo ST</label><input type="number" id="imod-pred-bc-st-n" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>% margem de valor adic. ST</label><input type="number" id="imod-mva-st-n" step="0.01" value="0.00"/></div>
+                  </div>
+                  <div class="form-row cols-4">
+                    <div class="form-group"><label>Valor da base de cálculo ST</label><input type="number" id="imod-bc-st-n" step="0.01" value="0.00" oninput="calcICMSST_n()" style="font-weight:700"/></div>
+                    <div class="form-group"><label>Alíquota ST (percentual)</label><input type="number" id="imod-aliq-st-n" step="0.01" value="0.00" oninput="calcICMSST_n()"/></div>
+                    <div class="form-group"><label>Valor do ICMS ST</label><input type="number" id="imod-vl-st-n" step="0.01" value="0.00" readonly style="background:#fff8f3;font-weight:700;color:#f97316"/></div>
+                    <div class="form-group">
+                      <label>UF do ICMS ST devido na operação</label>
+                      <select id="imod-uf-st">
+                        <option value=""></option>
+                        <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+                        <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                        <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+                        <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+                        <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                        <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+                        <option>SE</option><option>SP</option><option>TO</option><option>EX</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FCP ST -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS ST relativo ao FCP (Fundo de Combate à Pobreza)</div>
+                  <div class="form-row cols-3">
+                    <div class="form-group"><label>BC ICMS FCP ST</label><input type="number" id="imod-bc-fcp-st" step="0.01" value="0.00" oninput="calcFCPST_n()"/></div>
+                    <div class="form-group"><label>% relativo ao FCP ST</label><input type="number" id="imod-pfcp-st-n" step="0.01" value="0.00" oninput="calcFCPST_n()"/></div>
+                    <div class="form-group"><label>Valor do ICMS FCP ST</label><input type="number" id="imod-vfcp-st-n" step="0.01" value="0.00" readonly style="background:#fef9c3;font-weight:700;color:#a16207"/></div>
+                  </div>
+                </div>
+
+                <!-- ST Retido anteriormente -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS ST retido anteriormente</div>
+                  <div class="form-row cols-4">
+                    <div class="form-group"><label>Base cálculo ST ret. anteriorm.</label><input type="number" id="imod-vbc-stret" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>Alíquota supor. pelo Consum. Final</label><input type="number" id="imod-paliq-st" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>Valor do ICMS Próprio do Substituto</label><input type="number" id="imod-vicms-subs" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>ICMS ST ret. anteriorm.</label><input type="number" id="imod-vst-ret" step="0.01" value="0.00"/></div>
+                  </div>
+                  <div class="form-row cols-4">
+                    <div class="form-group"><label>Base cálculo ST ret. na UF remet.</label><input type="number" id="imod-vbc-strem" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>ICMS ST ret. na UF remet.</label><input type="number" id="imod-vst-rem" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>Base cálculo ST da UF destino</label><input type="number" id="imod-vbc-stdest" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>ICMS ST da UF destino</label><input type="number" id="imod-vst-dest" step="0.01" value="0.00"/></div>
+                  </div>
+                </div>
+
+                <!-- FCP ST Retido -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS ST relativo ao FCP (Fundo de Combate à Pobreza) retido anteriormente</div>
+                  <div class="form-row cols-3">
+                    <div class="form-group"><label>BC ST FCP ST ret. anterior.</label><input type="number" id="imod-vbc-fcpstret" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>% relativo ao FCP ST ret. anterior.</label><input type="number" id="imod-pfcp-stret" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>Valor ICMS FCP ST ret. anterior.</label><input type="number" id="imod-vfcp-stret" step="0.01" value="0.00" readonly style="background:#fef9c3"/></div>
+                  </div>
+                </div>
+
+                <!-- Desonerado -->
+                <div class="nfe-group" id="imod-n-desoneracao">
+                  <div class="nfe-group-title">ICMS Desonerado</div>
+                  <div class="form-row cols-3">
+                    <div class="form-group">
+                      <label>Motivo da desoneração do ICMS</label>
+                      <select id="imod-mot-des-icms">
+                        <option value="">:: selecione</option>
+                        <option value="1">1 – Táxi</option><option value="2">2 – Deficiente físico ou mental</option>
+                        <option value="3">3 – Produtor agropecuário</option><option value="4">4 – Frotista/Locadora</option>
+                        <option value="5">5 – Diplomático/Consular</option><option value="6">6 – Utilitários/Motos da Amazônia</option>
+                        <option value="7">7 – SUFRAMA</option><option value="8">8 – Venda a órgão público</option>
+                        <option value="9">9 – Outros</option><option value="10">10 – Deficiente condutor</option>
+                        <option value="11">11 – Uso na agropecuária</option><option value="12">12 – Óleo lubrificante</option>
+                      </select>
+                    </div>
+                    <div class="form-group"><label>Valor ICMS desonerado</label><input type="number" id="imod-vl-icms-deson" step="0.01" value="0.00"/></div>
+                    <div class="form-group">
+                      <label>Indicação se ICMS desonerado deduz do valor do item</label>
+                      <select id="imod-ind-deduz-deson"><option value="">:: selecione</option><option value="1">1 – Deduz</option><option value="2">2 – Não deduz</option></select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ICMS Monofásico (CST 61) -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS Monofásico</div>
+                  <div class="form-row cols-5">
+                    <div class="form-group"><label>Quantidade tributada</label><input type="number" id="imod-qtrib-mono" step="0.0001" value="0.0000" oninput="calcMono()"/></div>
+                    <div class="form-group"><label>% Alíquota Ad Rem</label><input type="number" id="imod-adaliq-mono" step="0.0001" value="0.0000" oninput="calcMono()"/></div>
+                    <div class="form-group"><label>Valor ICMS próprio</label><input type="number" id="imod-vicms-mono" step="0.01" value="0.00" readonly style="background:#f0f8f0"/></div>
+                    <div class="form-group"><label>% redução alíquota Ad Rem</label><input type="number" id="imod-pred-adrem" step="0.01" value="0.00"/></div>
+                    <div class="form-group">
+                      <label>Motivo da redução do Ad Rem</label>
+                      <select id="imod-mot-adrem">
+                        <option value="">:: selecione</option>
+                        <option value="1">1 – Transp. coletivo de passageiros</option>
+                        <option value="2">2 – Outros</option><option value="3">3 – Navegação de cabotagem</option>
+                        <option value="4">4 – Navegação interior</option><option value="5">5 – Aviação</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row cols-2" style="margin-top:8px">
+                    <div class="nfe-subgroup">
+                      <div class="nfe-subgroup-title">Com retenção</div>
+                      <div class="form-row cols-3">
+                        <div class="form-group"><label>Quantidade tributada</label><input type="number" id="imod-qtrib-ret" step="0.0001" value="0.0000" oninput="calcMonoRet()"/></div>
+                        <div class="form-group"><label>% Alíquota Ad Rem</label><input type="number" id="imod-adaliq-ret" step="0.0001" value="0.0000" oninput="calcMonoRet()"/></div>
+                        <div class="form-group"><label>Valor ICMS próprio</label><input type="number" id="imod-vicms-ret" step="0.01" value="0.00" readonly style="background:#f0f8f0"/></div>
+                      </div>
+                    </div>
+                    <div class="nfe-subgroup">
+                      <div class="nfe-subgroup-title">Diferido</div>
+                      <div class="form-row cols-3">
+                        <div class="form-group"><label>Valor do ICMS operação</label><input type="number" id="imod-vl-icms-op2" step="0.01" value="0.00" oninput="calcMonoDif()"/></div>
+                        <div class="form-group"><label>% do diferimento</label><input type="number" id="imod-pdif-mono" step="0.01" value="0.00" oninput="calcMonoDif()"/></div>
+                        <div class="form-group"><label>Valor ICMS diferido</label><input type="number" id="imod-vl-icms-dif2" step="0.01" value="0.00" readonly style="background:#f0f8f0"/></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="nfe-subgroup" style="margin-top:8px">
+                    <div class="nfe-subgroup-title">Retido anteriormente</div>
+                    <div class="form-row cols-3">
+                      <div class="form-group"><label>Quantidade tributada</label><input type="number" id="imod-qtrib-reta" step="0.0001" value="0.0000" oninput="calcMonoReta()"/></div>
+                      <div class="form-group"><label>% Alíquota Ad Rem</label><input type="number" id="imod-adaliq-reta" step="0.0001" value="0.0000" oninput="calcMonoReta()"/></div>
+                      <div class="form-group"><label>Valor ICMS próprio</label><input type="number" id="imod-vicms-reta" step="0.01" value="0.00" readonly style="background:#f0f8f0"/></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ICMS Efetivo -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">ICMS Efetivo</div>
+                  <div class="form-row cols-4">
+                    <div class="form-group"><label>% redução BC efetiva</label><input type="number" id="imod-pred-bcefet" step="0.01" value="0.00"/></div>
+                    <div class="form-group"><label>Valor BC efetiva</label><input type="number" id="imod-vbc-efet" step="0.01" value="0.00" oninput="calcEfet()"/></div>
+                    <div class="form-group"><label>% Alíquota ICMS efetiva</label><input type="number" id="imod-paliq-efet" step="0.01" value="0.00" oninput="calcEfet()"/></div>
+                    <div class="form-group"><label>Valor ICMS efetivo</label><input type="number" id="imod-vicms-efet" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  </div>
+                </div>
+
+                <!-- ICMS DIFAL -->
+                <div class="nfe-group">
+                  <div class="nfe-group-title">
+                    <input type="checkbox" id="imod-ind-difal"/> ICMS DIFAL <span style="font-style:italic;font-weight:600;color:#aaa;font-size:10px">(Operações Interestaduais de Vendas a Consumidor Final)</span>
+                  </div>
+                  <div style="font-size:10px;color:#888;margin-bottom:10px">Cálculo utilizado: Base única [BC x (ALQ Intra - ALQ Inter)]</div>
+                  <div class="form-row cols-5">
+                    <div class="form-group"><label>Base cálculo UF destinatário</label><input type="number" id="imod-vbc-ufdest" step="0.01" value="0.00" oninput="calcDIFAL()"/></div>
+                    <div class="form-group"><label>Base cálculo FCP na UF de destino</label><input type="number" id="imod-vbc-fcpufdest" step="0.01" value="0.00" oninput="calcDIFAL()"/></div>
+                    <div class="form-group"><label>Alíquota FCP da UF de destino (%)</label><input type="number" id="imod-pfcp-ufdest" step="0.01" value="0.00" oninput="calcDIFAL()"/></div>
+                    <div class="form-group"><label>Alíquota interna UF destinatário (%)</label><input type="number" id="imod-picms-ufdest" step="0.01" value="0.00" oninput="calcDIFAL()"/></div>
+                    <div class="form-group">
+                      <label>Alíquota interestadual</label>
+                      <select id="imod-picms-inter" onchange="calcDIFAL()">
+                        <option value="">:: selecione</option>
+                        <option value="4">4%</option><option value="7">7%</option><option value="12">12%</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row cols-4">
+                    <div class="form-group">
+                      <label>% provisório de partilha</label>
+                      <select id="imod-picms-partilha" onchange="calcDIFAL()">
+                        <option value="">:: selecione</option>
+                        <option value="20">20%</option><option value="40">40%</option>
+                        <option value="60">60%</option><option value="80">80%</option><option value="100">100%</option>
+                      </select>
+                    </div>
+                    <div class="form-group"><label>ICMS FCP da UF de destino</label><input type="number" id="imod-vfcp-ufdest" step="0.01" value="0.00" readonly style="background:#fef9c3;font-weight:700;color:#a16207"/></div>
+                    <div class="form-group"><label>ICMS de partilha UF destinatário</label><input type="number" id="imod-vicms-ufdest" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                    <div class="form-group"><label>ICMS de partilha UF remetente</label><input type="number" id="imod-vicms-ufrem" step="0.01" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+                  </div>
+                </div>
+
               </div>
             </div>
 
@@ -929,9 +1128,24 @@ function defaultItem() {
     csosn:'102', modbcst:'', mvast:0, predbcst:0, bcst:0, aliqst:0, vlst:0,
     pcredsn:0, vcrediticmssn:0, pfcpstsn:0, vfcpstsn:0,
     // ICMS Normal
-    cst:'00', modbcicms:'3', predbcicms:0, bcicms:0, aliqicms:12, vlicms:0, fcp:0,
-    motdesicms:'', vlicmsdeson:0,
-    modbcstn:'', bcstn:0, aliqstn:0, vlstn:0, pfcpstn:0, vfcpstn:0,
+    cst:'00', modbcicms:'3', predbcicms:0, pbcop:0, indsomaipi:false,
+    bcicms:0, aliqicms:12, vlicms:0,
+    vlicmsop:0, pdif:0, vlicmsdif:0,
+    bcfcp:0, pfcp:0, vlfcp:0, pdiffcp:0, vlfcpdif:0, vlfcpefet:0,
+    modbcstn:'', predstcn:0, mvastcn:0, bcstn:0, aliqstn:0, vlstn:0, ufst:'',
+    bcfcpst:0, pfcpstn:0, vfcpstn:0,
+    vbcstret:0, paliqst:0, vicmssubs:0, vstret:0,
+    vbcstrem:0, vstrem:0, vbcstdest:0, vstdest:0,
+    vbcfcpstret:0, pfcpstret:0, vfcpstret:0,
+    motdesicms:'', vlicmsdeson:0, inddeduz:'',
+    qtribmono:0, adaliqmono:0, vicmsmono:0, predadrem:0, motadrem:'',
+    qtribret:0, adaliqret:0, vicmsret:0,
+    vlicmsop2:0, pdifmono:0, vlicmsdif2:0,
+    qtribreta:0, adaliqreta:0, vicmsreta:0,
+    predbcefet:0, vbcefet:0, paliqefet:0, vicmsefet:0,
+    inddifal:false, vbcufdest:0, vbcfcpufdest:0, pfcpufdest:0,
+    picmsufdest:0, picmsinter:'', picmspartilha:'',
+    vfcpufdest:0, vicmsufdest:0, vicmsufrem:0,
     // IPI
     cstipi:'99', codenq:'999', bcipi:0, aliqipi:0, vlipi:0, undipi:'',
     // PIS
@@ -1116,18 +1330,72 @@ function fillModal(it) {
   onCSTicmsChange();
   setVal('imod-modbc-icms', it.modbcicms);
   setVal('imod-pred-bc', it.predbcicms);
+  setVal('imod-pbc-op', it.pbcop);
+  setCheck('imod-ind-soma-ipi', it.indsomaipi);
   setVal('imod-bc-icms', it.bcicms);
   setVal('imod-aliq-icms', it.aliqicms);
   setVal('imod-vl-icms', parseFloat(it.vlicms).toFixed(2));
-  setVal('imod-fcp', it.fcp);
-  setVal('imod-mot-des-icms', it.motdesicms);
-  setVal('imod-vl-icms-deson', parseFloat(it.vlicmsdeson).toFixed(2));
+  setVal('imod-vl-icms-op', it.vlicmsop);
+  setVal('imod-p-dif', it.pdif);
+  setVal('imod-vl-icms-dif', parseFloat(it.vlicmsdif).toFixed(2));
+  setVal('imod-bc-fcp', it.bcfcp);
+  setVal('imod-pfcp', it.pfcp);
+  setVal('imod-vl-fcp', parseFloat(it.vlfcp).toFixed(2));
+  setVal('imod-pdif-fcp', it.pdiffcp);
+  setVal('imod-vl-fcp-dif', parseFloat(it.vlfcpdif).toFixed(2));
+  setVal('imod-vl-fcp-efet', parseFloat(it.vlfcpefet).toFixed(2));
   setVal('imod-modbc-st-n', it.modbcstn);
+  setVal('imod-pred-bc-st-n', it.predstcn);
+  setVal('imod-mva-st-n', it.mvastcn);
   setVal('imod-bc-st-n', it.bcstn);
   setVal('imod-aliq-st-n', it.aliqstn);
   setVal('imod-vl-st-n', parseFloat(it.vlstn).toFixed(2));
+  setVal('imod-uf-st', it.ufst);
+  setVal('imod-bc-fcp-st', it.bcfcpst);
   setVal('imod-pfcp-st-n', it.pfcpstn);
   setVal('imod-vfcp-st-n', parseFloat(it.vfcpstn).toFixed(2));
+  setVal('imod-vbc-stret', it.vbcstret);
+  setVal('imod-paliq-st', it.paliqst);
+  setVal('imod-vicms-subs', it.vicmssubs);
+  setVal('imod-vst-ret', it.vstret);
+  setVal('imod-vbc-strem', it.vbcstrem);
+  setVal('imod-vst-rem', it.vstrem);
+  setVal('imod-vbc-stdest', it.vbcstdest);
+  setVal('imod-vst-dest', it.vstdest);
+  setVal('imod-vbc-fcpstret', it.vbcfcpstret);
+  setVal('imod-pfcp-stret', it.pfcpstret);
+  setVal('imod-vfcp-stret', it.vfcpstret);
+  setVal('imod-mot-des-icms', it.motdesicms);
+  setVal('imod-vl-icms-deson', parseFloat(it.vlicmsdeson).toFixed(2));
+  setVal('imod-ind-deduz-deson', it.inddeduz);
+  setVal('imod-qtrib-mono', it.qtribmono);
+  setVal('imod-adaliq-mono', it.adaliqmono);
+  setVal('imod-vicms-mono', it.vicmsmono);
+  setVal('imod-pred-adrem', it.predadrem);
+  setVal('imod-mot-adrem', it.motadrem);
+  setVal('imod-qtrib-ret', it.qtribret);
+  setVal('imod-adaliq-ret', it.adaliqret);
+  setVal('imod-vicms-ret', it.vicmsret);
+  setVal('imod-vl-icms-op2', it.vlicmsop2);
+  setVal('imod-pdif-mono', it.pdifmono);
+  setVal('imod-vl-icms-dif2', it.vlicmsdif2);
+  setVal('imod-qtrib-reta', it.qtribreta);
+  setVal('imod-adaliq-reta', it.adaliqreta);
+  setVal('imod-vicms-reta', it.vicmsreta);
+  setVal('imod-pred-bcefet', it.predbcefet);
+  setVal('imod-vbc-efet', it.vbcefet);
+  setVal('imod-paliq-efet', it.paliqefet);
+  setVal('imod-vicms-efet', it.vicmsefet);
+  setCheck('imod-ind-difal', it.inddifal);
+  setVal('imod-vbc-ufdest', it.vbcufdest);
+  setVal('imod-vbc-fcpufdest', it.vbcfcpufdest);
+  setVal('imod-pfcp-ufdest', it.pfcpufdest);
+  setVal('imod-picms-ufdest', it.picmsufdest);
+  setVal('imod-picms-inter', it.picmsinter);
+  setVal('imod-picms-partilha', it.picmspartilha);
+  setVal('imod-vfcp-ufdest', parseFloat(it.vfcpufdest).toFixed(2));
+  setVal('imod-vicms-ufdest', parseFloat(it.vicmsufdest).toFixed(2));
+  setVal('imod-vicms-ufrem', parseFloat(it.vicmsufrem).toFixed(2));
 
   // IPI
   setVal('imod-cst-ipi', it.cstipi);
@@ -1242,18 +1510,72 @@ function saveItem() {
     cst: getVal('imod-cst-icms'),
     modbcicms: getVal('imod-modbc-icms'),
     predbcicms: getFloat('imod-pred-bc'),
+    pbcop: getFloat('imod-pbc-op'),
+    indsomaipi: getCheck('imod-ind-soma-ipi'),
     bcicms: getFloat('imod-bc-icms'),
     aliqicms: getFloat('imod-aliq-icms'),
     vlicms: getFloat('imod-vl-icms'),
-    fcp: getFloat('imod-fcp'),
-    motdesicms: getVal('imod-mot-des-icms'),
-    vlicmsdeson: getFloat('imod-vl-icms-deson'),
+    vlicmsop: getFloat('imod-vl-icms-op'),
+    pdif: getFloat('imod-p-dif'),
+    vlicmsdif: getFloat('imod-vl-icms-dif'),
+    bcfcp: getFloat('imod-bc-fcp'),
+    pfcp: getFloat('imod-pfcp'),
+    vlfcp: getFloat('imod-vl-fcp'),
+    pdiffcp: getFloat('imod-pdif-fcp'),
+    vlfcpdif: getFloat('imod-vl-fcp-dif'),
+    vlfcpefet: getFloat('imod-vl-fcp-efet'),
     modbcstn: getVal('imod-modbc-st-n'),
+    predstcn: getFloat('imod-pred-bc-st-n'),
+    mvastcn: getFloat('imod-mva-st-n'),
     bcstn: getFloat('imod-bc-st-n'),
     aliqstn: getFloat('imod-aliq-st-n'),
     vlstn: getFloat('imod-vl-st-n'),
+    ufst: getVal('imod-uf-st'),
+    bcfcpst: getFloat('imod-bc-fcp-st'),
     pfcpstn: getFloat('imod-pfcp-st-n'),
     vfcpstn: getFloat('imod-vfcp-st-n'),
+    vbcstret: getFloat('imod-vbc-stret'),
+    paliqst: getFloat('imod-paliq-st'),
+    vicmssubs: getFloat('imod-vicms-subs'),
+    vstret: getFloat('imod-vst-ret'),
+    vbcstrem: getFloat('imod-vbc-strem'),
+    vstrem: getFloat('imod-vst-rem'),
+    vbcstdest: getFloat('imod-vbc-stdest'),
+    vstdest: getFloat('imod-vst-dest'),
+    vbcfcpstret: getFloat('imod-vbc-fcpstret'),
+    pfcpstret: getFloat('imod-pfcp-stret'),
+    vfcpstret: getFloat('imod-vfcp-stret'),
+    motdesicms: getVal('imod-mot-des-icms'),
+    vlicmsdeson: getFloat('imod-vl-icms-deson'),
+    inddeduz: getVal('imod-ind-deduz-deson'),
+    qtribmono: getFloat('imod-qtrib-mono'),
+    adaliqmono: getFloat('imod-adaliq-mono'),
+    vicmsmono: getFloat('imod-vicms-mono'),
+    predadrem: getFloat('imod-pred-adrem'),
+    motadrem: getVal('imod-mot-adrem'),
+    qtribret: getFloat('imod-qtrib-ret'),
+    adaliqret: getFloat('imod-adaliq-ret'),
+    vicmsret: getFloat('imod-vicms-ret'),
+    vlicmsop2: getFloat('imod-vl-icms-op2'),
+    pdifmono: getFloat('imod-pdif-mono'),
+    vlicmsdif2: getFloat('imod-vl-icms-dif2'),
+    qtribreta: getFloat('imod-qtrib-reta'),
+    adaliqreta: getFloat('imod-adaliq-reta'),
+    vicmsreta: getFloat('imod-vicms-reta'),
+    predbcefet: getFloat('imod-pred-bcefet'),
+    vbcefet: getFloat('imod-vbc-efet'),
+    paliqefet: getFloat('imod-paliq-efet'),
+    vicmsefet: getFloat('imod-vicms-efet'),
+    inddifal: getCheck('imod-ind-difal'),
+    vbcufdest: getFloat('imod-vbc-ufdest'),
+    vbcfcpufdest: getFloat('imod-vbc-fcpufdest'),
+    pfcpufdest: getFloat('imod-pfcp-ufdest'),
+    picmsufdest: getFloat('imod-picms-ufdest'),
+    picmsinter: getVal('imod-picms-inter'),
+    picmspartilha: getVal('imod-picms-partilha'),
+    vfcpufdest: getFloat('imod-vfcp-ufdest'),
+    vicmsufdest: getFloat('imod-vicms-ufdest'),
+    vicmsufrem: getFloat('imod-vicms-ufrem'),
     cstipi: getVal('imod-cst-ipi'),
     codenq: getVal('imod-cod-enq'),
     bcipi: getFloat('imod-bc-ipi'),
@@ -1332,11 +1654,65 @@ function calcICMSST_sn() {
   calcCredSN();
 }
 function calcICMSST_n() {
-  const bc   = parseFloat(document.getElementById('imod-bc-st-n').value)||0;
-  const al   = parseFloat(document.getElementById('imod-aliq-st-n').value)||0;
+  const bc = parseFloat(document.getElementById('imod-bc-st-n').value)||0;
+  const al = parseFloat(document.getElementById('imod-aliq-st-n').value)||0;
+  document.getElementById('imod-vl-st-n').value = (bc * al / 100).toFixed(2);
+  calcFCPST_n();
+}
+function calcFCPST_n() {
+  const bc   = parseFloat(document.getElementById('imod-bc-fcp-st').value)||0;
   const pfcp = parseFloat(document.getElementById('imod-pfcp-st-n').value)||0;
-  document.getElementById('imod-vl-st-n').value    = (bc * al / 100).toFixed(2);
-  document.getElementById('imod-vfcp-st-n').value  = (bc * pfcp / 100).toFixed(2);
+  document.getElementById('imod-vfcp-st-n').value = (bc * pfcp / 100).toFixed(2);
+}
+function calcFCP() {
+  const bc = parseFloat(document.getElementById('imod-bc-fcp').value)||0;
+  const p  = parseFloat(document.getElementById('imod-pfcp').value)||0;
+  document.getElementById('imod-vl-fcp').value = (bc * p / 100).toFixed(2);
+}
+function calcICMSDif() {
+  const vlop = parseFloat(document.getElementById('imod-vl-icms-op').value)||0;
+  const pdif = parseFloat(document.getElementById('imod-p-dif').value)||0;
+  document.getElementById('imod-vl-icms-dif').value = (vlop * pdif / 100).toFixed(2);
+}
+function calcEfet() {
+  const bc = parseFloat(document.getElementById('imod-vbc-efet').value)||0;
+  const al = parseFloat(document.getElementById('imod-paliq-efet').value)||0;
+  document.getElementById('imod-vicms-efet').value = (bc * al / 100).toFixed(2);
+}
+function calcMono() {
+  const q = parseFloat(document.getElementById('imod-qtrib-mono').value)||0;
+  const a = parseFloat(document.getElementById('imod-adaliq-mono').value)||0;
+  document.getElementById('imod-vicms-mono').value = (q * a).toFixed(2);
+}
+function calcMonoRet() {
+  const q = parseFloat(document.getElementById('imod-qtrib-ret').value)||0;
+  const a = parseFloat(document.getElementById('imod-adaliq-ret').value)||0;
+  document.getElementById('imod-vicms-ret').value = (q * a).toFixed(2);
+}
+function calcMonoDif() {
+  const op = parseFloat(document.getElementById('imod-vl-icms-op2').value)||0;
+  const p  = parseFloat(document.getElementById('imod-pdif-mono').value)||0;
+  document.getElementById('imod-vl-icms-dif2').value = (op * p / 100).toFixed(2);
+}
+function calcMonoReta() {
+  const q = parseFloat(document.getElementById('imod-qtrib-reta').value)||0;
+  const a = parseFloat(document.getElementById('imod-adaliq-reta').value)||0;
+  document.getElementById('imod-vicms-reta').value = (q * a).toFixed(2);
+}
+function calcDIFAL() {
+  const bcDest  = parseFloat(document.getElementById('imod-vbc-ufdest').value)||0;
+  const bcFCP   = parseFloat(document.getElementById('imod-vbc-fcpufdest').value)||0;
+  const pfcpDest= parseFloat(document.getElementById('imod-pfcp-ufdest').value)||0;
+  const alIntra = parseFloat(document.getElementById('imod-picms-ufdest').value)||0;
+  const alInter = parseFloat(document.getElementById('imod-picms-inter').value)||0;
+  const part    = parseFloat(document.getElementById('imod-picms-partilha').value)||0;
+  const vFCP    = bcFCP * pfcpDest / 100;
+  const vDIFAL  = bcDest * (alIntra - alInter) / 100;
+  const vDest   = vDIFAL * part / 100;
+  const vRem    = vDIFAL * (100 - part) / 100;
+  document.getElementById('imod-vfcp-ufdest').value  = vFCP.toFixed(2);
+  document.getElementById('imod-vicms-ufdest').value = vDest.toFixed(2);
+  document.getElementById('imod-vicms-ufrem').value  = vRem.toFixed(2);
 }
 function calcCredSN() {
   const bc = parseFloat(document.getElementById('imod-bc-pis')?.value)||
