@@ -1556,47 +1556,56 @@
                   <div class="form-group"><label>Classificação Tributária <span style="font-size:10px;color:#aaa">(LC 214/2025)</span></label><input type="text" id="imod-classtrib" placeholder="ex: 01.01"/></div>
                   <div class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-bc-ibscbs" step="0.01" value="0.00" oninput="calcIBSCBS()"/></div>
                 </div>
+                <div style="margin-top:8px">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:600;color:#555">
+                    <input type="checkbox" id="imod-ind-doacao"/>
+                    <span>Operação de doação <span style="font-size:10px;font-weight:400;color:#aaa">(indDoacao — NT 2025.002 v1.30)</span></span>
+                  </label>
+                </div>
               </div>
               <!-- IBS Estadual -->
               <div class="nfe-group" style="margin-top:8px;border-color:#e9d5ff;background:#faf5ff">
                 <div class="nfe-group-title" style="color:#7c3aed">🏛 IBS Estadual</div>
                 <div class="form-row cols-3">
-                  <div class="form-group"><label>% Alíquota</label><input type="number" id="imod-paliq-ibs-uf" step="0.0001" value="0.0000" oninput="calcIBSUF()"/></div>
-                  <div class="form-group"><label>% Redução alíquota</label><input type="number" id="imod-pred-aliq-ibs-uf" step="0.0001" value="0.0000" oninput="calcIBSUF()"/></div>
-                  <div class="form-group"><label>% Alíquota efetiva</label><input type="number" id="imod-paliq-efet-ibs-uf" step="0.0001" value="0.0000" readonly style="background:#f5f3ff"/></div>
+                  <div class="form-group"><label>% Alíquota (pIBSUF)</label><input type="number" id="imod-paliq-ibs-uf" step="0.0001" value="0.0000" oninput="calcIBSUF()"/></div>
+                  <div class="form-group"><label>% Redução alíquota (pRedAliq)</label><input type="number" id="imod-pred-aliq-ibs-uf" step="0.0001" value="0.0000" oninput="calcIBSUF()"/></div>
+                  <div class="form-group"><label>% Alíquota efetiva (pAliqEfet)</label><input type="number" id="imod-paliq-efet-ibs-uf" step="0.0001" value="0.0000" readonly style="background:#f5f3ff"/></div>
                 </div>
-                <div class="form-row cols-3" style="margin-top:6px">
-                  <div class="form-group"><label>Valor IBS Estadual</label><input type="number" id="imod-vl-ibs-uf" step="0.01" value="0.00" readonly style="background:#f5f3ff;font-weight:700;color:#7c3aed"/></div>
-                  <div class="form-group"><label>% Diferimento</label><input type="number" id="imod-pdif-ibs-uf" step="0.01" value="0.00" oninput="calcIBSUF()"/></div>
-                  <div class="form-group"><label>Valor Diferimento</label><input type="number" id="imod-vdif-ibs-uf" step="0.01" value="0.00" readonly style="background:#f5f3ff"/></div>
+                <div class="form-row cols-4" style="margin-top:6px">
+                  <div class="form-group"><label>Valor IBS Estadual (vIBSUF)</label><input type="number" id="imod-vl-ibs-uf" step="0.01" value="0.00" readonly style="background:#f5f3ff;font-weight:700;color:#7c3aed"/></div>
+                  <div class="form-group"><label>% Diferimento (pDif)</label><input type="number" id="imod-pdif-ibs-uf" step="0.01" value="0.00" oninput="calcIBSUF()"/></div>
+                  <div class="form-group"><label>Valor Diferimento (vDif)</label><input type="number" id="imod-vdif-ibs-uf" step="0.01" value="0.00" readonly style="background:#f5f3ff"/></div>
+                  <div class="form-group"><label>Valor Devolução Tributo (vDevTrib)</label><input type="number" id="imod-vdevtrib-ibs-uf" step="0.01" value="0.00"/></div>
                 </div>
               </div>
               <!-- IBS Municipal -->
               <div class="nfe-group" style="margin-top:8px;border-color:#c7d2fe;background:#f0f0ff">
                 <div class="nfe-group-title" style="color:#4338ca">🏙 IBS Municipal</div>
                 <div class="form-row cols-3">
-                  <div class="form-group"><label>% Alíquota</label><input type="number" id="imod-paliq-ibs-mun" step="0.0001" value="0.0000" oninput="calcIBSMun()"/></div>
-                  <div class="form-group"><label>% Redução alíquota</label><input type="number" id="imod-pred-aliq-ibs-mun" step="0.0001" value="0.0000" oninput="calcIBSMun()"/></div>
-                  <div class="form-group"><label>% Alíquota efetiva</label><input type="number" id="imod-paliq-efet-ibs-mun" step="0.0001" value="0.0000" readonly style="background:#eef2ff"/></div>
+                  <div class="form-group"><label>% Alíquota (pIBSMun)</label><input type="number" id="imod-paliq-ibs-mun" step="0.0001" value="0.0000" oninput="calcIBSMun()"/></div>
+                  <div class="form-group"><label>% Redução alíquota (pRedAliq)</label><input type="number" id="imod-pred-aliq-ibs-mun" step="0.0001" value="0.0000" oninput="calcIBSMun()"/></div>
+                  <div class="form-group"><label>% Alíquota efetiva (pAliqEfet)</label><input type="number" id="imod-paliq-efet-ibs-mun" step="0.0001" value="0.0000" readonly style="background:#eef2ff"/></div>
                 </div>
-                <div class="form-row cols-3" style="margin-top:6px">
-                  <div class="form-group"><label>Valor IBS Municipal</label><input type="number" id="imod-vl-ibs-mun" step="0.01" value="0.00" readonly style="background:#eef2ff;font-weight:700;color:#4338ca"/></div>
-                  <div class="form-group"><label>% Diferimento</label><input type="number" id="imod-pdif-ibs-mun" step="0.01" value="0.00" oninput="calcIBSMun()"/></div>
-                  <div class="form-group"><label>Valor Diferimento</label><input type="number" id="imod-vdif-ibs-mun" step="0.01" value="0.00" readonly style="background:#eef2ff"/></div>
+                <div class="form-row cols-4" style="margin-top:6px">
+                  <div class="form-group"><label>Valor IBS Municipal (vIBSMun)</label><input type="number" id="imod-vl-ibs-mun" step="0.01" value="0.00" readonly style="background:#eef2ff;font-weight:700;color:#4338ca"/></div>
+                  <div class="form-group"><label>% Diferimento (pDif)</label><input type="number" id="imod-pdif-ibs-mun" step="0.01" value="0.00" oninput="calcIBSMun()"/></div>
+                  <div class="form-group"><label>Valor Diferimento (vDif)</label><input type="number" id="imod-vdif-ibs-mun" step="0.01" value="0.00" readonly style="background:#eef2ff"/></div>
+                  <div class="form-group"><label>Valor Devolução Tributo (vDevTrib)</label><input type="number" id="imod-vdevtrib-ibs-mun" step="0.01" value="0.00"/></div>
                 </div>
               </div>
               <!-- CBS -->
               <div class="nfe-group" style="margin-top:8px;border-color:#bfdbfe;background:#eff6ff">
                 <div class="nfe-group-title" style="color:#1d4ed8">🏦 CBS</div>
                 <div class="form-row cols-3">
-                  <div class="form-group"><label>% Alíquota</label><input type="number" id="imod-paliq-cbs" step="0.0001" value="0.0000" oninput="calcCBSImp()"/></div>
-                  <div class="form-group"><label>% Redução alíquota</label><input type="number" id="imod-pred-aliq-cbs" step="0.0001" value="0.0000" oninput="calcCBSImp()"/></div>
-                  <div class="form-group"><label>% Alíquota efetiva</label><input type="number" id="imod-paliq-efet-cbs" step="0.0001" value="0.0000" readonly style="background:#dbeafe"/></div>
+                  <div class="form-group"><label>% Alíquota (pCBS)</label><input type="number" id="imod-paliq-cbs" step="0.0001" value="0.0000" oninput="calcCBSImp()"/></div>
+                  <div class="form-group"><label>% Redução alíquota (pRedAliq)</label><input type="number" id="imod-pred-aliq-cbs" step="0.0001" value="0.0000" oninput="calcCBSImp()"/></div>
+                  <div class="form-group"><label>% Alíquota efetiva (pAliqEfet)</label><input type="number" id="imod-paliq-efet-cbs" step="0.0001" value="0.0000" readonly style="background:#dbeafe"/></div>
                 </div>
-                <div class="form-row cols-3" style="margin-top:6px">
-                  <div class="form-group"><label>Valor CBS</label><input type="number" id="imod-vl-cbs" step="0.01" value="0.00" readonly style="background:#dbeafe;font-weight:700;color:#1d4ed8"/></div>
-                  <div class="form-group"><label>% Diferimento</label><input type="number" id="imod-pdif-cbs" step="0.01" value="0.00" oninput="calcCBSImp()"/></div>
-                  <div class="form-group"><label>Valor Diferimento</label><input type="number" id="imod-vdif-cbs" step="0.01" value="0.00" readonly style="background:#dbeafe"/></div>
+                <div class="form-row cols-4" style="margin-top:6px">
+                  <div class="form-group"><label>Valor CBS (vCBS)</label><input type="number" id="imod-vl-cbs" step="0.01" value="0.00" readonly style="background:#dbeafe;font-weight:700;color:#1d4ed8"/></div>
+                  <div class="form-group"><label>% Diferimento (pDif)</label><input type="number" id="imod-pdif-cbs" step="0.01" value="0.00" oninput="calcCBSImp()"/></div>
+                  <div class="form-group"><label>Valor Diferimento (vDif)</label><input type="number" id="imod-vdif-cbs" step="0.01" value="0.00" readonly style="background:#dbeafe"/></div>
+                  <div class="form-group"><label>Valor Devolução Tributo (vDevTrib)</label><input type="number" id="imod-vdevtrib-cbs" step="0.01" value="0.00"/></div>
                 </div>
               </div>
               <!-- Tributação Regular -->
@@ -1634,13 +1643,38 @@
             <!-- IS -->
             <div class="ts" id="imod-ts-is" style="display:none">
               <div style="padding:7px 10px;background:#fef3c7;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#92400e;font-weight:600;margin-bottom:12px">
-                🔶 Imposto Seletivo (IS) — Incide sobre bens e serviços prejudiciais à saúde e ao meio ambiente (fumo, bebidas alcoólicas, veículos, etc.).
+                🔶 Imposto Seletivo (IS) — Incide sobre bens e serviços prejudiciais à saúde e ao meio ambiente (LC 214/2025 · NT 2025.002).
               </div>
-              <div class="form-row cols-4">
-                <div class="form-group"><label>CST IS</label><select id="imod-cst-is"><option value="">— Selecionar —</option><option value="01">01 – Tributado</option><option value="02">02 – Isento</option><option value="03">03 – Não incidência</option><option value="04">04 – Suspenso</option></select></div>
-                <div class="form-group"><label>Base de Cálculo IS</label><input type="number" id="imod-bc-is" step="0.01" value="0.00" oninput="calcIS()"/></div>
-                <div class="form-group"><label>Alíq. IS (%)</label><input type="number" id="imod-aliq-is" step="0.01" value="0.00" oninput="calcIS()"/></div>
-                <div class="form-group"><label>Valor IS</label><input type="number" id="imod-vl-is" step="0.01" value="0.00" readonly style="background:#fef3c7;font-weight:700;color:#d97706"/></div>
+              <div class="nfe-group">
+                <div class="nfe-group-title">Imposto Seletivo</div>
+                <div class="form-row cols-2" style="margin-bottom:10px">
+                  <div class="form-group">
+                    <label>Situação Tributária (CSTIS)</label>
+                    <select id="imod-cst-is">
+                      <option value="">— Selecionar —</option>
+                      <option value="01">01 – Tributado</option>
+                      <option value="02">02 – Isento</option>
+                      <option value="03">03 – Não incidência</option>
+                      <option value="04">04 – Suspenso</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Classificação Tributária (cClassTrib)</label><input type="text" id="imod-classtrib-is" placeholder="ex: 01.01"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group"><label>Base de Cálculo IS (vBCIS)</label><input type="number" id="imod-bc-is" step="0.01" value="0.00" oninput="calcIS()"/></div>
+                  <div class="form-group"><label>Alíquota IS % (pAliqIS)</label><input type="number" id="imod-aliq-is" step="0.01" value="0.00" oninput="calcIS()"/></div>
+                  <div class="form-group"><label>Valor IS (vIS)</label><input type="number" id="imod-vl-is" step="0.01" value="0.00" readonly style="background:#fef3c7;font-weight:700;color:#d97706"/></div>
+                </div>
+                <div class="form-row cols-2" style="margin-top:8px;padding-top:8px;border-top:1px dashed #fde68a">
+                  <div class="form-group">
+                    <label>Unidade tributável IS (uTribIS) <span style="font-size:10px;color:#aaa">— monofásico</span></label>
+                    <input type="text" id="imod-utrib-is" placeholder="ex: UN, L, kg" maxlength="6"/>
+                  </div>
+                  <div class="form-group">
+                    <label>Quantidade tributável IS (qTribIS)</label>
+                    <input type="number" id="imod-qtrib-is" step="0.0001" value="0.0000" oninput="calcIS()"/>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1729,14 +1763,15 @@ function defaultItem() {
     clistserv:'', cmunfg:'', aliqiss:0, vliss:0,
     // IBS/CBS
     cstibscbs:'', classtrib:'', bcibscbs:0,
-    paliqibsuf:0, predaliqibsuf:0, paliqefetibsuf:0, vlibsuf:0, pdifibsuf:0, vdifibsuf:0,
-    paliqibsmun:0, predaliqibsmun:0, paliqefetibsmun:0, vlibsmun:0, pdifibsmun:0, vdifibsmun:0,
-    paliqcbs:0, predaliqcbs:0, paliqefetcbs:0, vlcbs:0, pdifcbs:0, vdifcbs:0,
+    inddoacao:false,
+    paliqibsuf:0, predaliqibsuf:0, paliqefetibsuf:0, vlibsuf:0, pdifibsuf:0, vdifibsuf:0, vdevtribibsuf:0,
+    paliqibsmun:0, predaliqibsmun:0, paliqefetibsmun:0, vlibsmun:0, pdifibsmun:0, vdifibsmun:0, vdevtribibsmun:0,
+    paliqcbs:0, predaliqcbs:0, paliqefetcbs:0, vlcbs:0, pdifcbs:0, vdifcbs:0, vdevtribcbs:0,
     csttribreg:'', classtrib_reg:'',
     paliqefetibsufreg:0, vlibsufreg:0, paliqefetibsmunreg:0, vlibsmunreg:0,
     paliqefetcbsreg:0, vlcbsreg:0,
     // IS
-    cstis:'', bcis:0, aliqis:0, vlis:0,
+    cstis:'', classtribis:'', bcis:0, aliqis:0, vlis:0, utribis:'', qtribis:0,
     // Pedido / NVE / DI / Export
     xped:'', nitemped:'', nfci:'', nve:[],
     di: null,       // objeto DI completo
@@ -2065,24 +2100,28 @@ function fillModal(it) {
   setVal('imod-cst-ibscbs', it.cstibscbs);
   setVal('imod-classtrib', it.classtrib);
   setVal('imod-bc-ibscbs', it.bcibscbs);
+  setCheck('imod-ind-doacao', it.inddoacao||false);
   setVal('imod-paliq-ibs-uf', it.paliqibsuf||0);
   setVal('imod-pred-aliq-ibs-uf', it.predaliqibsuf||0);
   setVal('imod-paliq-efet-ibs-uf', parseFloat(it.paliqefetibsuf||0).toFixed(4));
   setVal('imod-vl-ibs-uf', parseFloat(it.vlibsuf||0).toFixed(2));
   setVal('imod-pdif-ibs-uf', it.pdifibsuf||0);
   setVal('imod-vdif-ibs-uf', parseFloat(it.vdifibsuf||0).toFixed(2));
+  setVal('imod-vdevtrib-ibs-uf', parseFloat(it.vdevtribibsuf||0).toFixed(2));
   setVal('imod-paliq-ibs-mun', it.paliqibsmun||0);
   setVal('imod-pred-aliq-ibs-mun', it.predaliqibsmun||0);
   setVal('imod-paliq-efet-ibs-mun', parseFloat(it.paliqefetibsmun||0).toFixed(4));
   setVal('imod-vl-ibs-mun', parseFloat(it.vlibsmun||0).toFixed(2));
   setVal('imod-pdif-ibs-mun', it.pdifibsmun||0);
   setVal('imod-vdif-ibs-mun', parseFloat(it.vdifibsmun||0).toFixed(2));
+  setVal('imod-vdevtrib-ibs-mun', parseFloat(it.vdevtribibsmun||0).toFixed(2));
   setVal('imod-paliq-cbs', it.paliqcbs||0);
   setVal('imod-pred-aliq-cbs', it.predaliqcbs||0);
   setVal('imod-paliq-efet-cbs', parseFloat(it.paliqefetcbs||0).toFixed(4));
   setVal('imod-vl-cbs', parseFloat(it.vlcbs||0).toFixed(2));
   setVal('imod-pdif-cbs', it.pdifcbs||0);
   setVal('imod-vdif-cbs', parseFloat(it.vdifcbs||0).toFixed(2));
+  setVal('imod-vdevtrib-cbs', parseFloat(it.vdevtribcbs||0).toFixed(2));
   setVal('imod-cst-trib-reg', it.csttribreg);
   setVal('imod-classtrib-reg', it.classtrib_reg);
   setVal('imod-paliq-efet-ibs-uf-reg', it.paliqefetibsufreg||0);
@@ -2094,9 +2133,12 @@ function fillModal(it) {
 
   // IS
   setVal('imod-cst-is', it.cstis);
+  setVal('imod-classtrib-is', it.classtribis||'');
   setVal('imod-bc-is', it.bcis);
   setVal('imod-aliq-is', it.aliqis);
   setVal('imod-vl-is', parseFloat(it.vlis).toFixed(2));
+  setVal('imod-utrib-is', it.utribis||'');
+  setVal('imod-qtrib-is', it.qtribis||0);
 
   // Outras Informações — Pedido
   setVal('imod-xped', it.xped);
@@ -2372,24 +2414,28 @@ function saveItem() {
     cstibscbs: getVal('imod-cst-ibscbs'),
     classtrib: getVal('imod-classtrib'),
     bcibscbs: getFloat('imod-bc-ibscbs'),
+    inddoacao: getCheck('imod-ind-doacao'),
     paliqibsuf: getFloat('imod-paliq-ibs-uf'),
     predaliqibsuf: getFloat('imod-pred-aliq-ibs-uf'),
     paliqefetibsuf: getFloat('imod-paliq-efet-ibs-uf'),
     vlibsuf: getFloat('imod-vl-ibs-uf'),
     pdifibsuf: getFloat('imod-pdif-ibs-uf'),
     vdifibsuf: getFloat('imod-vdif-ibs-uf'),
+    vdevtribibsuf: getFloat('imod-vdevtrib-ibs-uf'),
     paliqibsmun: getFloat('imod-paliq-ibs-mun'),
     predaliqibsmun: getFloat('imod-pred-aliq-ibs-mun'),
     paliqefetibsmun: getFloat('imod-paliq-efet-ibs-mun'),
     vlibsmun: getFloat('imod-vl-ibs-mun'),
     pdifibsmun: getFloat('imod-pdif-ibs-mun'),
     vdifibsmun: getFloat('imod-vdif-ibs-mun'),
+    vdevtribibsmun: getFloat('imod-vdevtrib-ibs-mun'),
     paliqcbs: getFloat('imod-paliq-cbs'),
     predaliqcbs: getFloat('imod-pred-aliq-cbs'),
     paliqefetcbs: getFloat('imod-paliq-efet-cbs'),
     vlcbs: getFloat('imod-vl-cbs'),
     pdifcbs: getFloat('imod-pdif-cbs'),
     vdifcbs: getFloat('imod-vdif-cbs'),
+    vdevtribcbs: getFloat('imod-vdevtrib-cbs'),
     csttribreg: getVal('imod-cst-trib-reg'),
     classtrib_reg: getVal('imod-classtrib-reg'),
     paliqefetibsufreg: getFloat('imod-paliq-efet-ibs-uf-reg'),
@@ -2399,9 +2445,12 @@ function saveItem() {
     paliqefetcbsreg: getFloat('imod-paliq-efet-cbs-reg'),
     vlcbsreg: getFloat('imod-vl-cbs-reg'),
     cstis: getVal('imod-cst-is'),
+    classtribis: getVal('imod-classtrib-is'),
     bcis: getFloat('imod-bc-is'),
     aliqis: getFloat('imod-aliq-is'),
     vlis: getFloat('imod-vl-is'),
+    utribis: getVal('imod-utrib-is'),
+    qtribis: getFloat('imod-qtrib-is'),
     // Outras Informações — Pedido / NVE
     xped: getVal('imod-xped'),
     nitemped: getVal('imod-nitemped'),
