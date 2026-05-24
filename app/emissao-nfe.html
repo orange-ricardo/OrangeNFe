@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <title>OrangeNFe · Emitir NF-e</title>
   <link rel="stylesheet" href="layout.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     .emissao-wrap { display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start; }
 
@@ -161,6 +162,60 @@
     .nve-list { display:flex;flex-wrap:wrap;gap:6px;margin-top:6px; }
     .nve-item { display:flex;align-items:center;gap:4px;background:#f0f2f5;border-radius:4px;padding:3px 8px;font-size:12px; }
     .nve-item button { background:none;border:none;cursor:pointer;color:#aaa;font-size:12px;padding:0 2px; }
+
+    /* SAVE STATUS */
+    #save-status {
+      font-size:11px;font-weight:600;color:#aaa;padding:4px 8px;border-radius:5px;
+      transition:all 0.3s;white-space:nowrap;
+    }
+    #save-status.saving { color:#f97316; }
+    #save-status.saved  { color:#16a34a; }
+    #save-status.error  { color:#dc2626; }
+
+    /* TOAST */
+    #toast-container {
+      position:fixed;bottom:28px;right:28px;z-index:9999;
+      display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none;
+    }
+    .toast-msg {
+      padding:10px 18px;border-radius:9px;font-size:13px;font-weight:600;
+      box-shadow:0 4px 18px rgba(0,0,0,0.18);pointer-events:auto;
+      animation:toastIn 0.22s ease;
+    }
+    .toast-msg.success { background:#1a1a2e;color:#86efac; }
+    .toast-msg.error   { background:#1a1a2e;color:#fca5a5; }
+    .toast-msg.info    { background:#1a1a2e;color:#93c5fd; }
+    @keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+    /* RASCUNHOS MODAL */
+    #rascunhos-overlay {
+      position:fixed;inset:0;z-index:3000;background:rgba(10,12,30,0.65);
+      display:none;align-items:flex-start;justify-content:center;
+      overflow-y:auto;padding:40px 16px;
+    }
+    #rascunhos-overlay.open { display:flex; }
+    .rasc-box {
+      width:100%;max-width:680px;background:#fff;border-radius:16px;
+      overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,0.35);margin:auto;flex-shrink:0;
+    }
+    .rasc-header {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:16px 24px;background:#1a1a2e;color:#fff;
+    }
+    .rasc-header h2 { font-size:15px;font-weight:800;color:#fff;margin:0; }
+    .rasc-body { padding:20px 24px;max-height:70vh;overflow-y:auto; }
+    .rasc-item {
+      display:flex;align-items:center;gap:12px;padding:12px 14px;
+      border:1.5px solid #e8eaf0;border-radius:10px;margin-bottom:8px;
+      background:#fff;transition:border-color 0.15s;cursor:default;
+    }
+    .rasc-item:hover { border-color:#f97316; }
+    .rasc-item-body { flex:1;min-width:0; }
+    .rasc-item-dest { font-size:13px;font-weight:700;color:#1a1a2e; }
+    .rasc-item-meta { font-size:11px;color:#aaa;margin-top:2px; }
+    .rasc-item-total { font-size:14px;font-weight:800;color:#16a34a;white-space:nowrap; }
+    .rasc-footer { padding:14px 24px;background:#f8f9fc;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end; }
+    .rasc-empty { text-align:center;padding:40px 20px;color:#aaa;font-size:13px; }
   </style>
 </head>
 <body>
@@ -201,7 +256,9 @@
   <div class="topbar">
     <div class="topbar-title">Emitir NF-e</div>
     <div class="topbar-actions">
-      <button class="topbar-btn ghost">💾 Salvar rascunho</button>
+      <span id="save-status"></span>
+      <button class="topbar-btn ghost" onclick="openRascunhos()">📂 Rascunhos</button>
+      <button class="topbar-btn ghost" onclick="saveRascunho()">💾 Salvar rascunho</button>
       <button class="topbar-btn ghost" onclick="history.back()">✕ Cancelar</button>
     </div>
   </div>
@@ -446,7 +503,7 @@
         <div class="resumo-actions">
           <button class="btn primary" onclick="emitir()">⚡ Emitir NF-e</button>
           <button class="btn secondary">👁 Pré-visualizar DANFE</button>
-          <button class="btn secondary">💾 Salvar rascunho</button>
+          <button class="btn secondary" onclick="saveRascunho()">💾 Salvar rascunho</button>
         </div>
         <div style="margin-top:16px;padding:10px;background:#f0fdf4;border-radius:8px;font-size:11px;color:#16a34a;font-weight:600;text-align:center;">
           🔒 Transmissão criptografada SEFAZ
@@ -644,13 +701,13 @@
       <div class="imod-section">
         <div class="imod-section-title">Outras Informações do Item</div>
         <div class="oitabs">
-          <div class="oitab active" onclick="switchOutrasTab('pedido',this)"><span class="oi-ic">📋</span>Pedido</div>
-          <div class="oitab" onclick="switchOutrasTab('di',this)"><span class="oi-ic">📁</span>DI</div>
-          <div class="oitab" onclick="switchOutrasTab('exportacao',this)"><span class="oi-ic">📁</span>Exportação</div>
-          <div class="oitab" onclick="switchOutrasTab('veiculo',this)"><span class="oi-ic">📁</span>Veículo Novo</div>
-          <div class="oitab" onclick="switchOutrasTab('combustivel',this)"><span class="oi-ic">📁</span>Combustível</div>
-          <div class="oitab" onclick="switchOutrasTab('medicamentos',this)"><span class="oi-ic">📁</span>Medicamentos</div>
-          <div class="oitab" onclick="switchOutrasTab('rastreabilidade',this)"><span class="oi-ic">📁</span>Rastreabilidade</div>
+          <div class="oitab active" onclick="switchOutrasTab('pedido',this)"><span class="oi-ic">🛒</span>Pedido</div>
+          <div class="oitab" onclick="switchOutrasTab('di',this)"><span class="oi-ic">🚢</span>DI</div>
+          <div class="oitab" onclick="switchOutrasTab('exportacao',this)"><span class="oi-ic">✈️</span>Exportação</div>
+          <div class="oitab" onclick="switchOutrasTab('veiculo',this)"><span class="oi-ic">🚗</span>Veículo Novo</div>
+          <div class="oitab" onclick="switchOutrasTab('combustivel',this)"><span class="oi-ic">⛽</span>Combustível</div>
+          <div class="oitab" onclick="switchOutrasTab('medicamentos',this)"><span class="oi-ic">💊</span>Medicamentos</div>
+          <div class="oitab" onclick="switchOutrasTab('rastreabilidade',this)"><span class="oi-ic">🔬</span>Rastreabilidade</div>
         </div>
         <!-- Pedido -->
         <div class="oitab-panel active" id="oi-pedido">
@@ -1706,6 +1763,28 @@
 
   </div><!-- /item-modal-box -->
 </div><!-- /item-modal -->
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- RASCUNHOS MODAL -->
+<div id="rascunhos-overlay" onclick="closeRascunhosOnBg(event)">
+  <div class="rasc-box">
+    <div class="rasc-header">
+      <div>
+        <h2>📂 Rascunhos salvos</h2>
+        <div style="font-size:11px;color:#8899bb;margin-top:2px;">Clique em um rascunho para carregar</div>
+      </div>
+      <button class="del-btn" style="color:#8899bb;font-size:18px" onclick="closeRascunhos()">✕</button>
+    </div>
+    <div class="rasc-body" id="rasc-body">
+      <div class="rasc-empty">Nenhum rascunho salvo ainda.</div>
+    </div>
+    <div class="rasc-footer">
+      <button class="btn secondary" onclick="closeRascunhos()">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ══════════════════ DATA MODEL ══════════════════ */
@@ -3046,6 +3125,353 @@ function emitir() {
 
 /* ══════════════════ INIT ══════════════════ */
 renderItemsList();
+
+/* ══════════════════ SUPABASE CONFIG ══════════════════
+   1. Crie o projeto em https://supabase.com
+   2. Execute o SQL abaixo no SQL Editor do Supabase:
+
+   CREATE TABLE nfe_rascunhos (
+     id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+     dest_nome   text,
+     valor_total numeric(15,2) DEFAULT 0,
+     qtd_itens   integer DEFAULT 0,
+     status      text DEFAULT 'rascunho',
+     dados       jsonb NOT NULL DEFAULT '{}',
+     created_at  timestamptz DEFAULT now(),
+     updated_at  timestamptz DEFAULT now()
+   );
+
+   -- Atualiza updated_at automaticamente
+   CREATE OR REPLACE FUNCTION set_updated_at()
+   RETURNS TRIGGER AS $$
+   BEGIN NEW.updated_at = now(); RETURN NEW; END;
+   $$ LANGUAGE plpgsql;
+
+   CREATE TRIGGER nfe_rascunhos_updated_at
+   BEFORE UPDATE ON nfe_rascunhos
+   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+   -- RLS: desativado para uso pessoal (habilite se precisar de multiusuário)
+   ALTER TABLE nfe_rascunhos DISABLE ROW LEVEL SECURITY;
+
+   3. Substitua as constantes abaixo com os valores do seu projeto.
+   ══════════════════════════════════════════════════════════════ */
+const SUPA_URL = 'https://SEU-PROJETO.supabase.co';       // ← sua Project URL
+const SUPA_KEY = 'SUA-ANON-PUBLIC-KEY-AQUI';               // ← sua anon/public key
+
+let _supabase = null;
+let rascunhoId = null;        // UUID do rascunho atual (null = novo)
+let _autoSaveTimer = null;
+
+function initSupabase() {
+  if (SUPA_URL.includes('SEU-PROJETO') || SUPA_KEY.includes('SUA-ANON')) {
+    console.warn('[OrangeNFe] Supabase não configurado. Edite SUPA_URL e SUPA_KEY.');
+    setSaveStatus('⚠ Supabase não configurado', 'error');
+    return;
+  }
+  try {
+    _supabase = supabase.createClient(SUPA_URL, SUPA_KEY);
+    setSaveStatus('✓ Conectado', 'saved');
+    setTimeout(() => setSaveStatus(''), 3000);
+  } catch(e) {
+    console.error('[OrangeNFe] Supabase init error:', e);
+    setSaveStatus('✗ Erro de conexão', 'error');
+  }
+}
+
+/* ── STATUS INDICATOR ── */
+function setSaveStatus(msg, cls = '') {
+  const el = document.getElementById('save-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = cls;
+}
+
+/* ── TOAST ── */
+function showToast(msg, type = 'success', duration = 3500) {
+  const c = document.getElementById('toast-container');
+  if (!c) return;
+  const t = document.createElement('div');
+  t.className = `toast-msg ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.4s'; setTimeout(()=>t.remove(), 400); }, duration);
+}
+
+/* ── FORM SNAPSHOT ──
+   Serializa todos os inputs/selects/textareas dentro das seções do formulário.
+   Usa o ID do elemento como chave quando disponível; caso contrário, usa
+   uma chave posicional baseada no seletor da seção (ex: "sec_0_12").
+   Também inclui os arrays dinâmicos e o estado dos itens. */
+function getFormSnapshot() {
+  const snap = {};
+
+  // Seções principais do formulário (tabs 1-5)
+  const sections = [
+    '#sec-identificacao', '#sec-destinatario', '#sec-transporte', '#sec-pagamento'
+  ];
+  sections.forEach((sel, sIdx) => {
+    const sec = document.querySelector(sel);
+    if (!sec) return;
+    sec.querySelectorAll('input,select,textarea').forEach((el, eIdx) => {
+      const key = el.id ? el.id : `sec_${sIdx}_${eIdx}`;
+      if (el.type === 'checkbox') snap[key] = el.checked;
+      else snap[key] = el.value;
+    });
+  });
+
+  // Parcelas
+  const parcelasRows = [];
+  document.querySelectorAll('#parcelas-body tr').forEach(tr => {
+    const row = {};
+    tr.querySelectorAll('input,select').forEach((el, i) => {
+      row[`p${i}`] = el.value;
+    });
+    parcelasRows.push(row);
+  });
+  snap['_parcelas'] = parcelasRows;
+
+  // Informações adicionais
+  const infoadTxt = document.getElementById('infoadicionais-geral');
+  if (infoadTxt) snap['infoadicionais-geral'] = infoadTxt.value;
+
+  return snap;
+}
+
+function setFormSnapshot(snap) {
+  if (!snap) return;
+
+  const sections = [
+    '#sec-identificacao', '#sec-destinatario', '#sec-transporte', '#sec-pagamento'
+  ];
+  sections.forEach((sel, sIdx) => {
+    const sec = document.querySelector(sel);
+    if (!sec) return;
+    sec.querySelectorAll('input,select,textarea').forEach((el, eIdx) => {
+      const key = el.id ? el.id : `sec_${sIdx}_${eIdx}`;
+      if (!(key in snap)) return;
+      if (el.type === 'checkbox') el.checked = !!snap[key];
+      else el.value = snap[key];
+    });
+  });
+
+  // Parcelas
+  if (Array.isArray(snap['_parcelas']) && snap['_parcelas'].length > 0) {
+    const tbody = document.getElementById('parcelas-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      snap['_parcelas'].forEach(row => {
+        addParcela();
+        const tr = tbody.lastElementChild;
+        if (!tr) return;
+        tr.querySelectorAll('input,select').forEach((el, i) => {
+          if (`p${i}` in row) el.value = row[`p${i}`];
+        });
+      });
+    }
+  }
+
+  if (snap['infoadicionais-geral']) {
+    const el = document.getElementById('infoadicionais-geral');
+    if (el) el.value = snap['infoadicionais-geral'];
+  }
+}
+
+/* ── SALVAR ── */
+async function saveRascunho(silent = false) {
+  if (!_supabase) {
+    if (!silent) showToast('⚠ Configure o Supabase primeiro (SUPA_URL / SUPA_KEY)', 'error');
+    return;
+  }
+
+  setSaveStatus('Salvando…', 'saving');
+
+  // Coleta metadados para colunas indexáveis
+  const destNome = (document.getElementById('razao-social')?.value || '').trim() || 'Sem destinatário';
+  const valorTotal = parseFloat(document.getElementById('res-total')?.textContent?.replace(/[^\d,]/g,'').replace(',','.')) || 0;
+
+  const dados = {
+    formSnapshot: getFormSnapshot(),
+    items: JSON.parse(JSON.stringify(items)),
+    parcelaCount,
+    savedAt: new Date().toISOString()
+  };
+
+  try {
+    let result;
+    if (rascunhoId) {
+      result = await _supabase
+        .from('nfe_rascunhos')
+        .update({ dest_nome: destNome, valor_total: valorTotal, qtd_itens: items.length, dados })
+        .eq('id', rascunhoId)
+        .select()
+        .single();
+    } else {
+      result = await _supabase
+        .from('nfe_rascunhos')
+        .insert({ dest_nome: destNome, valor_total: valorTotal, qtd_itens: items.length, dados })
+        .select()
+        .single();
+    }
+
+    if (result.error) throw result.error;
+
+    rascunhoId = result.data.id;
+    setSaveStatus('✓ Salvo', 'saved');
+    setTimeout(() => setSaveStatus(''), 4000);
+    if (!silent) showToast('✓ Rascunho salvo com sucesso!', 'success');
+
+  } catch(e) {
+    console.error('[OrangeNFe] saveRascunho error:', e);
+    setSaveStatus('✗ Erro ao salvar', 'error');
+    if (!silent) showToast('✗ Erro ao salvar: ' + (e.message || e), 'error');
+  }
+}
+
+/* ── AUTO-SAVE (debounce 5s) ── */
+function scheduleAutoSave() {
+  if (!_supabase) return;
+  clearTimeout(_autoSaveTimer);
+  setSaveStatus('…', 'saving');
+  _autoSaveTimer = setTimeout(() => saveRascunho(true), 5000);
+}
+
+/* ── LISTAR RASCUNHOS ── */
+async function loadRascunhos() {
+  if (!_supabase) {
+    showToast('⚠ Supabase não configurado', 'error'); return;
+  }
+  const body = document.getElementById('rasc-body');
+  body.innerHTML = '<div class="rasc-empty">Carregando…</div>';
+
+  try {
+    const { data, error } = await _supabase
+      .from('nfe_rascunhos')
+      .select('id,dest_nome,valor_total,qtd_itens,status,updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      body.innerHTML = '<div class="rasc-empty">Nenhum rascunho salvo ainda.</div>';
+      return;
+    }
+
+    body.innerHTML = '';
+    data.forEach(r => {
+      const dt = new Date(r.updated_at).toLocaleString('pt-BR');
+      const val = (r.valor_total || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+      const isAtual = r.id === rascunhoId;
+      const div = document.createElement('div');
+      div.className = 'rasc-item';
+      div.innerHTML = `
+        <div class="rasc-item-body">
+          <div class="rasc-item-dest">${escHtml(r.dest_nome || 'Sem destinatário')}
+            ${isAtual ? '<span class="itag ok" style="margin-left:6px">atual</span>' : ''}
+          </div>
+          <div class="rasc-item-meta">${dt} · ${r.qtd_itens || 0} item(ns)</div>
+        </div>
+        <div class="rasc-item-total">${val}</div>
+        <button class="edit-btn" onclick="loadRascunho('${r.id}')">📂 Carregar</button>
+        <button class="del-btn" title="Excluir rascunho" onclick="deleteRascunho('${r.id}', this)">🗑</button>
+      `;
+      body.appendChild(div);
+    });
+
+  } catch(e) {
+    console.error('[OrangeNFe] loadRascunhos error:', e);
+    body.innerHTML = '<div class="rasc-empty">Erro ao carregar rascunhos.</div>';
+  }
+}
+
+/* ── CARREGAR RASCUNHO ── */
+async function loadRascunho(id) {
+  if (!_supabase) return;
+  if (!confirm('Carregar este rascunho? Os dados atuais não salvos serão perdidos.')) return;
+
+  try {
+    const { data, error } = await _supabase
+      .from('nfe_rascunhos')
+      .select('id,dados')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    const d = data.dados || {};
+    rascunhoId = data.id;
+
+    // Restaura itens
+    items = Array.isArray(d.items) ? d.items : [];
+    parcelaCount = d.parcelaCount || 1;
+
+    // Restaura formulário
+    setFormSnapshot(d.formSnapshot || {});
+
+    // Re-renderiza
+    renderItemsList();
+    updateResumo();
+    closeRascunhos();
+    showToast('✓ Rascunho carregado!', 'success');
+
+  } catch(e) {
+    console.error('[OrangeNFe] loadRascunho error:', e);
+    showToast('✗ Erro ao carregar rascunho', 'error');
+  }
+}
+
+/* ── EXCLUIR RASCUNHO ── */
+async function deleteRascunho(id, btn) {
+  if (!confirm('Excluir este rascunho? Esta ação não pode ser desfeita.')) return;
+  try {
+    const { error } = await _supabase
+      .from('nfe_rascunhos')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    if (id === rascunhoId) rascunhoId = null;
+    btn?.closest('.rasc-item')?.remove();
+    showToast('✓ Rascunho excluído', 'info');
+    const body = document.getElementById('rasc-body');
+    if (body && !body.querySelector('.rasc-item'))
+      body.innerHTML = '<div class="rasc-empty">Nenhum rascunho salvo ainda.</div>';
+  } catch(e) {
+    showToast('✗ Erro ao excluir: ' + (e.message || e), 'error');
+  }
+}
+
+/* ── MODAL RASCUNHOS ── */
+function openRascunhos() {
+  document.getElementById('rascunhos-overlay').classList.add('open');
+  loadRascunhos();
+}
+function closeRascunhos() {
+  document.getElementById('rascunhos-overlay').classList.remove('open');
+}
+function closeRascunhosOnBg(e) {
+  if (e.target === document.getElementById('rascunhos-overlay')) closeRascunhos();
+}
+
+/* ── UTILITY ── */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* Dispara auto-save ao modificar itens */
+const _origRenderItemsList = renderItemsList;
+renderItemsList = function(...args) {
+  _origRenderItemsList(...args);
+  scheduleAutoSave();
+};
+
+/* ══════════════════ DOMContentLoaded ══════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  initSupabase();
+  // Auto-save ao alterar qualquer campo do formulário
+  document.querySelectorAll('#sec-identificacao,#sec-destinatario,#sec-transporte,#sec-pagamento')
+    .forEach(sec => sec.addEventListener('input', scheduleAutoSave));
+});
 </script>
 
 </body>
