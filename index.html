@@ -47,30 +47,17 @@
       display:grid; grid-template-columns:1fr 1fr;
       min-height: 580px; align-items:center;
       padding: 0 48px;
-      background: #fff;
-      position: relative;
+      background: linear-gradient(135deg, #fff8f3 0%, #fff 55%);
+      position: relative; overflow:hidden;
     }
-    /* Metade esquerda com foto de fundo */
-    .hero::before {
+    /* Glow sutil no fundo */
+    .hero::after {
       content:'';
-      position:absolute;
-      inset:0 50% 0 0;          /* cobre só a metade esquerda */
+      position:absolute; inset:0; pointer-events:none;
       background:
-        url('assets/img/hero-index.jpg')
-        center/cover no-repeat;
-      z-index:0;
+        radial-gradient(ellipse at 85% 50%, rgba(249,115,22,0.07) 0%, transparent 60%);
     }
-    .hero-left {
-      position:relative; z-index:1;
-      padding: 60px 48px 60px 0;
-    }
-    /* Overlay para leitura do texto */
-    .hero-left::before {
-      content:'';
-      position:absolute; inset:-60px -48px -60px -48px;
-      background: linear-gradient(105deg, #fff8f3 55%, rgba(255,248,243,0.92) 70%, rgba(255,248,243,0.5) 85%, transparent 100%);
-      z-index:-1;
-    }
+    .hero-left { position:relative; z-index:1; padding-right:48px; }
     .hero-left { padding-right:48px; }
     .hero-badge {
       display:inline-flex; align-items:center; gap:6px;
@@ -105,9 +92,76 @@
     .btn-ghost:hover { border-color:#f97316; color:#f97316; }
 
     .hero-right {
-      display:flex; flex-direction:column; gap:12px; padding-left:12px;
-      position:relative; z-index:1;
+      display:flex; align-items:center; justify-content:center;
+      padding-left:12px; position:relative; z-index:1;
     }
+    /* Mockup do sistema */
+    .hero-mockup {
+      width:100%; max-width:440px;
+      background:#fff; border-radius:16px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.13), 0 4px 16px rgba(249,115,22,0.08);
+      overflow:hidden; border:1.5px solid #f0f0f0;
+    }
+    .hm-bar {
+      background:#1a1a2e; padding:10px 16px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .hm-bar-title { font-size:11px; font-weight:700; color:#fff; letter-spacing:0.4px; }
+    .hm-bar-badge {
+      font-size:10px; font-weight:700; padding:2px 8px;
+      border-radius:10px; background:#f97316; color:#fff;
+    }
+    .hm-tabs {
+      display:flex; border-bottom:1.5px solid #f0f0f0;
+      background:#fafbfc;
+    }
+    .hm-tab {
+      padding:8px 14px; font-size:11px; font-weight:600; color:#aaa;
+      border-bottom:2px solid transparent; cursor:default;
+    }
+    .hm-tab.active { color:#f97316; border-bottom-color:#f97316; background:#fff; }
+    .hm-body { padding:16px; }
+    .hm-row { display:flex; gap:8px; margin-bottom:8px; }
+    .hm-field {
+      flex:1; background:#fafbfc; border:1.5px solid #e8eaf0;
+      border-radius:7px; padding:8px 10px;
+    }
+    .hm-field-label { font-size:9px; font-weight:700; color:#aaa; text-transform:uppercase; letter-spacing:0.4px; }
+    .hm-field-val { font-size:12px; font-weight:600; color:#1a1a2e; margin-top:2px; }
+    .hm-field-val.orange { color:#f97316; }
+    .hm-field-val.green { color:#16a34a; }
+    .hm-divider { height:1px; background:#f0f0f0; margin:10px 0; }
+    .hm-item {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 10px; background:#fafbfc;
+      border:1.5px solid #e8eaf0; border-radius:8px; margin-bottom:6px;
+    }
+    .hm-item-num {
+      width:22px; height:22px; border-radius:50%; background:#f4f6f9;
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px; font-weight:800; color:#aaa; flex-shrink:0;
+    }
+    .hm-item-body { flex:1; }
+    .hm-item-desc { font-size:11px; font-weight:700; color:#1a1a2e; }
+    .hm-item-sub { font-size:10px; color:#aaa; }
+    .hm-item-val { font-size:12px; font-weight:800; color:#16a34a; }
+    .hm-footer {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; background:#f8f9fc; border-top:1px solid #f0f0f0;
+    }
+    .hm-total-label { font-size:11px; color:#aaa; font-weight:600; }
+    .hm-total-val { font-size:18px; font-weight:800; color:#f97316; }
+    .hm-emit-btn {
+      background:#f97316; color:#fff; border:none;
+      padding:9px 18px; border-radius:8px; font-size:12px;
+      font-weight:700; cursor:default; display:flex; align-items:center; gap:6px;
+    }
+    /* Pulsing dot no botão */
+    .pulse-dot {
+      width:7px; height:7px; border-radius:50%; background:#fff;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
     .hero-card {
       background:#fff; border-radius:12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -278,27 +332,63 @@
     </div>
   </div>
   <div class="hero-right">
-    <div class="hero-cards-row">
-      <div class="hero-card">
-        <div class="icon">📄</div>
-        <h4>NF-e em segundos</h4>
-        <p>Emita, cancele e corrija sem sair do sistema</p>
+    <div class="hero-mockup">
+      <div class="hm-bar">
+        <div class="hm-bar-title">⚡ Emitir NF-e · OrangeNFe</div>
+        <div class="hm-bar-badge">HOMOLOGAÇÃO</div>
       </div>
-      <div class="hero-card">
-        <div class="icon">🧾</div>
-        <h4>NFC-e para o varejo</h4>
-        <p>Cupom fiscal com impressão automática</p>
+      <div class="hm-tabs">
+        <div class="hm-tab active">1. Identificação</div>
+        <div class="hm-tab">2. Destinatário</div>
+        <div class="hm-tab">3. Itens</div>
+        <div class="hm-tab">4. Pgto</div>
       </div>
-    </div>
-    <div class="hero-card">
-      <div class="icon">🔔</div>
-      <h4>Monitoramento de notas recebidas</h4>
-      <p>Saiba em tempo real todas as NF-e emitidas contra o seu CNPJ, com alertas automáticos por e-mail.</p>
-    </div>
-    <div class="hero-card">
-      <div class="icon">☁️</div>
-      <h4>XMLs e DANFEs em nuvem por 10 anos</h4>
-      <p>Conformidade fiscal garantida sem custo extra.</p>
+      <div class="hm-body">
+        <div class="hm-row">
+          <div class="hm-field" style="flex:2">
+            <div class="hm-field-label">Destinatário</div>
+            <div class="hm-field-val">Comércio Rápido Ltda</div>
+          </div>
+          <div class="hm-field">
+            <div class="hm-field-label">CNPJ</div>
+            <div class="hm-field-val">12.345.678/0001-90</div>
+          </div>
+        </div>
+        <div class="hm-row">
+          <div class="hm-field">
+            <div class="hm-field-label">Natureza</div>
+            <div class="hm-field-val">Venda de mercadoria</div>
+          </div>
+          <div class="hm-field">
+            <div class="hm-field-label">Série / Número</div>
+            <div class="hm-field-val orange">001 / 000248</div>
+          </div>
+        </div>
+        <div class="hm-divider"></div>
+        <div class="hm-item">
+          <div class="hm-item-num">1</div>
+          <div class="hm-item-body">
+            <div class="hm-item-desc">Notebook Dell Inspiron 15</div>
+            <div class="hm-item-sub">NCM 8471.30.12 · 2 un · ICMS 12%</div>
+          </div>
+          <div class="hm-item-val">R$ 4.598,00</div>
+        </div>
+        <div class="hm-item">
+          <div class="hm-item-num">2</div>
+          <div class="hm-item-body">
+            <div class="hm-item-desc">Mouse sem fio Logitech M170</div>
+            <div class="hm-item-sub">NCM 8471.60.52 · 5 un · ICMS 12%</div>
+          </div>
+          <div class="hm-item-val">R$ 274,95</div>
+        </div>
+      </div>
+      <div class="hm-footer">
+        <div>
+          <div class="hm-total-label">Total NF-e</div>
+          <div class="hm-total-val">R$ 4.872,95</div>
+        </div>
+        <button class="hm-emit-btn"><div class="pulse-dot"></div> Emitir NF-e</button>
+      </div>
     </div>
   </div>
 </section>
