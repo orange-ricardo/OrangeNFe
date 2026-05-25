@@ -218,14 +218,44 @@
     .feat-body h3 { font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
     .feat-body p { font-size:13px; color:#888; line-height:1.6; }
 
-    /* ─── STATS STRIP ─── */
+    /* ─── POWERED-BY HERO (faixa escura) ─── */
     .stats-strip {
-      background:#1a1a2e; padding:48px;
-      display:grid; grid-template-columns:repeat(4,1fr);
-      gap:24px; text-align:center;
+      background:#1a1a2e;
+      padding:56px 48px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:0;
     }
-    .stat strong { display:block; font-size:34px; font-weight:800; color:#f97316; }
-    .stat span { font-size:13px; color:#aaa; margin-top:4px; display:block; }
+    .pb-hero-label {
+      font-size:10px; font-weight:700;
+      color:rgba(255,255,255,0.28);
+      text-transform:uppercase; letter-spacing:2.8px;
+      margin-bottom:14px;
+    }
+    .pb-hero-logo {
+      height:68px; object-fit:contain;
+      filter:brightness(0) invert(1);
+      opacity:0.82;
+      transition:opacity 0.25s;
+    }
+    .pb-hero-logo:hover { opacity:1; }
+    .pb-hero-divider {
+      width:48px; height:2px;
+      background:rgba(249,115,22,0.35);
+      border-radius:2px; margin:20px 0;
+    }
+    .pb-hero-aws {
+      display:flex; align-items:center; gap:10px;
+    }
+    .pb-hero-aws-label {
+      font-size:9px; font-weight:700;
+      color:rgba(255,255,255,0.22);
+      text-transform:uppercase; letter-spacing:1.8px;
+    }
+    .pb-hero-aws img {
+      height:18px; opacity:0.42;
+      transition:opacity 0.25s;
+    }
+    .pb-hero-aws img:hover { opacity:0.75; }
 
     /* ─── PLANOS ─── */
     .plans { padding:80px 48px; background:#fafafa; text-align:center; }
@@ -439,9 +469,9 @@
 <div class="social-proof">
   <p>Números que importam</p>
   <div class="proof-numbers">
-    <div class="proof-num"><strong>+12 mil</strong><span>empresas ativas</span></div>
-    <div class="proof-num"><strong>+486T</strong><span>em notas emitidas</span></div>
-    <div class="proof-num"><strong>15 anos</strong><span>no mercado</span></div>
+    <div class="proof-num"><strong>2 mil</strong><span>empresas ativas</span></div>
+    <div class="proof-num"><strong>+100 mi</strong><span>em notas emitidas</span></div>
+    <div class="proof-num"><strong>30 anos</strong><span>no mercado</span></div>
     <div class="proof-num"><strong>99,9%</strong><span>de uptime</span></div>
   </div>
 </div>
@@ -479,12 +509,17 @@
   </div>
 </section>
 
-<!-- STATS -->
+<!-- POWERED-BY HERO -->
 <div class="stats-strip">
-  <div class="stat"><strong>NF-e</strong><span>Notas de produto</span></div>
-  <div class="stat"><strong>NFC-e</strong><span>Cupom fiscal varejo</span></div>
-  <div class="stat"><strong>CT-e</strong><span>Conhecimento de transporte</span></div>
-  <div class="stat"><strong>MDF-e</strong><span>Manifesto do destinatário</span></div>
+  <span class="pb-hero-label">Powered by</span>
+  <a href="https://www.orangecustom.com.br" target="_blank" rel="noopener noreferrer">
+    <img class="pb-hero-logo" src="app/assets/orange-logotipo.png" alt="Orange Custom Systems"/>
+  </a>
+  <div class="pb-hero-divider"></div>
+  <div class="pb-hero-aws">
+    <span class="pb-hero-aws-label">Servidor</span>
+    <img src="app/assets/aws-logo.svg" alt="Amazon Web Services"/>
+  </div>
 </div>
 
 <!-- PLANOS -->
@@ -570,6 +605,7 @@
       <img class="pb-logo-aws" src="app/assets/aws-logo.svg" alt="Amazon Web Services"/>
     </div>
   </div>
+
 </footer>
 
 <a href="#" class="wa">
