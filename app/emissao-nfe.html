@@ -697,344 +697,7 @@
         </div>
       </div>
 
-      <!-- 7. Outras Informações do Item -->
-      <div class="imod-section">
-        <div class="imod-section-title">Outras Informações do Item</div>
-        <div class="oitabs">
-          <div class="oitab active" onclick="switchOutrasTab('pedido',this)"><span class="oi-ic">🛒</span>Pedido</div>
-          <div class="oitab" onclick="switchOutrasTab('di',this)"><span class="oi-ic">🚢</span>DI</div>
-          <div class="oitab" onclick="switchOutrasTab('exportacao',this)"><span class="oi-ic">✈️</span>Exportação</div>
-          <div class="oitab" onclick="switchOutrasTab('veiculo',this)"><span class="oi-ic">🚗</span>Veículo Novo</div>
-          <div class="oitab" onclick="switchOutrasTab('combustivel',this)"><span class="oi-ic">⛽</span>Combustível</div>
-          <div class="oitab" onclick="switchOutrasTab('medicamentos',this)"><span class="oi-ic">💊</span>Medicamentos</div>
-          <div class="oitab" onclick="switchOutrasTab('rastreabilidade',this)"><span class="oi-ic">🔬</span>Rastreabilidade</div>
-        </div>
-        <!-- Pedido -->
-        <div class="oitab-panel active" id="oi-pedido">
-          <div class="form-row cols-2">
-            <div class="form-group"><label>N° do Pedido de Compra</label><input type="text" id="imod-xped" placeholder="ex: PED-001" maxlength="15"/></div>
-            <div class="form-group"><label>Item do Pedido Compra</label><input type="text" id="imod-nitemped" placeholder="ex: 1" maxlength="6"/></div>
-          </div>
-          <div class="form-group" style="margin-top:6px"><label>Número de controle da FCI (Ficha de Conteúdo de Importação)</label><input type="text" id="imod-nfci" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" maxlength="36"/></div>
-          <div style="margin-top:8px">
-            <div class="form-group">
-              <label>NVE — Nomenclatura de Valor Aduaneiro (até 8 ocorrências)</label>
-              <div style="display:flex;gap:6px;margin-top:4px">
-                <input type="text" id="imod-nve-input" placeholder="ex: AB1234" maxlength="6" style="width:120px"/>
-                <button type="button" class="list-add-btn" onclick="addNVE()">＋ Adicionar</button>
-              </div>
-              <div class="nve-list" id="imod-nve-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DI -->
-        <div class="oitab-panel" id="oi-di">
-          <div class="form-row cols-4">
-            <div class="form-group"><label>Número DI</label><input type="text" id="imod-di-ndi" maxlength="15"/></div>
-            <div class="form-group"><label>Data registro</label><input type="date" id="imod-di-ddi"/></div>
-            <div class="form-group">
-              <label>Via de Transporte</label>
-              <select id="imod-di-tpvia">
-                <option value="">:: selecione</option>
-                <option value="1">1 – Marítima</option><option value="2">2 – Fluvial</option>
-                <option value="3">3 – Lacustre</option><option value="4">4 – Aérea</option>
-                <option value="5">5 – Postal</option><option value="6">6 – Ferroviária</option>
-                <option value="7">7 – Rodoviária</option><option value="8">8 – Conduto/Rede Transm.</option>
-                <option value="9">9 – Meios Próprios</option><option value="10">10 – Entrada/Saída Ficta</option>
-                <option value="11">11 – Courier</option><option value="12">12 – Handcarry</option>
-                <option value="13">13 – Por conta e ordem</option>
-              </select>
-            </div>
-            <div class="form-group"><label>Valor do AFRMM</label><input type="number" id="imod-di-vafrmm" step="0.01" value="0.00"/></div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group">
-              <label>Forma de importação</label>
-              <select id="imod-di-tpintermedio">
-                <option value="">:: selecione</option>
-                <option value="1">1 – Importação por conta própria</option>
-                <option value="2">2 – Importação por conta e ordem</option>
-                <option value="3">3 – Importação por encomenda</option>
-              </select>
-            </div>
-            <div class="form-group"><label>CNPJ</label><input type="text" id="imod-di-cnpj" placeholder="00.000.000/0001-00"/></div>
-            <div class="form-group">
-              <label>UF</label>
-              <select id="imod-di-ufterceiro">
-                <option value="">--</option>
-                <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
-                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
-                <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
-                <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
-                <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
-                <option>SP</option><option>TO</option><option>EX</option>
-              </select>
-            </div>
-            <div class="form-group"><label>Código do exportador</label><input type="text" id="imod-di-cexportador" maxlength="60"/></div>
-          </div>
-          <div class="nfe-group" style="margin-top:8px">
-            <div class="nfe-group-title">Desembaraço aduaneiro</div>
-            <div class="form-row cols-3">
-              <div class="form-group">
-                <label>UF</label>
-                <select id="imod-di-ufdesemb">
-                  <option value="">--</option>
-                  <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
-                  <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
-                  <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
-                  <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
-                  <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
-                  <option>SP</option><option>TO</option><option>EX</option>
-                </select>
-              </div>
-              <div class="form-group"><label>Local</label><input type="text" id="imod-di-xlocdesemb" maxlength="60"/></div>
-              <div class="form-group"><label>Data</label><input type="date" id="imod-di-ddesemb"/></div>
-            </div>
-          </div>
-          <div class="nfe-group" style="margin-top:8px">
-            <div class="nfe-group-title" style="justify-content:space-between">
-              Adições
-              <button type="button" class="list-add-btn" onclick="addDiAdicao()">＋ ADICIONAR</button>
-            </div>
-            <div id="imod-di-adicoes-list"><div style="font-size:12px;color:#aaa">Nenhuma adição cadastrada.</div></div>
-          </div>
-        </div>
-
-        <!-- Exportação -->
-        <div class="oitab-panel" id="oi-exportacao">
-          <div class="form-row cols-2">
-            <div class="form-group"><label>Número Drawback</label><input type="text" id="imod-exp-ndraw" maxlength="20"/></div>
-            <div class="form-group"><label>Número do Registro de Exportação</label><input type="text" id="imod-exp-nre" maxlength="12"/></div>
-          </div>
-          <div class="form-row cols-2">
-            <div class="form-group"><label>Chave de Acesso da NF-e recebida para exportação</label><input type="text" id="imod-exp-chnfe" maxlength="44" placeholder="44 dígitos"/></div>
-            <div class="form-group"><label>Quantidade do item realmente exportado</label><input type="number" id="imod-exp-qexport" step="0.0001" value="0.0000"/></div>
-          </div>
-        </div>
-
-        <!-- Veículo Novo -->
-        <div class="oitab-panel" id="oi-veiculo">
-          <div class="form-row cols-4">
-            <div class="form-group">
-              <label>Tipo da operação</label>
-              <select id="imod-vei-tpop">
-                <option value="">:: selecione</option>
-                <option value="0">0 – Outros</option><option value="1">1 – Venda concessionária</option>
-                <option value="2">2 – Faturamento direto para consumidor final</option>
-                <option value="3">3 – Venda direta para grandes consumidores</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Condição do veículo</label>
-              <select id="imod-vei-condveic">
-                <option value="">:: selecione</option>
-                <option value="1">1 – Acabado</option><option value="2">2 – Inacabado</option><option value="3">3 – Semi-acabado</option>
-              </select>
-            </div>
-            <div class="form-group"><label>Chassi</label><input type="text" id="imod-vei-chassi" maxlength="17" placeholder="17 caracteres"/></div>
-            <div class="form-group">
-              <label>Chassi remarcado</label>
-              <div style="padding:10px 0"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="imod-vei-vin"/> Remarcado</label></div>
-            </div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group"><label>Série</label><input type="text" id="imod-vei-nserie" maxlength="9"/></div>
-            <div class="form-group"><label>Numeração do motor</label><input type="text" id="imod-vei-nmotor" maxlength="21"/></div>
-            <div class="form-group"><label>Potência (CV)</label><input type="text" id="imod-vei-pot" maxlength="4"/></div>
-            <div class="form-group"><label>Cilindrada (cm²)</label><input type="text" id="imod-vei-cilin" maxlength="4"/></div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group"><label>Peso líquido</label><input type="text" id="imod-vei-pesol" maxlength="9"/></div>
-            <div class="form-group"><label>Peso bruto</label><input type="text" id="imod-vei-pesob" maxlength="9"/></div>
-            <div class="form-group"><label>Capacidade máx. de tração</label><input type="text" id="imod-vei-cmt" maxlength="9"/></div>
-            <div class="form-group"><label>Distância entre eixos</label><input type="text" id="imod-vei-dist" maxlength="4"/></div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group">
-              <label>Tipo de combustível</label>
-              <select id="imod-vei-tpcomb">
-                <option value="">:: selecione</option>
-                <option value="01">01 – Álcool</option><option value="02">02 – Gasolina</option>
-                <option value="03">03 – Gasolina/Álcool</option><option value="04">04 – Diesel</option>
-                <option value="05">05 – Gás Natural Veicular</option><option value="06">06 – Elétrico/Fonte Interna</option>
-                <option value="07">07 – Elétrico/Fonte Externa</option><option value="08">08 – Gasolina/Elétrico</option>
-                <option value="09">09 – Álcool/Gás Natural</option><option value="10">10 – Gasolina/Gás Natural</option>
-                <option value="11">11 – Diesel/Elétrico</option><option value="14">14 – Diesel/GNV</option>
-                <option value="17">17 – Diesel/GNV/Elétrico</option><option value="18">18 – Gasolina/GNV/Elétrico</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Tipo de veículo</label>
-              <select id="imod-vei-tpveic">
-                <option value="">:: selecione</option>
-                <option value="02">02 – Ciclomotor</option><option value="03">03 – Motoneta</option>
-                <option value="04">04 – Motociclo</option><option value="05">05 – Triciclo</option>
-                <option value="06">06 – Automóvel</option><option value="07">07 – Microônibus</option>
-                <option value="08">08 – Ônibus</option><option value="10">10 – Reboque</option>
-                <option value="11">11 – Semi-reboque</option><option value="13">13 – Caminhão</option>
-                <option value="14">14 – Caminhão Trator</option><option value="17">17 – Caminhonete</option>
-                <option value="18">18 – Caminhão Trator c/ SR</option><option value="22">22 – Trator de Rodas</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Espécie de Veículo</label>
-              <select id="imod-vei-espveic">
-                <option value="">:: selecione</option>
-                <option value="1">1 – Passageiro</option><option value="2">2 – Carga</option>
-                <option value="3">3 – Misto</option><option value="4">4 – Utilitário</option>
-                <option value="5">5 – Corrida</option><option value="6">6 – Tração</option>
-                <option value="7">7 – Especial</option>
-              </select>
-            </div>
-            <div class="form-group"><label>Código Marca/Modelo</label><input type="text" id="imod-vei-cmod" maxlength="6"/></div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group"><label>Ano de Fabricação</label><input type="text" id="imod-vei-anofab" placeholder="AAAA" maxlength="4"/></div>
-            <div class="form-group"><label>Ano Modelo de Fabricação</label><input type="text" id="imod-vei-anomod" placeholder="AAAA" maxlength="4"/></div>
-            <div class="form-group"><label>Lotação</label><input type="text" id="imod-vei-lota" maxlength="3"/></div>
-            <div class="form-group">
-              <label>Restrição</label>
-              <select id="imod-vei-tprest">
-                <option value="0">0 – Não há</option><option value="1">1 – Alienação fiduciária</option>
-                <option value="2">2 – Arrendamento mercantil</option><option value="3">3 – Reserva de domínio</option>
-                <option value="4">4 – Penhor de veículos</option><option value="9">9 – Outras</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group">
-              <label>Código da Cor DENATRAN</label>
-              <select id="imod-vei-ccordenatran">
-                <option value="">--</option>
-                <option value="01">01 – Amarelo</option><option value="02">02 – Azul</option>
-                <option value="03">03 – Bege</option><option value="04">04 – Branca</option>
-                <option value="05">05 – Cinza</option><option value="06">06 – Dourada</option>
-                <option value="07">07 – Grená</option><option value="08">08 – Laranja</option>
-                <option value="09">09 – Marrom</option><option value="10">10 – Prata</option>
-                <option value="11">11 – Preta</option><option value="12">12 – Rosa</option>
-                <option value="13">13 – Roxa</option><option value="14">14 – Verde</option>
-                <option value="15">15 – Vermelha</option><option value="16">16 – Fantasia</option>
-              </select>
-            </div>
-            <div class="form-group"><label>Descrição da Cor</label><input type="text" id="imod-vei-xcor" maxlength="40"/></div>
-            <div class="form-group"><label>Código da Cor Montadora</label><input type="text" id="imod-vei-ccor" maxlength="4"/></div>
-            <div class="form-group"><label>Tipo de Pintura</label><input type="text" id="imod-vei-tppint" maxlength="1"/></div>
-          </div>
-        </div>
-
-        <!-- Combustível -->
-        <div class="oitab-panel" id="oi-combustivel">
-          <div class="form-row cols-2">
-            <div class="form-group"><label>Código ANP</label><input type="text" id="imod-comb-canp" placeholder="9 dígitos" maxlength="9"/></div>
-            <div class="form-group"><label>Descrição conforme ANP</label><input type="text" id="imod-comb-descanp" maxlength="95"/></div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group"><label>Percentual do GLP</label><input type="number" id="imod-comb-pglp" step="0.0001" value="0.0000"/></div>
-            <div class="form-group"><label>% Gás Natural Nacional</label><input type="number" id="imod-comb-pgnn" step="0.0001" value="0.0000"/></div>
-            <div class="form-group"><label>% Gás Natural Importado</label><input type="number" id="imod-comb-pgni" step="0.0001" value="0.0000"/></div>
-            <div class="form-group"><label>Valor de partida</label><input type="number" id="imod-comb-vpart" step="0.01" value="0.00"/></div>
-          </div>
-          <div class="form-row cols-4">
-            <div class="form-group"><label>CODIF</label><input type="text" id="imod-comb-codif" maxlength="21"/></div>
-            <div class="form-group"><label>Qtde. faturada em temp. ambiente</label><input type="number" id="imod-comb-qtemp" step="0.0001" value="0.0000"/></div>
-            <div class="form-group">
-              <label>UF de consumo</label>
-              <select id="imod-comb-ufcons">
-                <option value="">--</option>
-                <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
-                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
-                <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
-                <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
-                <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
-                <option>SP</option><option>TO</option><option>EX</option>
-              </select>
-            </div>
-            <div class="form-group"><label>% mistura Biodiesel</label><input type="number" id="imod-comb-pmistura" step="0.01" value="0.00"/></div>
-          </div>
-          <div class="nfe-group" style="margin-top:8px">
-            <div class="nfe-group-title">CIDE</div>
-            <div class="form-row cols-3">
-              <div class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-cide-qbcprod" step="0.0001" value="0.0000"/></div>
-              <div class="form-group"><label>Valor da Alíquota</label><input type="number" id="imod-cide-valiqprod" step="0.0001" value="0.0000"/></div>
-              <div class="form-group"><label>Valor</label><input type="number" id="imod-cide-vcide" step="0.01" value="0.00"/></div>
-            </div>
-          </div>
-          <div class="nfe-group" style="margin-top:8px">
-            <div class="nfe-group-title">Encerrante</div>
-            <div class="form-row cols-5">
-              <div class="form-group"><label>N° identificação bico</label><input type="text" id="imod-enc-nbico" maxlength="3"/></div>
-              <div class="form-group"><label>N° identificação bomba</label><input type="text" id="imod-enc-nbomba" maxlength="3"/></div>
-              <div class="form-group"><label>N° identificação tanque</label><input type="text" id="imod-enc-ntanque" maxlength="3"/></div>
-              <div class="form-group"><label>Leitura início abastecimento</label><input type="number" id="imod-enc-vencini" step="0.001" value="0.000"/></div>
-              <div class="form-group"><label>Leitura final abastecimento</label><input type="number" id="imod-enc-vencfin" step="0.001" value="0.000"/></div>
-            </div>
-          </div>
-          <div class="nfe-group" style="margin-top:8px">
-            <div class="nfe-group-title">Origem do Combustível</div>
-            <div class="form-row cols-3">
-              <div class="form-group">
-                <label>Indicador de importação</label>
-                <select id="imod-orig-indimport">
-                  <option value="">:: selecione</option>
-                  <option value="0">0 – Nacional</option>
-                  <option value="1">1 – Importado diretamente</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>UF de origem do produtor ou do importador</label>
-                <select id="imod-orig-cuforig">
-                  <option value="">--</option>
-                  <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
-                  <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
-                  <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
-                  <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
-                  <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
-                  <option>SP</option><option>TO</option><option>EX</option>
-                </select>
-              </div>
-              <div class="form-group"><label>Percentual originário para a UF</label><input type="number" id="imod-orig-porig" step="0.0001" value="0.0000"/></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Medicamentos -->
-        <div class="oitab-panel" id="oi-medicamentos">
-          <div class="form-row cols-2">
-            <div class="form-group"><label>Código de Produto da ANVISA</label><input type="text" id="imod-med-cprodanvisa" placeholder="11 ou 13 dígitos, ou ISENTO" maxlength="13"/></div>
-            <div class="form-group"><label>Preço máximo consumidor</label><input type="number" id="imod-med-vpmc" step="0.01" value="0.00"/></div>
-          </div>
-          <div class="form-group" style="margin-top:6px"><label>Motivo da isenção ANVISA <span style="font-weight:500;color:#888">(preencher somente quando código = ISENTO)</span></label><input type="text" id="imod-med-xmotivoisen" maxlength="255"/></div>
-        </div>
-
-        <!-- Rastreabilidade -->
-        <div class="oitab-panel" id="oi-rastreabilidade">
-          <div id="imod-rastro-list" style="font-size:12px;color:#aaa;margin-bottom:8px">Nenhuma rastreabilidade de produto cadastrada.</div>
-          <div style="display:flex;justify-content:flex-end">
-            <button type="button" class="btn secondary" style="display:flex;align-items:center;gap:6px;font-size:12px;padding:7px 14px" onclick="openRastroModal()">＋ ADICIONAR</button>
-          </div>
-        </div>
-
-        <!-- Sub-modal Rastreabilidade -->
-        <div id="imod-rastro-overlay" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center">
-          <div style="background:#fff;border-radius:10px;padding:24px;width:600px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative">
-            <button onclick="closeRastroModal()" style="position:absolute;top:10px;right:10px;background:#dc2626;border:none;color:#fff;border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:14px;font-weight:700;line-height:1">✕</button>
-            <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:16px">incluir dados da rastreabilidade</div>
-            <div class="form-row cols-5">
-              <div class="form-group"><label>Número do Lote</label><input type="text" id="rastro-nlote" maxlength="20"/></div>
-              <div class="form-group"><label>Qtd. de produto no Lote</label><input type="number" id="rastro-qlote" step="0.001" value="0.000"/></div>
-              <div class="form-group"><label>Data de fabricação</label><input type="text" id="rastro-dfab" placeholder="DD/MM/AAAA" maxlength="10"/></div>
-              <div class="form-group"><label>Data de validade</label><input type="text" id="rastro-dval" placeholder="DD/MM/AAAA" maxlength="10"/></div>
-              <div class="form-group"><label>Código de agregação</label><input type="text" id="rastro-cagreg" maxlength="20"/></div>
-            </div>
-            <div style="margin-top:16px">
-              <button class="btn primary" style="display:flex;align-items:center;gap:6px" onclick="saveRastro()">💾 SALVAR</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 8. Tributos -->
+      <!-- 7. Tributos -->
       <div class="imod-section">
         <div class="imod-section-title">Tributos</div>
 
@@ -1752,6 +1415,344 @@
         </div>
 
       </div><!-- /Tributos section -->
+      <!-- 8. Outras Informações do Item -->
+      <div class="imod-section">
+        <div class="imod-section-title">Outras Informações do Item</div>
+        <div class="oitabs">
+          <div class="oitab active" onclick="switchOutrasTab('pedido',this)"><span class="oi-ic">🛒</span>Pedido</div>
+          <div class="oitab" onclick="switchOutrasTab('di',this)"><span class="oi-ic">🚢</span>DI</div>
+          <div class="oitab" onclick="switchOutrasTab('exportacao',this)"><span class="oi-ic">✈️</span>Exportação</div>
+          <div class="oitab" onclick="switchOutrasTab('veiculo',this)"><span class="oi-ic">🚗</span>Veículo Novo</div>
+          <div class="oitab" onclick="switchOutrasTab('combustivel',this)"><span class="oi-ic">⛽</span>Combustível</div>
+          <div class="oitab" onclick="switchOutrasTab('medicamentos',this)"><span class="oi-ic">💊</span>Medicamentos</div>
+          <div class="oitab" onclick="switchOutrasTab('rastreabilidade',this)"><span class="oi-ic">🔬</span>Rastreabilidade</div>
+        </div>
+        <!-- Pedido -->
+        <div class="oitab-panel active" id="oi-pedido">
+          <div class="form-row cols-2">
+            <div class="form-group"><label>N° do Pedido de Compra</label><input type="text" id="imod-xped" placeholder="ex: PED-001" maxlength="15"/></div>
+            <div class="form-group"><label>Item do Pedido Compra</label><input type="text" id="imod-nitemped" placeholder="ex: 1" maxlength="6"/></div>
+          </div>
+          <div class="form-group" style="margin-top:6px"><label>Número de controle da FCI (Ficha de Conteúdo de Importação)</label><input type="text" id="imod-nfci" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" maxlength="36"/></div>
+          <div style="margin-top:8px">
+            <div class="form-group">
+              <label>NVE — Nomenclatura de Valor Aduaneiro (até 8 ocorrências)</label>
+              <div style="display:flex;gap:6px;margin-top:4px">
+                <input type="text" id="imod-nve-input" placeholder="ex: AB1234" maxlength="6" style="width:120px"/>
+                <button type="button" class="list-add-btn" onclick="addNVE()">＋ Adicionar</button>
+              </div>
+              <div class="nve-list" id="imod-nve-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DI -->
+        <div class="oitab-panel" id="oi-di">
+          <div class="form-row cols-4">
+            <div class="form-group"><label>Número DI</label><input type="text" id="imod-di-ndi" maxlength="15"/></div>
+            <div class="form-group"><label>Data registro</label><input type="date" id="imod-di-ddi"/></div>
+            <div class="form-group">
+              <label>Via de Transporte</label>
+              <select id="imod-di-tpvia">
+                <option value="">:: selecione</option>
+                <option value="1">1 – Marítima</option><option value="2">2 – Fluvial</option>
+                <option value="3">3 – Lacustre</option><option value="4">4 – Aérea</option>
+                <option value="5">5 – Postal</option><option value="6">6 – Ferroviária</option>
+                <option value="7">7 – Rodoviária</option><option value="8">8 – Conduto/Rede Transm.</option>
+                <option value="9">9 – Meios Próprios</option><option value="10">10 – Entrada/Saída Ficta</option>
+                <option value="11">11 – Courier</option><option value="12">12 – Handcarry</option>
+                <option value="13">13 – Por conta e ordem</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Valor do AFRMM</label><input type="number" id="imod-di-vafrmm" step="0.01" value="0.00"/></div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group">
+              <label>Forma de importação</label>
+              <select id="imod-di-tpintermedio">
+                <option value="">:: selecione</option>
+                <option value="1">1 – Importação por conta própria</option>
+                <option value="2">2 – Importação por conta e ordem</option>
+                <option value="3">3 – Importação por encomenda</option>
+              </select>
+            </div>
+            <div class="form-group"><label>CNPJ</label><input type="text" id="imod-di-cnpj" placeholder="00.000.000/0001-00"/></div>
+            <div class="form-group">
+              <label>UF</label>
+              <select id="imod-di-ufterceiro">
+                <option value="">--</option>
+                <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
+                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
+                <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
+                <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
+                <option>SP</option><option>TO</option><option>EX</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Código do exportador</label><input type="text" id="imod-di-cexportador" maxlength="60"/></div>
+          </div>
+          <div class="nfe-group" style="margin-top:8px">
+            <div class="nfe-group-title">Desembaraço aduaneiro</div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>UF</label>
+                <select id="imod-di-ufdesemb">
+                  <option value="">--</option>
+                  <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
+                  <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
+                  <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
+                  <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                  <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
+                  <option>SP</option><option>TO</option><option>EX</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Local</label><input type="text" id="imod-di-xlocdesemb" maxlength="60"/></div>
+              <div class="form-group"><label>Data</label><input type="date" id="imod-di-ddesemb"/></div>
+            </div>
+          </div>
+          <div class="nfe-group" style="margin-top:8px">
+            <div class="nfe-group-title" style="justify-content:space-between">
+              Adições
+              <button type="button" class="list-add-btn" onclick="addDiAdicao()">＋ ADICIONAR</button>
+            </div>
+            <div id="imod-di-adicoes-list"><div style="font-size:12px;color:#aaa">Nenhuma adição cadastrada.</div></div>
+          </div>
+        </div>
+
+        <!-- Exportação -->
+        <div class="oitab-panel" id="oi-exportacao">
+          <div class="form-row cols-2">
+            <div class="form-group"><label>Número Drawback</label><input type="text" id="imod-exp-ndraw" maxlength="20"/></div>
+            <div class="form-group"><label>Número do Registro de Exportação</label><input type="text" id="imod-exp-nre" maxlength="12"/></div>
+          </div>
+          <div class="form-row cols-2">
+            <div class="form-group"><label>Chave de Acesso da NF-e recebida para exportação</label><input type="text" id="imod-exp-chnfe" maxlength="44" placeholder="44 dígitos"/></div>
+            <div class="form-group"><label>Quantidade do item realmente exportado</label><input type="number" id="imod-exp-qexport" step="0.0001" value="0.0000"/></div>
+          </div>
+        </div>
+
+        <!-- Veículo Novo -->
+        <div class="oitab-panel" id="oi-veiculo">
+          <div class="form-row cols-4">
+            <div class="form-group">
+              <label>Tipo da operação</label>
+              <select id="imod-vei-tpop">
+                <option value="">:: selecione</option>
+                <option value="0">0 – Outros</option><option value="1">1 – Venda concessionária</option>
+                <option value="2">2 – Faturamento direto para consumidor final</option>
+                <option value="3">3 – Venda direta para grandes consumidores</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Condição do veículo</label>
+              <select id="imod-vei-condveic">
+                <option value="">:: selecione</option>
+                <option value="1">1 – Acabado</option><option value="2">2 – Inacabado</option><option value="3">3 – Semi-acabado</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Chassi</label><input type="text" id="imod-vei-chassi" maxlength="17" placeholder="17 caracteres"/></div>
+            <div class="form-group">
+              <label>Chassi remarcado</label>
+              <div style="padding:10px 0"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="imod-vei-vin"/> Remarcado</label></div>
+            </div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group"><label>Série</label><input type="text" id="imod-vei-nserie" maxlength="9"/></div>
+            <div class="form-group"><label>Numeração do motor</label><input type="text" id="imod-vei-nmotor" maxlength="21"/></div>
+            <div class="form-group"><label>Potência (CV)</label><input type="text" id="imod-vei-pot" maxlength="4"/></div>
+            <div class="form-group"><label>Cilindrada (cm²)</label><input type="text" id="imod-vei-cilin" maxlength="4"/></div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group"><label>Peso líquido</label><input type="text" id="imod-vei-pesol" maxlength="9"/></div>
+            <div class="form-group"><label>Peso bruto</label><input type="text" id="imod-vei-pesob" maxlength="9"/></div>
+            <div class="form-group"><label>Capacidade máx. de tração</label><input type="text" id="imod-vei-cmt" maxlength="9"/></div>
+            <div class="form-group"><label>Distância entre eixos</label><input type="text" id="imod-vei-dist" maxlength="4"/></div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group">
+              <label>Tipo de combustível</label>
+              <select id="imod-vei-tpcomb">
+                <option value="">:: selecione</option>
+                <option value="01">01 – Álcool</option><option value="02">02 – Gasolina</option>
+                <option value="03">03 – Gasolina/Álcool</option><option value="04">04 – Diesel</option>
+                <option value="05">05 – Gás Natural Veicular</option><option value="06">06 – Elétrico/Fonte Interna</option>
+                <option value="07">07 – Elétrico/Fonte Externa</option><option value="08">08 – Gasolina/Elétrico</option>
+                <option value="09">09 – Álcool/Gás Natural</option><option value="10">10 – Gasolina/Gás Natural</option>
+                <option value="11">11 – Diesel/Elétrico</option><option value="14">14 – Diesel/GNV</option>
+                <option value="17">17 – Diesel/GNV/Elétrico</option><option value="18">18 – Gasolina/GNV/Elétrico</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tipo de veículo</label>
+              <select id="imod-vei-tpveic">
+                <option value="">:: selecione</option>
+                <option value="02">02 – Ciclomotor</option><option value="03">03 – Motoneta</option>
+                <option value="04">04 – Motociclo</option><option value="05">05 – Triciclo</option>
+                <option value="06">06 – Automóvel</option><option value="07">07 – Microônibus</option>
+                <option value="08">08 – Ônibus</option><option value="10">10 – Reboque</option>
+                <option value="11">11 – Semi-reboque</option><option value="13">13 – Caminhão</option>
+                <option value="14">14 – Caminhão Trator</option><option value="17">17 – Caminhonete</option>
+                <option value="18">18 – Caminhão Trator c/ SR</option><option value="22">22 – Trator de Rodas</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Espécie de Veículo</label>
+              <select id="imod-vei-espveic">
+                <option value="">:: selecione</option>
+                <option value="1">1 – Passageiro</option><option value="2">2 – Carga</option>
+                <option value="3">3 – Misto</option><option value="4">4 – Utilitário</option>
+                <option value="5">5 – Corrida</option><option value="6">6 – Tração</option>
+                <option value="7">7 – Especial</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Código Marca/Modelo</label><input type="text" id="imod-vei-cmod" maxlength="6"/></div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group"><label>Ano de Fabricação</label><input type="text" id="imod-vei-anofab" placeholder="AAAA" maxlength="4"/></div>
+            <div class="form-group"><label>Ano Modelo de Fabricação</label><input type="text" id="imod-vei-anomod" placeholder="AAAA" maxlength="4"/></div>
+            <div class="form-group"><label>Lotação</label><input type="text" id="imod-vei-lota" maxlength="3"/></div>
+            <div class="form-group">
+              <label>Restrição</label>
+              <select id="imod-vei-tprest">
+                <option value="0">0 – Não há</option><option value="1">1 – Alienação fiduciária</option>
+                <option value="2">2 – Arrendamento mercantil</option><option value="3">3 – Reserva de domínio</option>
+                <option value="4">4 – Penhor de veículos</option><option value="9">9 – Outras</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group">
+              <label>Código da Cor DENATRAN</label>
+              <select id="imod-vei-ccordenatran">
+                <option value="">--</option>
+                <option value="01">01 – Amarelo</option><option value="02">02 – Azul</option>
+                <option value="03">03 – Bege</option><option value="04">04 – Branca</option>
+                <option value="05">05 – Cinza</option><option value="06">06 – Dourada</option>
+                <option value="07">07 – Grená</option><option value="08">08 – Laranja</option>
+                <option value="09">09 – Marrom</option><option value="10">10 – Prata</option>
+                <option value="11">11 – Preta</option><option value="12">12 – Rosa</option>
+                <option value="13">13 – Roxa</option><option value="14">14 – Verde</option>
+                <option value="15">15 – Vermelha</option><option value="16">16 – Fantasia</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Descrição da Cor</label><input type="text" id="imod-vei-xcor" maxlength="40"/></div>
+            <div class="form-group"><label>Código da Cor Montadora</label><input type="text" id="imod-vei-ccor" maxlength="4"/></div>
+            <div class="form-group"><label>Tipo de Pintura</label><input type="text" id="imod-vei-tppint" maxlength="1"/></div>
+          </div>
+        </div>
+
+        <!-- Combustível -->
+        <div class="oitab-panel" id="oi-combustivel">
+          <div class="form-row cols-2">
+            <div class="form-group"><label>Código ANP</label><input type="text" id="imod-comb-canp" placeholder="9 dígitos" maxlength="9"/></div>
+            <div class="form-group"><label>Descrição conforme ANP</label><input type="text" id="imod-comb-descanp" maxlength="95"/></div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group"><label>Percentual do GLP</label><input type="number" id="imod-comb-pglp" step="0.0001" value="0.0000"/></div>
+            <div class="form-group"><label>% Gás Natural Nacional</label><input type="number" id="imod-comb-pgnn" step="0.0001" value="0.0000"/></div>
+            <div class="form-group"><label>% Gás Natural Importado</label><input type="number" id="imod-comb-pgni" step="0.0001" value="0.0000"/></div>
+            <div class="form-group"><label>Valor de partida</label><input type="number" id="imod-comb-vpart" step="0.01" value="0.00"/></div>
+          </div>
+          <div class="form-row cols-4">
+            <div class="form-group"><label>CODIF</label><input type="text" id="imod-comb-codif" maxlength="21"/></div>
+            <div class="form-group"><label>Qtde. faturada em temp. ambiente</label><input type="number" id="imod-comb-qtemp" step="0.0001" value="0.0000"/></div>
+            <div class="form-group">
+              <label>UF de consumo</label>
+              <select id="imod-comb-ufcons">
+                <option value="">--</option>
+                <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
+                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
+                <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
+                <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
+                <option>SP</option><option>TO</option><option>EX</option>
+              </select>
+            </div>
+            <div class="form-group"><label>% mistura Biodiesel</label><input type="number" id="imod-comb-pmistura" step="0.01" value="0.00"/></div>
+          </div>
+          <div class="nfe-group" style="margin-top:8px">
+            <div class="nfe-group-title">CIDE</div>
+            <div class="form-row cols-3">
+              <div class="form-group"><label>Valor da base de cálculo</label><input type="number" id="imod-cide-qbcprod" step="0.0001" value="0.0000"/></div>
+              <div class="form-group"><label>Valor da Alíquota</label><input type="number" id="imod-cide-valiqprod" step="0.0001" value="0.0000"/></div>
+              <div class="form-group"><label>Valor</label><input type="number" id="imod-cide-vcide" step="0.01" value="0.00"/></div>
+            </div>
+          </div>
+          <div class="nfe-group" style="margin-top:8px">
+            <div class="nfe-group-title">Encerrante</div>
+            <div class="form-row cols-5">
+              <div class="form-group"><label>N° identificação bico</label><input type="text" id="imod-enc-nbico" maxlength="3"/></div>
+              <div class="form-group"><label>N° identificação bomba</label><input type="text" id="imod-enc-nbomba" maxlength="3"/></div>
+              <div class="form-group"><label>N° identificação tanque</label><input type="text" id="imod-enc-ntanque" maxlength="3"/></div>
+              <div class="form-group"><label>Leitura início abastecimento</label><input type="number" id="imod-enc-vencini" step="0.001" value="0.000"/></div>
+              <div class="form-group"><label>Leitura final abastecimento</label><input type="number" id="imod-enc-vencfin" step="0.001" value="0.000"/></div>
+            </div>
+          </div>
+          <div class="nfe-group" style="margin-top:8px">
+            <div class="nfe-group-title">Origem do Combustível</div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Indicador de importação</label>
+                <select id="imod-orig-indimport">
+                  <option value="">:: selecione</option>
+                  <option value="0">0 – Nacional</option>
+                  <option value="1">1 – Importado diretamente</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>UF de origem do produtor ou do importador</label>
+                <select id="imod-orig-cuforig">
+                  <option value="">--</option>
+                  <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
+                  <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
+                  <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
+                  <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                  <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option>
+                  <option>SP</option><option>TO</option><option>EX</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Percentual originário para a UF</label><input type="number" id="imod-orig-porig" step="0.0001" value="0.0000"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medicamentos -->
+        <div class="oitab-panel" id="oi-medicamentos">
+          <div class="form-row cols-2">
+            <div class="form-group"><label>Código de Produto da ANVISA</label><input type="text" id="imod-med-cprodanvisa" placeholder="11 ou 13 dígitos, ou ISENTO" maxlength="13"/></div>
+            <div class="form-group"><label>Preço máximo consumidor</label><input type="number" id="imod-med-vpmc" step="0.01" value="0.00"/></div>
+          </div>
+          <div class="form-group" style="margin-top:6px"><label>Motivo da isenção ANVISA <span style="font-weight:500;color:#888">(preencher somente quando código = ISENTO)</span></label><input type="text" id="imod-med-xmotivoisen" maxlength="255"/></div>
+        </div>
+
+        <!-- Rastreabilidade -->
+        <div class="oitab-panel" id="oi-rastreabilidade">
+          <div id="imod-rastro-list" style="font-size:12px;color:#aaa;margin-bottom:8px">Nenhuma rastreabilidade de produto cadastrada.</div>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="button" class="btn secondary" style="display:flex;align-items:center;gap:6px;font-size:12px;padding:7px 14px" onclick="openRastroModal()">＋ ADICIONAR</button>
+          </div>
+        </div>
+
+        <!-- Sub-modal Rastreabilidade -->
+        <div id="imod-rastro-overlay" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center">
+          <div style="background:#fff;border-radius:10px;padding:24px;width:600px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative">
+            <button onclick="closeRastroModal()" style="position:absolute;top:10px;right:10px;background:#dc2626;border:none;color:#fff;border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:14px;font-weight:700;line-height:1">✕</button>
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:16px">incluir dados da rastreabilidade</div>
+            <div class="form-row cols-5">
+              <div class="form-group"><label>Número do Lote</label><input type="text" id="rastro-nlote" maxlength="20"/></div>
+              <div class="form-group"><label>Qtd. de produto no Lote</label><input type="number" id="rastro-qlote" step="0.001" value="0.000"/></div>
+              <div class="form-group"><label>Data de fabricação</label><input type="text" id="rastro-dfab" placeholder="DD/MM/AAAA" maxlength="10"/></div>
+              <div class="form-group"><label>Data de validade</label><input type="text" id="rastro-dval" placeholder="DD/MM/AAAA" maxlength="10"/></div>
+              <div class="form-group"><label>Código de agregação</label><input type="text" id="rastro-cagreg" maxlength="20"/></div>
+            </div>
+            <div style="margin-top:16px">
+              <button class="btn primary" style="display:flex;align-items:center;gap:6px" onclick="saveRastro()">💾 SALVAR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
 
     </div><!-- /imodal-body -->
 
