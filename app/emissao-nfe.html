@@ -475,7 +475,7 @@
             <div class="form-section-title">Informações Adicionais</div>
             <div class="form-group">
               <label>Informações complementares</label>
-              <textarea placeholder="Observações, referências, condições de pagamento..."></textarea>
+              <textarea id="infoadicionais-geral" placeholder="Observações, referências, condições de pagamento..."></textarea>
             </div>
             <div class="tab-nav-footer">
               <button class="btn secondary" onclick="prevTab()">← Transporte</button>
@@ -3209,7 +3209,8 @@ function getFormSnapshot() {
 
   // Seções principais do formulário (tabs 1-5)
   const sections = [
-    '#sec-identificacao', '#sec-destinatario', '#sec-transporte', '#sec-pagamento'
+    '#sec-identificacao', '#sec-destinatario', '#sec-transporte',
+    '#sec-pagamento', '#sec-info-adicional'
   ];
   sections.forEach((sel, sIdx) => {
     const sec = document.querySelector(sel);
@@ -3232,10 +3233,6 @@ function getFormSnapshot() {
   });
   snap['_parcelas'] = parcelasRows;
 
-  // Informações adicionais
-  const infoadTxt = document.getElementById('infoadicionais-geral');
-  if (infoadTxt) snap['infoadicionais-geral'] = infoadTxt.value;
-
   return snap;
 }
 
@@ -3243,7 +3240,8 @@ function setFormSnapshot(snap) {
   if (!snap) return;
 
   const sections = [
-    '#sec-identificacao', '#sec-destinatario', '#sec-transporte', '#sec-pagamento'
+    '#sec-identificacao', '#sec-destinatario', '#sec-transporte',
+    '#sec-pagamento', '#sec-info-adicional'
   ];
   sections.forEach((sel, sIdx) => {
     const sec = document.querySelector(sel);
@@ -3272,10 +3270,6 @@ function setFormSnapshot(snap) {
     }
   }
 
-  if (snap['infoadicionais-geral']) {
-    const el = document.getElementById('infoadicionais-geral');
-    if (el) el.value = snap['infoadicionais-geral'];
-  }
 }
 
 /* ── SALVAR ── */
