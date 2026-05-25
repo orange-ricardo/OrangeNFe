@@ -216,6 +216,155 @@
     .rasc-item-total { font-size:14px;font-weight:800;color:#16a34a;white-space:nowrap; }
     .rasc-footer { padding:14px 24px;background:#f8f9fc;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end; }
     .rasc-empty { text-align:center;padding:40px 20px;color:#aaa;font-size:13px; }
+
+    /* ── DRAG & DROP DUPLICATAS ── */
+    .drag-hint {
+      display:flex;align-items:center;gap:10px;padding:10px 14px;
+      background:#fffbeb;border:1.5px solid #fcd34d;border-radius:9px;
+      font-size:12px;font-weight:600;color:#92400e;margin-bottom:10px;
+      user-select:none;
+    }
+    .dup-row {
+      display:grid;grid-template-columns:34px 1fr 36px;
+      align-items:center;gap:10px;
+      background:#fff;border:1.5px solid #e8eaf0;border-radius:10px;
+      padding:10px 12px;margin-bottom:8px;
+      transition:border-color .15s,box-shadow .15s,transform .12s,background .15s;
+    }
+    .dup-row:hover { border-color:#d0d4df; }
+    .dup-handle {
+      display:flex;align-items:center;justify-content:center;
+      width:34px;height:38px;border-radius:7px;
+      cursor:grab;color:#c8cdd8;font-size:20px;
+      transition:all .15s;user-select:none;flex-shrink:0;
+    }
+    .dup-handle:hover { color:#f97316;background:#fff5ee; }
+    .dup-handle:active { cursor:grabbing; }
+    .dup-del {
+      width:34px;height:34px;border-radius:8px;
+      border:1.5px solid #fecaca;background:#fff5f5;
+      color:#dc2626;font-size:15px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .15s;flex-shrink:0;line-height:1;
+    }
+    .dup-del:hover { background:#dc2626;color:#fff;border-color:#dc2626;transform:scale(1.07); }
+    .dup-row.is-dragging { opacity:.2;border-style:dashed;border-color:#f97316;transform:scale(.99); }
+    .dup-row.drag-over {
+      border-color:#f97316;background:#fff8f3;
+      box-shadow:0 -3px 0 0 #f97316,0 4px 16px rgba(249,115,22,.13);
+      transform:translateY(-1px);
+    }
+
+    /* ── DANFE PRÉ-VISUALIZAÇÃO ── */
+    .danfe-overlay {
+      position:fixed;inset:0;z-index:3000;background:rgba(10,12,30,0.82);
+      display:none;flex-direction:column;align-items:center;overflow-y:auto;
+      padding:20px 16px 40px;gap:14px;
+    }
+    .danfe-overlay.open { display:flex; }
+    .danfe-toolbar {
+      position:sticky;top:0;z-index:1;background:#1a1a2e;
+      border-radius:10px;padding:10px 20px;
+      display:flex;align-items:center;justify-content:space-between;
+      width:900px;max-width:100%;color:#fff;gap:12px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);flex-shrink:0;
+    }
+    .danfe-toolbar h2 { font-size:14px;font-weight:800;color:#fff;margin:0; }
+    .danfe-toolbar .dtb-actions { display:flex;gap:8px; }
+    .dtb-btn {
+      display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+      border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;
+      transition:all 0.15s;
+    }
+    .dtb-btn.primary { background:#f97316;color:#fff; }
+    .dtb-btn.primary:hover { background:#ea6a0a; }
+    .dtb-btn.secondary { background:#2d2d4e;color:#ccc;border:1.5px solid #3d3d6e; }
+    .dtb-btn.secondary:hover { color:#fff;border-color:#f97316; }
+    .danfe-notice {
+      background:#fef9c3;border:1.5px solid #fde047;border-radius:8px;
+      padding:8px 14px;font-size:11px;color:#854d0e;font-weight:600;
+      width:900px;max-width:100%;display:flex;align-items:center;gap:6px;flex-shrink:0;
+    }
+    .danfe-doc {
+      width:900px;max-width:100%;background:#fff;
+      padding:10px;font-family:'Arial Narrow',Arial,Helvetica,sans-serif;
+      color:#000;box-shadow:0 8px 40px rgba(0,0,0,0.5);flex-shrink:0;
+    }
+    .danfe-doc * { box-sizing:border-box; }
+    .d-row { display:flex; }
+    .d-cell {
+      border:1px solid #000;padding:3px 5px;flex-shrink:0;
+      position:relative;overflow:hidden;
+    }
+    .d-cell+.d-cell { border-left:none; }
+    .d-row+.d-row>.d-cell { border-top:none; }
+    .d-lbl { font-size:6.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:#333;display:block;line-height:1.4; }
+    .d-val { font-size:9.5px;font-weight:700;color:#000;display:block;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .d-val.sm { font-size:8px;font-weight:400; }
+    .danfe-sec-hdr {
+      background:#e0e0e0;border:1px solid #000;border-top:none;
+      padding:2px 5px;font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;
+    }
+    .d-items-table { width:100%;border-collapse:collapse; }
+    .d-items-table th {
+      border:1px solid #000;padding:2px 3px;font-size:6.5px;
+      font-weight:700;text-transform:uppercase;text-align:left;background:#f0f0f0;
+    }
+    .d-items-table td { border:1px solid #000;padding:2px 3px;font-size:8px; }
+    .d-items-table tr+tr td { border-top:none; }
+    .barcode-sim {
+      display:flex;align-items:flex-end;height:42px;gap:0;overflow:hidden;
+    }
+    .barcode-sim .bc-b { background:#000;display:inline-block; }
+    @media print {
+      body > *:not(.danfe-overlay) { display:none !important; }
+      .danfe-overlay { position:static !important;background:white !important;padding:0 !important;display:block !important; }
+      .danfe-toolbar,.danfe-notice { display:none !important; }
+      .danfe-doc { box-shadow:none !important;width:100% !important;padding:0 !important; }
+    }
+    /* ── NÚMERO MASCARADO ── */
+    input[data-mask="num"] {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+    }
+
+    /* ══════════════════ ZEBRA STRIPING ══════════════════
+       Par: #f3f4f8 (cinza-azulado muito suave) · Ímpar: #fff
+    ══════════════════════════════════════════════════════ */
+
+    /* Itens da NF-e (cards de produto) */
+    #items-list .item-card:nth-child(odd)  { background:#fff; }
+    #items-list .item-card:nth-child(even) { background:#f3f4f8; }
+
+    /* Duplicatas — .drag-hint ocupa o filho 1, por isso ímpar↔par */
+    .dup-row                     { background:#fff; }
+    .dup-row:nth-child(odd)      { background:#f3f4f8; }
+    /* Estados de drag têm prioridade sobre zebra */
+    .dup-row.drag-over           { background:#fff8f3 !important; }
+
+    /* Pagamentos · Reboques · Volumes · NF-e refs · Obs · Proc → todos .list-item-box */
+    .list-item-box:nth-child(odd)  { background:#fff; }
+    .list-item-box:nth-child(even) { background:#f3f4f8; }
+
+    /* Créditos presumidos */
+    .gcred-row:nth-child(odd)      { background:#fff;     border-radius:6px; }
+    .gcred-row:nth-child(even)     { background:#f3f4f8; border-radius:6px; }
+
+    /* Autorizações XML (divs sem classe) */
+    #autxml-list > div:nth-child(odd)  { background:#fff;     border-radius:5px; padding:2px 6px; }
+    #autxml-list > div:nth-child(even) { background:#f3f4f8; border-radius:5px; padding:2px 6px; }
+
+    /* Parcelas */
+    .items-table tbody tr:nth-child(odd)  { background:#fff; }
+    .items-table tbody tr:nth-child(even) { background:#f3f4f8; }
+
+    /* Rascunhos */
+    .rasc-item:nth-child(odd)  { background:#fff; }
+    .rasc-item:nth-child(even) { background:#f3f4f8; }
+
+    /* Resumo lateral */
+    .resumo-line:not(.total):nth-child(even) { background:#f3f4f8; border-radius:4px; }
   </style>
 </head>
 <body>
@@ -274,7 +423,10 @@
             <div class="tab" onclick="goTab(1)">2. Destinatário</div>
             <div class="tab" onclick="goTab(2)">3. Itens</div>
             <div class="tab" onclick="goTab(3)">4. Transporte</div>
-            <div class="tab" onclick="goTab(4)">5. Pagamento</div>
+            <div class="tab" onclick="goTab(4)">5. Cobrança</div>
+            <div class="tab" onclick="goTab(5)">6. Inf. Adicionais</div>
+            <div class="tab" onclick="goTab(6)">7. Exportação</div>
+            <div class="tab" onclick="goTab(7)">8. Compras</div>
           </div>
 
           <!-- ── 1. IDENTIFICAÇÃO ── -->
@@ -673,55 +825,54 @@
             <div class="tab-nav-footer">
               <button class="btn secondary" onclick="prevTab()">← Itens</button>
               <div class="tab-progress" id="prog-4"></div>
-              <button class="btn primary" onclick="nextTab()">Próximo: Pagamento →</button>
+              <button class="btn primary" onclick="nextTab()">Próximo: Cobrança →</button>
             </div>
           </div>
 
           <!-- ── 5. PAGAMENTO ── -->
           <div class="form-section" id="sec-pagamento" style="display:none">
-            <div class="form-section-title">Pagamento</div>
-            <div class="form-row cols-2">
-              <div class="form-group">
-                <label>Forma de Pagamento</label>
-                <select id="forma-pgto" onchange="toggleParcelas()">
-                  <option value="01">01 – Dinheiro</option>
-                  <option value="02">02 – Cheque</option>
-                  <option value="03">03 – Cartão de crédito</option>
-                  <option value="04">04 – Cartão de débito</option>
-                  <option value="05">05 – Crédito loja</option>
-                  <option value="13">13 – Boleto bancário</option>
-                  <option value="14">14 – Duplicata mercantil</option>
-                  <option value="15">15 – Pix</option>
-                  <option value="90">90 – Sem pagamento</option>
-                  <option value="99">99 – Outros</option>
-                </select>
+            <div class="form-section-title">Cobrança</div>
+
+            <!-- Grupo Pagamentos (detPag) -->
+            <div class="nfe-group">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Grupo Pagamentos (detPag)
+                <button class="list-add-btn" onclick="addDetPag()">＋ Adicionar pagamento</button>
               </div>
-              <div class="form-group">
-                <label>Condição de Pagamento</label>
-                <select id="cond-pgto" onchange="toggleParcelas()">
-                  <option value="0">À vista</option>
-                  <option value="1">A prazo</option>
-                  <option value="2">Outros</option>
-                </select>
+              <div id="detpag-list">
+                <div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum pagamento informado, clique em "Adicionar pagamento".</div>
               </div>
             </div>
-            <div id="parcelas-wrap" style="display:none">
-              <div class="form-section-title" style="margin-top:8px">Parcelas</div>
-              <table class="items-table" id="parcelas-table">
-                <thead><tr><th style="width:40px">#</th><th>Vencimento</th><th>Valor (R$)</th><th style="width:36px"></th></tr></thead>
-                <tbody id="parcelas-body">
-                  <tr>
-                    <td style="text-align:center;color:#bbb;font-size:12px;">1</td>
-                    <td><input type="date" style="width:100%;padding:7px 8px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px"/></td>
-                    <td><input type="number" step="0.01" placeholder="0,00" style="width:100%;padding:7px 8px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px"/></td>
-                    <td><button class="del-btn" onclick="removeParcela(this)">🗑</button></td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="add-item-row" onclick="addParcela()" style="margin-top:6px"><span>＋</span> Adicionar parcela</div>
+
+            <!-- Grupo Fatura (fat) -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title">Grupo Fatura (fat)</div>
+              <div class="form-row cols-4">
+                <div class="form-group"><label>Número Fatura (nFat)</label><input type="text" id="fat-nfat" maxlength="60" placeholder="ex: 000248"/></div>
+                <div class="form-group"><label>Valor Original (vOrig)</label><input type="number" step="0.01" id="fat-vorig" value="0.00" oninput="calcFatLiq()"/></div>
+                <div class="form-group"><label>Valor Desconto (vDesc)</label><input type="number" step="0.01" id="fat-vdesc" value="0.00" oninput="calcFatLiq()"/></div>
+                <div class="form-group"><label>Valor Líquido (vLiq)</label><input type="number" step="0.01" id="fat-vliq" value="0.00" readonly style="background:#f0f8f0;font-weight:700;color:#16a34a"/></div>
+              </div>
             </div>
+
+            <!-- Grupo Duplicatas (dup) -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Grupo Duplicatas (dup)
+                <button class="list-add-btn" onclick="addDuplicata()">＋ Adicionar duplicata</button>
+              </div>
+              <div id="dup-list">
+                <div style="font-size:12px;color:#aaa;padding:4px 0">Nenhuma duplicata cadastrada.</div>
+              </div>
+            </div>
+
             <div style="margin-top:12px;padding:10px 14px;background:#f8f9fc;border:1px solid #f0f0f0;border-radius:8px;font-size:13px;color:#555">
               <div style="display:flex;justify-content:space-between"><span>Total a pagar</span><b id="pgto-total">R$ 0,00</b></div>
+            </div>
+            <div class="tab-nav-footer">
+              <button class="btn secondary" onclick="prevTab()">← Transporte</button>
+              <div class="tab-progress" id="prog-5"></div>
+              <button class="btn primary" onclick="nextTab()">Próximo: Inf. Adicionais →</button>
             </div>
           </div>
 
@@ -788,11 +939,97 @@
             </div>
 
             <div class="tab-nav-footer">
-              <button class="btn secondary" onclick="prevTab()">← Transporte</button>
-              <div class="tab-progress" id="prog-5"></div>
+              <button class="btn secondary" onclick="prevTab()">← Cobrança</button>
+              <div class="tab-progress" id="prog-6"></div>
+              <button class="btn primary" onclick="nextTab()">Próximo: Exportação →</button>
+            </div>
+          </div>
+
+          <!-- ── 7. EXPORTAÇÃO ── -->
+          <div class="form-section" id="sec-exportacao" style="display:none">
+            <div class="form-section-title">Exportação</div>
+            <div class="nfe-group">
+              <div class="nfe-group-title">Dados de Exportação</div>
+              <div class="form-row cols-3">
+                <div class="form-group">
+                  <label>UF Saída / País (UFSaidaPais)</label>
+                  <select id="exp-ufsaidapais">
+                    <option value="">Selecione…</option>
+                    <option value="AC">AC – Acre</option>
+                    <option value="AL">AL – Alagoas</option>
+                    <option value="AP">AP – Amapá</option>
+                    <option value="AM">AM – Amazonas</option>
+                    <option value="BA">BA – Bahia</option>
+                    <option value="CE">CE – Ceará</option>
+                    <option value="DF">DF – Distrito Federal</option>
+                    <option value="ES">ES – Espírito Santo</option>
+                    <option value="GO">GO – Goiás</option>
+                    <option value="MA">MA – Maranhão</option>
+                    <option value="MT">MT – Mato Grosso</option>
+                    <option value="MS">MS – Mato Grosso do Sul</option>
+                    <option value="MG">MG – Minas Gerais</option>
+                    <option value="PA">PA – Pará</option>
+                    <option value="PB">PB – Paraíba</option>
+                    <option value="PR">PR – Paraná</option>
+                    <option value="PE">PE – Pernambuco</option>
+                    <option value="PI">PI – Piauí</option>
+                    <option value="RJ">RJ – Rio de Janeiro</option>
+                    <option value="RN">RN – Rio Grande do Norte</option>
+                    <option value="RS">RS – Rio Grande do Sul</option>
+                    <option value="RO">RO – Rondônia</option>
+                    <option value="RR">RR – Roraima</option>
+                    <option value="SC">SC – Santa Catarina</option>
+                    <option value="SP" selected>SP – São Paulo</option>
+                    <option value="SE">SE – Sergipe</option>
+                    <option value="TO">TO – Tocantins</option>
+                    <option value="EX">EX – Exterior</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Local de Exportação (xLocExporta)</label>
+                  <input type="text" id="exp-xlocexporta" maxlength="60" placeholder="ex: Porto de Santos"/>
+                </div>
+                <div class="form-group">
+                  <label>Local de Despacho (xLocDespacho)</label>
+                  <input type="text" id="exp-xlocdespacho" maxlength="60" placeholder="ex: Santos – SP"/>
+                </div>
+              </div>
+            </div>
+            <div class="tab-nav-footer">
+              <button class="btn secondary" onclick="prevTab()">← Inf. Adicionais</button>
+              <div class="tab-progress" id="prog-7"></div>
+              <button class="btn primary" onclick="nextTab()">Próximo: Compras →</button>
+            </div>
+          </div>
+
+          <!-- ── 8. COMPRAS ── -->
+          <div class="form-section" id="sec-compras" style="display:none">
+            <div class="form-section-title">Compras / Empenho</div>
+            <div class="nfe-group">
+              <div class="nfe-group-title">Informações de Compras Governamentais</div>
+              <p style="font-size:12px;color:#888;margin:0 0 12px">Preenchimento obrigatório nas operações de compras governamentais com nota de empenho.</p>
+              <div class="form-row cols-3">
+                <div class="form-group">
+                  <label>Nota de Empenho (xNEmp)</label>
+                  <input type="text" id="cmp-xnemp" maxlength="22" placeholder="ex: 2024NE000123"/>
+                </div>
+                <div class="form-group">
+                  <label>Pedido de Compra (xPed)</label>
+                  <input type="text" id="cmp-xped" maxlength="60" placeholder="ex: PC-2024-000456"/>
+                </div>
+                <div class="form-group">
+                  <label>Contrato (xCont)</label>
+                  <input type="text" id="cmp-xcont" maxlength="60" placeholder="ex: CTR-2024-001"/>
+                </div>
+              </div>
+            </div>
+            <div class="tab-nav-footer">
+              <button class="btn secondary" onclick="prevTab()">← Exportação</button>
+              <div class="tab-progress" id="prog-8"></div>
               <span></span>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -812,7 +1049,7 @@
         <div class="resumo-line total"><span>Total NF-e</span><span id="res-total">R$ 0,00</span></div>
         <div class="resumo-actions">
           <button class="btn primary" onclick="emitir()">⚡ Emitir NF-e</button>
-          <button class="btn secondary">👁 Pré-visualizar DANFE</button>
+          <button class="btn secondary" onclick="openDanfe()">👁 Pré-visualizar DANFE</button>
           <button class="btn secondary" onclick="saveRascunho()">💾 Salvar rascunho</button>
         </div>
         <div style="margin-top:16px;padding:10px;background:#f0fdf4;border-radius:8px;font-size:11px;color:#16a34a;font-weight:600;text-align:center;">
@@ -2182,11 +2419,14 @@ function defaultItem() {
 
 /* ══════════════════ TAB NAVIGATION ══════════════════ */
 const TABS = [
-  { label:'1. Identificação',  sections:['sec-identificacao'] },
-  { label:'2. Destinatário',   sections:['sec-destinatario'] },
-  { label:'3. Itens',          sections:['sec-itens','sec-impostos'] },
-  { label:'4. Transporte',     sections:['sec-transporte'] },
-  { label:'5. Pagamento',      sections:['sec-pagamento','sec-info-adicional'] },
+  { label:'1. Identificação',    sections:['sec-identificacao'] },
+  { label:'2. Destinatário',     sections:['sec-destinatario'] },
+  { label:'3. Itens',            sections:['sec-itens','sec-impostos'] },
+  { label:'4. Transporte',       sections:['sec-transporte'] },
+  { label:'5. Cobrança',         sections:['sec-pagamento'] },
+  { label:'6. Inf. Adicionais',  sections:['sec-info-adicional'] },
+  { label:'7. Exportação',       sections:['sec-exportacao'] },
+  { label:'8. Compras',          sections:['sec-compras'] },
 ];
 let currentTab = 0;
 
@@ -2240,7 +2480,7 @@ function renderItemsList() {
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function fmtNum(v,d=2) { return parseFloat(v||0).toFixed(d).replace('.',','); }
-function fmt(v) { return 'R$ '+parseFloat(v||0).toFixed(2).replace('.',','); }
+function fmt(v) { return 'R$ ' + (parseFloat(v||0)).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function removeItem(i) {
   if(!confirm(`Excluir item "${items[i].descricao||'Item '+(i+1)}"?`)) return;
@@ -2281,8 +2521,99 @@ function overlayClose(e) {
   if(e.target === document.getElementById('item-modal')) closeItemModal();
 }
 
+/* ══════════════════ MÁSCARAS NUMÉRICAS ══════════════════ */
+const _origParseFloat = window.parseFloat;
+
+// Patch global parseFloat: handles Brazilian format "1.234,56" → 1234.56
+window.parseFloat = function(v) {
+  if (typeof v === 'string' && v.indexOf(',') !== -1)
+    v = v.replace(/\./g, '').replace(',', '.');
+  return _origParseFloat(v);
+};
+
+function unmaskNum(v) {
+  if (typeof v !== 'string') return String(v);
+  if (v.indexOf(',') !== -1) v = v.replace(/\./g, '').replace(',', '.');
+  return v;
+}
+
+function maskNum(num, dec) {
+  const n = _origParseFloat(String(num)) || 0;
+  return n.toLocaleString('pt-BR', {minimumFractionDigits: dec, maximumFractionDigits: dec});
+}
+
+// Write a formatted number to a masked input by id
+function _w(id, num, dec) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (dec === undefined) dec = parseInt(el.dataset.decimals || '2');
+  el.value = maskNum(num, dec);
+}
+
+// Live formatting: apply on every input event
+function applyNumMask(el) {
+  const dec = parseInt(el.dataset.decimals || '2');
+  // Remove existing thousand dots; keep digits and last comma
+  let v = el.value.replace(/\./g, '');
+  const ci = v.indexOf(',');
+  let intPart, decPart = null;
+  if (ci !== -1) {
+    intPart = v.slice(0, ci).replace(/\D/g, '');
+    decPart = v.slice(ci + 1).replace(/\D/g, '').slice(0, dec);
+  } else {
+    intPart = v.replace(/\D/g, '');
+  }
+  if (!intPart) intPart = '0';
+  else intPart = intPart.replace(/^0+(?=\d)/, '');
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const newVal = decPart !== null ? intPart + ',' + decPart : intPart;
+  if (el.value !== newVal) el.value = newVal;
+}
+
+// Convert all step-having number inputs to masked text
+function initNumMasks() {
+  document.querySelectorAll('input[type="number"]').forEach(el => {
+    const step = el.getAttribute('step') || '';
+    if (!step.includes('.')) return; // skip integer fields
+    let dec = 2;
+    if (el.id === 'imod-vlunit') dec = 8;
+    else if (el.id === 'imod-qtd' || el.id === 'imod-qtdtrib' || el.id === 'imod-vlunittrib') dec = 4;
+    else if (step === '0.0001') dec = 4;
+    else if (step === '0.001') dec = 3;
+    const num = _origParseFloat(el.value) || 0;
+    el.type = 'text';
+    el.dataset.mask = 'num';
+    el.dataset.decimals = String(dec);
+    el.removeAttribute('step');
+    el.setAttribute('inputmode', 'decimal');
+    el.value = maskNum(num, dec);
+  });
+}
+
+// Event delegation — input: live mask; blur: reformat to fixed decimals
+document.addEventListener('input', function(e) {
+  if (e.target.dataset && e.target.dataset.mask === 'num') applyNumMask(e.target);
+}, true);
+
+document.addEventListener('blur', function(e) {
+  const el = e.target;
+  if (el.dataset && el.dataset.mask === 'num') {
+    const dec = parseInt(el.dataset.decimals || '2');
+    el.value = maskNum(parseFloat(el.value) || 0, dec);
+  }
+}, true);
+
 /* ══════════════════ FILL MODAL ══════════════════ */
-function setVal(id, v) { const el = document.getElementById(id); if(el) el.value = v ?? ''; }
+function setVal(id, v) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.dataset && el.dataset.mask === 'num') {
+    const dec = parseInt(el.dataset.decimals || '2');
+    el.value = maskNum(_origParseFloat(unmaskNum(String(v))) || 0, dec);
+  } else {
+    el.value = v ?? '';
+  }
+}
 function setCheck(id, v) { const el = document.getElementById(id); if(el) el.checked = !!v; }
 function setRadio(name, v) { document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.checked = r.value == v); }
 
@@ -2931,20 +3262,20 @@ function calcItemTotal() {
   const frete  = parseFloat(document.getElementById('imod-frete').value) || 0;
   const outras = parseFloat(document.getElementById('imod-outras').value) || 0;
   const total  = (qtd * vlunit) + seg - desc + frete + outras;
-  document.getElementById('imod-vltotal').value = Math.max(0, total).toFixed(2);
+  _w('imod-vltotal', Math.max(0, total));
 }
 
 function calcICMS() {
   const bc = parseFloat(document.getElementById('imod-bc-icms').value)||0;
   const al = parseFloat(document.getElementById('imod-aliq-icms').value)||0;
-  document.getElementById('imod-vl-icms').value = (bc * al / 100).toFixed(2);
+  _w('imod-vl-icms', bc * al / 100);
 }
 function calcICMSST_sn() {
   const bc   = parseFloat(document.getElementById('imod-bc-st').value)||0;
   const al   = parseFloat(document.getElementById('imod-aliq-st').value)||0;
   const pfcp = parseFloat(document.getElementById('imod-pfcp-st-sn').value)||0;
-  document.getElementById('imod-vl-st').value      = (bc * al / 100).toFixed(2);
-  document.getElementById('imod-vfcp-st-sn').value = (bc * pfcp / 100).toFixed(2);
+  _w('imod-vl-st', bc * al / 100);
+  _w('imod-vfcp-st-sn', bc * pfcp / 100);
   calcCredSN();
 }
 function calcICMSST_n() {
@@ -2952,48 +3283,48 @@ function calcICMSST_n() {
   const al    = parseFloat(document.getElementById('imod-aliq-st-n').value)||0;
   const vicms = parseFloat(document.getElementById('imod-vl-icms').value)||0;
   const gross = bc * al / 100;
-  document.getElementById('imod-vl-st-n').value = Math.max(0, gross - vicms).toFixed(2);
+  _w('imod-vl-st-n', Math.max(0, gross - vicms));
   calcFCPST_n();
 }
 function calcFCPST_n() {
   const bc   = parseFloat(document.getElementById('imod-bc-fcp-st').value)||0;
   const pfcp = parseFloat(document.getElementById('imod-pfcp-st-n').value)||0;
-  document.getElementById('imod-vfcp-st-n').value = (bc * pfcp / 100).toFixed(2);
+  _w('imod-vfcp-st-n', bc * pfcp / 100);
 }
 function calcFCP() {
   const bc = parseFloat(document.getElementById('imod-bc-fcp').value)||0;
   const p  = parseFloat(document.getElementById('imod-pfcp').value)||0;
-  document.getElementById('imod-vl-fcp').value = (bc * p / 100).toFixed(2);
+  _w('imod-vl-fcp', bc * p / 100);
 }
 function calcICMSDif() {
   const vlop = parseFloat(document.getElementById('imod-vl-icms-op').value)||0;
   const pdif = parseFloat(document.getElementById('imod-p-dif').value)||0;
-  document.getElementById('imod-vl-icms-dif').value = (vlop * pdif / 100).toFixed(2);
+  _w('imod-vl-icms-dif', vlop * pdif / 100);
 }
 function calcEfet() {
   const bc = parseFloat(document.getElementById('imod-vbc-efet').value)||0;
   const al = parseFloat(document.getElementById('imod-paliq-efet').value)||0;
-  document.getElementById('imod-vicms-efet').value = (bc * al / 100).toFixed(2);
+  _w('imod-vicms-efet', bc * al / 100);
 }
 function calcMono() {
   const q = parseFloat(document.getElementById('imod-qtrib-mono').value)||0;
   const a = parseFloat(document.getElementById('imod-adaliq-mono').value)||0;
-  document.getElementById('imod-vicms-mono').value = (q * a).toFixed(2);
+  _w('imod-vicms-mono', q * a);
 }
 function calcMonoRet() {
   const q = parseFloat(document.getElementById('imod-qtrib-ret').value)||0;
   const a = parseFloat(document.getElementById('imod-adaliq-ret').value)||0;
-  document.getElementById('imod-vicms-ret').value = (q * a).toFixed(2);
+  _w('imod-vicms-ret', q * a);
 }
 function calcMonoDif() {
   const op = parseFloat(document.getElementById('imod-vl-icms-op2').value)||0;
   const p  = parseFloat(document.getElementById('imod-pdif-mono').value)||0;
-  document.getElementById('imod-vl-icms-dif2').value = (op * p / 100).toFixed(2);
+  _w('imod-vl-icms-dif2', op * p / 100);
 }
 function calcMonoReta() {
   const q = parseFloat(document.getElementById('imod-qtrib-reta').value)||0;
   const a = parseFloat(document.getElementById('imod-adaliq-reta').value)||0;
-  document.getElementById('imod-vicms-reta').value = (q * a).toFixed(2);
+  _w('imod-vicms-reta', q * a);
 }
 function calcDIFAL() {
   const bcDest  = parseFloat(document.getElementById('imod-vbc-ufdest').value)||0;
@@ -3006,9 +3337,9 @@ function calcDIFAL() {
   const vDIFAL  = bcDest * (alIntra - alInter) / 100;
   const vDest   = vDIFAL * part / 100;
   const vRem    = vDIFAL * (100 - part) / 100;
-  document.getElementById('imod-vfcp-ufdest').value  = vFCP.toFixed(2);
-  document.getElementById('imod-vicms-ufdest').value = vDest.toFixed(2);
-  document.getElementById('imod-vicms-ufrem').value  = vRem.toFixed(2);
+  _w('imod-vfcp-ufdest', vFCP);
+  _w('imod-vicms-ufdest', vDest);
+  _w('imod-vicms-ufrem', vRem);
 }
 function calcCredSN() {
   const bc = parseFloat(document.getElementById('imod-bc-pis')?.value)||
@@ -3017,23 +3348,23 @@ function calcCredSN() {
   const qtd    = parseFloat(document.getElementById('imod-qtd').value)||0;
   const base   = vlunit * qtd;
   const pcred  = parseFloat(document.getElementById('imod-pcred-sn').value)||0;
-  document.getElementById('imod-vcred-icms-sn').value = (base * pcred / 100).toFixed(2);
+  _w('imod-vcred-icms-sn', base * pcred / 100);
 }
 function calcIPI() {
   const bc = parseFloat(document.getElementById('imod-bc-ipi').value)||0;
   const al = parseFloat(document.getElementById('imod-aliq-ipi').value)||0;
-  document.getElementById('imod-vl-ipi').value = (bc * al / 100).toFixed(2);
+  _w('imod-vl-ipi', bc * al / 100);
 }
 function calcPIS() {
   const cst = document.getElementById('imod-cst-pis').value;
   if (cst === '03') {
     const qtd  = parseFloat(document.getElementById('imod-qbc-pis').value)||0;
     const aliq = parseFloat(document.getElementById('imod-valiq-pis').value)||0;
-    document.getElementById('imod-vl-pis').value = (qtd * aliq).toFixed(2);
+    _w('imod-vl-pis', qtd * aliq);
   } else {
     const bc = parseFloat(document.getElementById('imod-bc-pis').value)||0;
     const al = parseFloat(document.getElementById('imod-aliq-pis').value)||0;
-    document.getElementById('imod-vl-pis').value = (bc * al / 100).toFixed(2);
+    _w('imod-vl-pis', bc * al / 100);
   }
 }
 function calcCOFINS() {
@@ -3041,17 +3372,17 @@ function calcCOFINS() {
   if (cst === '03') {
     const qtd  = parseFloat(document.getElementById('imod-qbc-cofins').value)||0;
     const aliq = parseFloat(document.getElementById('imod-valiq-cofins').value)||0;
-    document.getElementById('imod-vl-cofins').value = (qtd * aliq).toFixed(2);
+    _w('imod-vl-cofins', qtd * aliq);
   } else {
     const bc = parseFloat(document.getElementById('imod-bc-cofins').value)||0;
     const al = parseFloat(document.getElementById('imod-aliq-cofins').value)||0;
-    document.getElementById('imod-vl-cofins').value = (bc * al / 100).toFixed(2);
+    _w('imod-vl-cofins', bc * al / 100);
   }
 }
 function calcII() {
   const bc = parseFloat(document.getElementById('imod-bc-ii').value)||0;
   const al = parseFloat(document.getElementById('imod-aliq-ii').value)||0;
-  document.getElementById('imod-vl-ii').value = (bc * al / 100).toFixed(2);
+  _w('imod-vl-ii', bc * al / 100);
 }
 function onIPITipCalcChange() {
   const isP = (document.querySelector('input[name="imod-ipi-tipo"]:checked')?.value||'P') === 'P';
@@ -3061,12 +3392,12 @@ function onIPITipCalcChange() {
 function calcIPIValor() {
   const q = parseFloat(document.getElementById('imod-qunid-ipi').value)||0;
   const v = parseFloat(document.getElementById('imod-vunid-ipi').value)||0;
-  document.getElementById('imod-vl-ipi').value = (q * v).toFixed(2);
+  _w('imod-vl-ipi', q * v);
 }
 function calcIPIDevol() {
   const p    = parseFloat(document.getElementById('imod-pdevol-ipi').value)||0;
   const vipi = parseFloat(document.getElementById('imod-vl-ipi').value)||0;
-  document.getElementById('imod-vl-ipi-devol').value = (vipi * p / 100).toFixed(2);
+  _w('imod-vl-ipi-devol', vipi * p / 100);
 }
 function onPISTipCalcChange() {
   const isP = (document.querySelector('input[name="imod-pis-tipo"]:checked')?.value||'P') === 'P';
@@ -3078,11 +3409,11 @@ function calcPISST() {
   if(isV) {
     const q = parseFloat(document.getElementById('imod-qbc-pisst').value)||0;
     const a = parseFloat(document.getElementById('imod-valiq-pisst').value)||0;
-    document.getElementById('imod-vl-pisst').value = (q * a).toFixed(2);
+    _w('imod-vl-pisst', q * a);
   } else {
     const bc = parseFloat(document.getElementById('imod-bc-pisst').value)||0;
     const al = parseFloat(document.getElementById('imod-aliq-pisst').value)||0;
-    document.getElementById('imod-vl-pisst').value = (bc * al / 100).toFixed(2);
+    _w('imod-vl-pisst', bc * al / 100);
   }
 }
 function onPISSTTipCalcChange() {
@@ -3100,11 +3431,11 @@ function calcCOFINSST() {
   if(isV) {
     const q = parseFloat(document.getElementById('imod-qbc-cofinsst').value)||0;
     const a = parseFloat(document.getElementById('imod-valiq-cofinsst').value)||0;
-    document.getElementById('imod-vl-cofinsst').value = (q * a).toFixed(2);
+    _w('imod-vl-cofinsst', q * a);
   } else {
     const bc = parseFloat(document.getElementById('imod-bc-cofinsst').value)||0;
     const al = parseFloat(document.getElementById('imod-aliq-cofinsst').value)||0;
-    document.getElementById('imod-vl-cofinsst').value = (bc * al / 100).toFixed(2);
+    _w('imod-vl-cofinsst', bc * al / 100);
   }
 }
 function onCOFINSSTTipCalcChange() {
@@ -3115,7 +3446,8 @@ function onCOFINSSTTipCalcChange() {
 function changeAliq(id, delta) {
   const el = document.getElementById(id);
   if(!el) return;
-  el.value = (parseFloat(el.value)||0) + delta < 0 ? '0.00' : ((parseFloat(el.value)||0) + delta).toFixed(2);
+  const _newV = Math.max(0, (parseFloat(el.value)||0) + delta);
+  el.value = maskNum(_newV, parseInt(el.dataset.decimals || '2'));
   el.dispatchEvent(new Event('input'));
 }
 function calcIBSUF() {
@@ -3125,9 +3457,9 @@ function calcIBSUF() {
   const efet = aliq * (1 - pred/100);
   const vl   = bc * efet / 100;
   const pdif = parseFloat(document.getElementById('imod-pdif-ibs-uf').value)||0;
-  document.getElementById('imod-paliq-efet-ibs-uf').value = efet.toFixed(4);
-  document.getElementById('imod-vl-ibs-uf').value = vl.toFixed(2);
-  document.getElementById('imod-vdif-ibs-uf').value = (vl * pdif / 100).toFixed(2);
+  _w('imod-paliq-efet-ibs-uf', efet, 4);
+  _w('imod-vl-ibs-uf', vl);
+  _w('imod-vdif-ibs-uf', vl * pdif / 100);
 }
 function calcIBSMun() {
   const bc   = parseFloat(document.getElementById('imod-bc-ibscbs').value)||0;
@@ -3136,9 +3468,9 @@ function calcIBSMun() {
   const efet = aliq * (1 - pred/100);
   const vl   = bc * efet / 100;
   const pdif = parseFloat(document.getElementById('imod-pdif-ibs-mun').value)||0;
-  document.getElementById('imod-paliq-efet-ibs-mun').value = efet.toFixed(4);
-  document.getElementById('imod-vl-ibs-mun').value = vl.toFixed(2);
-  document.getElementById('imod-vdif-ibs-mun').value = (vl * pdif / 100).toFixed(2);
+  _w('imod-paliq-efet-ibs-mun', efet, 4);
+  _w('imod-vl-ibs-mun', vl);
+  _w('imod-vdif-ibs-mun', vl * pdif / 100);
 }
 function calcCBSImp() {
   const bc   = parseFloat(document.getElementById('imod-bc-ibscbs').value)||0;
@@ -3147,15 +3479,15 @@ function calcCBSImp() {
   const efet = aliq * (1 - pred/100);
   const vl   = bc * efet / 100;
   const pdif = parseFloat(document.getElementById('imod-pdif-cbs').value)||0;
-  document.getElementById('imod-paliq-efet-cbs').value = efet.toFixed(4);
-  document.getElementById('imod-vl-cbs').value = vl.toFixed(2);
-  document.getElementById('imod-vdif-cbs').value = (vl * pdif / 100).toFixed(2);
+  _w('imod-paliq-efet-cbs', efet, 4);
+  _w('imod-vl-cbs', vl);
+  _w('imod-vdif-cbs', vl * pdif / 100);
 }
 function calcIBSCBS() { calcIBSUF(); calcIBSMun(); calcCBSImp(); }
 function calcIS() {
   const bc = parseFloat(document.getElementById('imod-bc-is').value)||0;
   const al = parseFloat(document.getElementById('imod-aliq-is').value)||0;
-  document.getElementById('imod-vl-is').value = (bc * al / 100).toFixed(2);
+  _w('imod-vl-is', bc * al / 100);
 }
 
 function onCSOSNChange() {
@@ -3344,7 +3676,7 @@ function renderRastroList() {
     return;
   }
   el.innerHTML = rastroList.map((r,i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#fafbfc;border:1px solid #e8eaf0;border-radius:6px;margin-bottom:5px">
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:${i%2===0?'#fff':'#f3f4f8'};border:1px solid #e8eaf0;border-radius:6px;margin-bottom:5px">
       <div style="flex:1;font-size:12px">
         <span style="font-weight:700;color:#1a1a2e">Lote: ${r.nLote}</span>
         <span style="color:#888;margin-left:10px">Qtd: ${r.qLote}</span>
@@ -3477,14 +3809,14 @@ function renderVolumes() {
     <div class="list-item-box">
       <button class="del-btn del-corner" onclick="removeVolume(${i})">🗑</button>
       <div class="form-row cols-4" style="margin-bottom:6px">
-        <div class="form-group"><label>Qtd Vol. (qVol)</label><input type="number" value="${v.qVol}" placeholder="0" onchange="volumes[${i}].qVol=this.value"/></div>
+        <div class="form-group"><label>Qtd Vol. (qVol)</label><input type="text" data-mask="num" data-decimals="0" inputmode="numeric" value="${v.qVol||''}" placeholder="0" oninput="volumes[${i}].qVol=this.value"/></div>
         <div class="form-group"><label>Espécie (esp)</label><input type="text" value="${v.esp}" placeholder="CAIXA, FARDO..." maxlength="60" onchange="volumes[${i}].esp=this.value"/></div>
         <div class="form-group"><label>Marca (marca)</label><input type="text" value="${v.marca}" maxlength="60" onchange="volumes[${i}].marca=this.value"/></div>
         <div class="form-group"><label>Numeração (nVol)</label><input type="text" value="${v.nVol}" maxlength="60" onchange="volumes[${i}].nVol=this.value"/></div>
       </div>
       <div class="form-row cols-2">
-        <div class="form-group"><label>Peso Líquido kg (pesoL)</label><input type="number" step="0.001" value="${v.pesoL}" placeholder="0.000" onchange="volumes[${i}].pesoL=this.value"/></div>
-        <div class="form-group"><label>Peso Bruto kg (pesoB)</label><input type="number" step="0.001" value="${v.pesoB}" placeholder="0.000" onchange="volumes[${i}].pesoB=this.value"/></div>
+        <div class="form-group"><label>Peso Líquido kg (pesoL)</label><input type="text" data-mask="num" data-decimals="3" inputmode="decimal" value="${v.pesoL ? maskNum(parseFloat(v.pesoL)||0,3) : ''}" placeholder="0,000" oninput="volumes[${i}].pesoL=this.value"/></div>
+        <div class="form-group"><label>Peso Bruto kg (pesoB)</label><input type="text" data-mask="num" data-decimals="3" inputmode="decimal" value="${v.pesoB ? maskNum(parseFloat(v.pesoB)||0,3) : ''}" placeholder="0,000" oninput="volumes[${i}].pesoB=this.value"/></div>
       </div>
       <div style="margin-top:8px">
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
@@ -3509,6 +3841,8 @@ let autXMLs   = [];
 let obsCont   = [];
 let obsFiscos = [];
 let procRefs  = [];
+let detPags   = [];
+let duplicatas = [];
 
 function addNFeRef() {
   nfeRefs.push({ tipo:'nfe', chave:'', modelo:'', serie:'', numero:'', dataEmissao:'', ie:'', uf:'' });
@@ -3609,11 +3943,622 @@ function renderProcRefs() {
     </div>`).join('');
 }
 
+/* ══════════════════ COBRANÇA ══════════════════ */
+
+/* Calcula vLiq = vOrig - vDesc */
+function calcFatLiq() {
+  const orig  = parseFloat(document.getElementById('fat-vorig')?.value) || 0;
+  const desc  = parseFloat(document.getElementById('fat-vdesc')?.value) || 0;
+  const liq   = Math.max(0, orig - desc);
+  const elLiq = document.getElementById('fat-vliq');
+  if (elLiq) _w('fat-vliq', liq);
+  updatePgtoTotal();
+}
+
+/* Atualiza total a pagar (soma de todos os vPag) */
+function updatePgtoTotal() {
+  const total = detPags.reduce((s, p) => s + (parseFloat(p.vPag) || 0), 0);
+  const el = document.getElementById('pgto-total');
+  if (el) el.textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* ── detPag ── */
+function addDetPag() {
+  detPags.push({ indPag:'0', tPag:'01', vPag:'', xPag:'', tpIntegra:'2', CNPJ:'', tBand:'99', cAut:'', vTroco:'' });
+  renderDetPag();
+}
+function removeDetPag(i) { detPags.splice(i,1); renderDetPag(); }
+
+function renderDetPag() {
+  const el = document.getElementById('detpag-list');
+  if (!detPags.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum pagamento informado, clique em "Adicionar pagamento".</div>';
+    updatePgtoTotal(); return;
+  }
+  const tPagOpts = [
+    ['01','Dinheiro'],['02','Cheque'],['03','Cartão de Crédito'],['04','Cartão de Débito'],
+    ['05','Crédito Loja'],['10','Vale Alimentação'],['11','Vale Refeição'],['12','Vale Presente'],
+    ['13','Vale Combustível'],['15','Boleto Bancário'],['16','Depósito Bancário'],
+    ['17','PIX'],['18','Transferência Bancária'],['19','Cashback'],
+    ['90','Sem pagamento'],['99','Outros']
+  ];
+  const tBandOpts = [
+    ['01','Visa'],['02','Mastercard'],['03','American Express'],['04','Sorocred'],
+    ['05','Diners Club'],['06','Elo'],['07','Hipercard'],['08','Aura'],['09','Cabal'],['99','Outros']
+  ];
+  el.innerHTML = detPags.map((p,i) => {
+    const isCard = ['03','04','05'].includes(p.tPag);
+    return `
+    <div class="list-item-box">
+      <button class="del-btn del-corner" onclick="removeDetPag(${i})">🗑</button>
+      <div class="form-row cols-4">
+        <div class="form-group">
+          <label>Indicador (indPag)</label>
+          <select onchange="detPags[${i}].indPag=this.value;scheduleAutoSave()">
+            <option value="0" ${p.indPag==='0'?'selected':''}>0 – À Vista</option>
+            <option value="1" ${p.indPag==='1'?'selected':''}>1 – A Prazo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Meio de Pagamento (tPag)</label>
+          <select onchange="detPags[${i}].tPag=this.value;renderDetPag();scheduleAutoSave()">
+            ${tPagOpts.map(([v,l])=>`<option value="${v}" ${p.tPag===v?'selected':''}>${v} – ${l}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Valor (vPag)</label>
+          <input type="text" data-mask="num" data-decimals="2" inputmode="decimal" value="${p.vPag ? maskNum(parseFloat(p.vPag)||0,2) : '0,00'}" placeholder="0,00"
+            oninput="detPags[${i}].vPag=this.value;updatePgtoTotal();scheduleAutoSave()"/>
+        </div>
+        ${p.tPag==='99'?`
+        <div class="form-group">
+          <label>Descrição (xPag)</label>
+          <input type="text" value="${p.xPag}" maxlength="60"
+            oninput="detPags[${i}].xPag=this.value;scheduleAutoSave()"/>
+        </div>`:'<div></div>'}
+      </div>
+      ${isCard?`
+      <div class="form-row cols-4" style="margin-top:6px">
+        <div class="form-group">
+          <label>Integração (tpIntegra)</label>
+          <select onchange="detPags[${i}].tpIntegra=this.value;scheduleAutoSave()">
+            <option value="1" ${p.tpIntegra==='1'?'selected':''}>1 – Integrado</option>
+            <option value="2" ${p.tpIntegra==='2'?'selected':''}>2 – Não Integrado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bandeira (tBand)</label>
+          <select onchange="detPags[${i}].tBand=this.value;scheduleAutoSave()">
+            ${tBandOpts.map(([v,l])=>`<option value="${v}" ${p.tBand===v?'selected':''}>${v} – ${l}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>CNPJ Credenciadora</label>
+          <input type="text" value="${p.CNPJ}" maxlength="14" placeholder="Somente dígitos"
+            oninput="detPags[${i}].CNPJ=this.value;scheduleAutoSave()"/>
+        </div>
+        <div class="form-group">
+          <label>Cód. Autorização (cAut)</label>
+          <input type="text" value="${p.cAut}" maxlength="20"
+            oninput="detPags[${i}].cAut=this.value;scheduleAutoSave()"/>
+        </div>
+      </div>`:''}
+      ${p.indPag==='0'?`
+      <div class="form-row cols-4" style="margin-top:6px">
+        <div class="form-group">
+          <label>Troco (vTroco)</label>
+          <input type="text" data-mask="num" data-decimals="2" inputmode="decimal" value="${p.vTroco ? maskNum(parseFloat(p.vTroco)||0,2) : '0,00'}" placeholder="0,00"
+            oninput="detPags[${i}].vTroco=this.value;scheduleAutoSave()"/>
+        </div>
+      </div>`:''}
+    </div>`}).join('');
+  updatePgtoTotal();
+}
+
+/* ── Duplicatas ── */
+function addDuplicata() {
+  duplicatas.push({ nDup:'', dVenc:'', vDup:'' });
+  renderDuplicatas();
+}
+function removeDuplicata(i) { duplicatas.splice(i,1); renderDuplicatas(); }
+
+/* ── Estado do drag ── */
+let _dupDragIdx  = null;   // índice sendo arrastado
+let _dupDragEl   = null;   // elemento DOM sendo arrastado
+let _dupReadyDrag = false; // flag: mousedown no handle liberou o drag
+
+function renderDuplicatas() {
+  const el = document.getElementById('dup-list');
+  if (!duplicatas.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:4px 0">Nenhuma duplicata cadastrada.</div>';
+    return;
+  }
+  el.innerHTML = `
+    <div class="drag-hint">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+        <circle cx="5" cy="4" r="1.5" fill="#92400e"/>
+        <circle cx="11" cy="4" r="1.5" fill="#92400e"/>
+        <circle cx="5" cy="8" r="1.5" fill="#92400e"/>
+        <circle cx="11" cy="8" r="1.5" fill="#92400e"/>
+        <circle cx="5" cy="12" r="1.5" fill="#92400e"/>
+        <circle cx="11" cy="12" r="1.5" fill="#92400e"/>
+      </svg>
+      <span>Segure o ícone <strong>⠿</strong> e arraste para reordenar as parcelas</span>
+    </div>` +
+  duplicatas.map((d, i) => `
+    <div class="dup-row" draggable="false" id="dup-item-${i}"
+         ondragover="dupDragOver(event,${i})"
+         ondragleave="dupDragLeave(event,${i})"
+         ondrop="dupDrop(event,${i})"
+         ondragend="dupDragEnd()">
+
+      <!-- HANDLE: único elemento que ativa o drag -->
+      <div class="dup-handle"
+           title="Arrastar para reordenar"
+           onmousedown="dupHandleDown(event,${i})"
+           onmouseup="_dupReadyDrag=false"
+           ondragstart="dupDragStart(event,${i})">
+        <svg width="14" height="20" viewBox="0 0 14 20" fill="none">
+          <circle cx="4" cy="4"  r="2" fill="currentColor"/>
+          <circle cx="10" cy="4"  r="2" fill="currentColor"/>
+          <circle cx="4" cy="10" r="2" fill="currentColor"/>
+          <circle cx="10" cy="10" r="2" fill="currentColor"/>
+          <circle cx="4" cy="16" r="2" fill="currentColor"/>
+          <circle cx="10" cy="16" r="2" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <!-- CAMPOS -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;min-width:0">
+        <div class="form-group">
+          <label>Número (nDup)</label>
+          <input type="text" value="${escHtml(d.nDup)}" maxlength="60" placeholder="ex: 001"
+            oninput="duplicatas[${i}].nDup=this.value;scheduleAutoSave()"/>
+        </div>
+        <div class="form-group">
+          <label>Vencimento (dVenc)</label>
+          <input type="date" value="${escHtml(d.dVenc)}"
+            oninput="duplicatas[${i}].dVenc=this.value;scheduleAutoSave()"/>
+        </div>
+        <div class="form-group">
+          <label>Valor R$ (vDup)</label>
+          <input type="text" data-mask="num" data-decimals="2" inputmode="decimal" value="${d.vDup ? maskNum(parseFloat(d.vDup)||0,2) : ''}" placeholder="0,00"
+            oninput="duplicatas[${i}].vDup=this.value;scheduleAutoSave()"/>
+        </div>
+      </div>
+
+      <!-- EXCLUIR -->
+      <button class="dup-del" title="Excluir parcela"
+              onclick="removeDuplicata(${i})">🗑</button>
+
+    </div>`).join('');
+}
+
+/* Mousedown no handle → habilita draggable no row */
+function dupHandleDown(e, i) {
+  _dupReadyDrag = true;
+  const row = document.getElementById('dup-item-' + i);
+  if (row) row.setAttribute('draggable', 'true');
+}
+
+/* Dragstart: só funciona após dupHandleDown */
+function dupDragStart(e, i) {
+  if (!_dupReadyDrag) { e.preventDefault(); return; }
+  _dupDragIdx = i;
+  _dupDragEl  = e.currentTarget.closest('.dup-row');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', String(i));
+  setTimeout(() => _dupDragEl?.classList.add('is-dragging'), 0);
+}
+
+function dupDragEnd() {
+  _dupReadyDrag = false;
+  document.querySelectorAll('#dup-list .dup-row').forEach(el => {
+    el.classList.remove('is-dragging', 'drag-over');
+    el.setAttribute('draggable', 'false');
+  });
+  _dupDragIdx = null;
+  _dupDragEl  = null;
+}
+
+function dupDragOver(e, i) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (_dupDragIdx === null || _dupDragIdx === i) return;
+  document.querySelectorAll('#dup-list .dup-row').forEach((el, idx) => {
+    el.classList.toggle('drag-over', idx === i);
+  });
+}
+
+function dupDragLeave(e, i) {
+  /* só limpa se saiu de fato do elemento (não entrou num filho) */
+  const row = document.getElementById('dup-item-' + i);
+  if (row && !row.contains(e.relatedTarget)) {
+    row.classList.remove('drag-over');
+  }
+}
+
+function dupDrop(e, i) {
+  e.preventDefault();
+  if (_dupDragIdx === null || _dupDragIdx === i) return;
+  const moved = duplicatas.splice(_dupDragIdx, 1)[0];
+  duplicatas.splice(i, 0, moved);
+  renderDuplicatas();
+  scheduleAutoSave();
+}
+
 function buscarCNPJ() {
   const v = document.getElementById('cnpj-input').value.replace(/\D/g,'');
   if(v.length===14) document.getElementById('razao-social').value = 'Empresa Exemplo Ltda (via API)';
   else if(v.length===11) document.getElementById('razao-social').value = 'João da Silva';
   else alert('Digite um CNPJ (14 dígitos) ou CPF (11 dígitos) válido.');
+}
+
+/* ══════════════════ DANFE PRÉ-VISUALIZAÇÃO ══════════════════ */
+function openDanfe() { buildDanfe(); document.getElementById('danfe-overlay').classList.add('open'); }
+function closeDanfe() { document.getElementById('danfe-overlay').classList.remove('open'); }
+function printDanfe() { window.print(); }
+
+function fmtBRL(v) {
+  const n = parseFloat(v)||0;
+  return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtDt(dt) {
+  if(!dt) return '—';
+  try { return new Date(dt).toLocaleDateString('pt-BR'); } catch { return dt; }
+}
+
+function buildDanfe() {
+  const serie   = document.getElementById('ident-serie')?.value   || '1';
+  const numero  = document.getElementById('ident-numero')?.value  || '1';
+  const natop   = document.getElementById('ident-natop')?.value   || 'Venda de mercadoria';
+  const demis   = document.getElementById('ident-demissao')?.value || '';
+  const dsaida  = document.getElementById('ident-dsaida')?.value  || '';
+  const tpnf    = document.getElementById('ident-tpnf')?.value    || '1';
+
+  const destNome = document.getElementById('razao-social')?.value  || '—';
+  const destDoc  = document.getElementById('cnpj-input')?.value    || '—';
+  const destLogr = document.getElementById('dest-logr')?.value     || '';
+  const destNro  = document.getElementById('dest-nro')?.value      || '';
+  const destCpl  = document.getElementById('dest-cpl')?.value      || '';
+  const destBai  = document.getElementById('dest-bairro')?.value   || '';
+  const destMun  = document.getElementById('dest-mun')?.value      || '';
+  const destUF   = document.getElementById('dest-uf')?.value       || '';
+  const destCEP  = document.getElementById('dest-cep')?.value      || '';
+  const destFone = document.getElementById('dest-fone')?.value     || '';
+  const destIE   = document.getElementById('dest-ie')?.value       || '—';
+
+  const transpNome  = document.getElementById('transp-nome')?.value   || '';
+  const transpDoc   = document.getElementById('transp-doc')?.value    || '';
+  const transpEnder = document.getElementById('transp-ender')?.value  || '';
+  const transpMun   = document.getElementById('transp-mun')?.value    || '';
+  const transpUF    = document.getElementById('transp-uf')?.value     || '';
+  const transpPlaca = document.getElementById('transp-placa')?.value  || '';
+  const transpVUF   = document.getElementById('transp-veic-uf')?.value|| '';
+
+  const modFreteEl  = document.getElementById('transp-modfrete');
+  const modFreteText= modFreteEl?.options[modFreteEl.selectedIndex]?.text || '';
+
+  const infCpl = document.getElementById('infoadicionais-geral')?.value || '';
+
+  const fatNFat = document.getElementById('fat-nfat')?.value  || '';
+  const fatVOrig= document.getElementById('fat-vorig')?.value || '0';
+  const fatVDesc= document.getElementById('fat-vdesc')?.value || '0';
+  const fatVLiq = document.getElementById('fat-vliq')?.value  || '0';
+
+  // ── Totais a partir de items
+  let vProd=0, vFrete=0, vSeg=0, vDesc=0, vOut=0, vICMS=0, vICMSST=0, vIPI=0;
+  items.forEach(it => {
+    const q = parseFloat(it.qtd)||0;
+    const v = parseFloat(it.vlunit)||0;
+    vProd   += q*v;
+    vFrete  += parseFloat(it.frete)||0;
+    vSeg    += parseFloat(it.seguro)||0;
+    vDesc   += parseFloat(it.desconto)||0;
+    vOut    += parseFloat(it.outras)||0;
+    vICMS   += parseFloat(it.vlicms)||0;
+    vICMSST += parseFloat(it.vlst)||0;
+    vIPI    += parseFloat(it.vipi)||0;
+  });
+  const vTotal = vProd + vFrete + vSeg + vOut + vICMSST + vIPI - vDesc;
+
+  // ── Barcode simulation (visual only)
+  const bcWidths = [2,1,3,1,2,1,1,2,3,1,2,2,1,1,2,3,1,2,1,2,2,1,3,1,2,1,2,2,1,3,1,1,2,2,1,2,1,3,2,1,1,2,3,1,1,2,2,1,2,1,3,1,2,2,1,2,1,1,2,3];
+  const barcodeHTML = '<div class="barcode-sim">' +
+    bcWidths.map((w,i)=>`<div class="bc-b" style="width:${w}px;height:${i%5===0?42:36}px;margin-right:${i%4===0?2:0}px"></div>`).join('') +
+  '</div>';
+
+  // ── Items table rows
+  const itemRows = items.length === 0
+    ? '<tr><td colspan="12" style="text-align:center;padding:8px;color:#888;font-size:10px">Nenhum item adicionado</td></tr>'
+    : items.map(it => {
+        const qtd = parseFloat(it.qtd)||0;
+        const vlu = parseFloat(it.vlunit)||0;
+        return `<tr>
+          <td style="white-space:nowrap">${escHtml(it.codigo||'')}</td>
+          <td>${escHtml(it.descricao||'')}</td>
+          <td style="white-space:nowrap">${escHtml(it.ncm||'')}</td>
+          <td style="white-space:nowrap">${escHtml(it.cfop||'')}</td>
+          <td style="white-space:nowrap;text-align:center">${escHtml(it.und||'UN')}</td>
+          <td style="text-align:right">${fmtBRL(qtd)}</td>
+          <td style="text-align:right">${fmtBRL(vlu)}</td>
+          <td style="text-align:right;font-weight:700">${fmtBRL(qtd*vlu)}</td>
+          <td style="text-align:right">${fmtBRL(it.vlst)}</td>
+          <td style="text-align:right">${fmtBRL(it.aliqicms)}%</td>
+          <td style="text-align:right">${fmtBRL(it.vlicms)}</td>
+          <td style="text-align:right">${fmtBRL(it.vipi||0)}%</td>
+        </tr>`;
+      }).join('');
+
+  // ── Duplicatas in fatura
+  const dupCells = duplicatas.map(d => `
+    <div class="d-cell" style="flex:1;min-width:0">
+      <span class="d-lbl">Dupl. ${escHtml(d.nDup||'')}</span>
+      <span class="d-val sm">${fmtDt(d.dVenc)}</span>
+      <span class="d-val">R$&nbsp;${fmtBRL(d.vDup)}</span>
+    </div>`).join('');
+
+  const dsaidaHora = dsaida
+    ? new Date(dsaida).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
+    : '—';
+
+  const endDest = [destLogr, destNro, destCpl].filter(Boolean).join(', ');
+
+  // ── Build document
+  document.getElementById('danfe-doc').innerHTML = `
+
+  <!-- ═══ CABEÇALHO ═══ -->
+  <div class="d-row">
+    <div class="d-cell" style="flex:2;min-height:75px;text-align:center;padding:8px 10px">
+      <div style="font-size:13px;font-weight:900;line-height:1.3;margin-bottom:4px">ORANGE SISTEMAS LTDA</div>
+      <div style="font-size:8px;color:#333">00.000.000/0001-00</div>
+      <div style="font-size:8px;color:#333">Rua Exemplo, 1000 – Centro – São Paulo / SP</div>
+      <div style="font-size:8px;color:#333">CEP: 01000-000 &nbsp;|&nbsp; Fone: (11) 3000-0000</div>
+      <div style="font-size:7px;color:#666;margin-top:4px">IE: 000.000.000.000</div>
+    </div>
+    <div class="d-cell" style="width:155px;text-align:center;padding:8px 6px;flex-shrink:0">
+      <div style="font-size:14px;font-weight:900;letter-spacing:2px;border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:3px">DANFE</div>
+      <div style="font-size:7px;line-height:1.5;color:#333">Documento Auxiliar da<br>Nota Fiscal Eletrônica</div>
+      <div style="margin:6px 0;font-size:8px;line-height:1.8">
+        <div>0 – ENTRADA &nbsp;<input type="checkbox" disabled ${tpnf==='0'?'checked':''} style="accent-color:#000;width:10px;height:10px"/></div>
+        <div>1 – SAÍDA &nbsp;&nbsp;&nbsp;<input type="checkbox" disabled ${tpnf==='1'?'checked':''} style="accent-color:#000;width:10px;height:10px"/></div>
+      </div>
+      <div style="border:1.5px solid #000;padding:4px;margin-top:4px;font-size:8.5px;font-weight:900;line-height:1.6">
+        Nº ${String(numero).padStart(9,'0')}<br>
+        Série ${String(serie).padStart(3,'0')}<br>
+        <span style="font-size:7px;font-weight:400;color:#555">Folha 1/1</span>
+      </div>
+    </div>
+    <div class="d-cell" style="flex:2;display:flex;flex-direction:column;justify-content:space-between;padding:8px 8px">
+      ${barcodeHTML}
+      <div style="margin-top:6px">
+        <span class="d-lbl">Chave de Acesso (44 dígitos)</span>
+        <span class="d-val" style="font-size:7.5px;letter-spacing:0.3px;word-break:break-all;white-space:normal;font-weight:600;color:#555">
+          XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX
+        </span>
+      </div>
+      <div style="margin-top:5px;font-size:6.5px;color:#666;font-style:italic;line-height:1.4">
+        Consulte a autenticidade no portal da SEFAZ:<br>www.nfe.fazenda.gov.br ou app Meu Imposto de Renda
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NATUREZA + PROTOCOLO ═══ -->
+  <div class="d-row">
+    <div class="d-cell" style="flex:2">
+      <span class="d-lbl">Natureza da Operação</span>
+      <span class="d-val">${escHtml(natop)}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Protocolo de Autorização de Uso</span>
+      <span class="d-val" style="color:#999;font-style:italic">— Rascunho / Não transmitido —</span>
+    </div>
+  </div>
+
+  <!-- ═══ IE + CNPJ + DATAS ═══ -->
+  <div class="d-row">
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Inscrição Estadual</span>
+      <span class="d-val">000.000.000.000</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">IE Subst. Tributário</span>
+      <span class="d-val">—</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">CNPJ do Emitente</span>
+      <span class="d-val">00.000.000/0001-00</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Data de Emissão</span>
+      <span class="d-val">${fmtDt(demis)}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Data Saída / Entrada</span>
+      <span class="d-val">${fmtDt(dsaida)}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Hora Saída / Entrada</span>
+      <span class="d-val">${dsaidaHora}</span>
+    </div>
+  </div>
+
+  <!-- ═══ DESTINATÁRIO ═══ -->
+  <div class="danfe-sec-hdr">Destinatário / Remetente</div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:3">
+      <span class="d-lbl">Nome / Razão Social</span>
+      <span class="d-val">${escHtml(destNome)}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">CNPJ / CPF</span>
+      <span class="d-val">${escHtml(destDoc)}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Data de Emissão</span>
+      <span class="d-val">${fmtDt(demis)}</span>
+    </div>
+  </div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:3">
+      <span class="d-lbl">Endereço</span>
+      <span class="d-val">${escHtml(endDest||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:2">
+      <span class="d-lbl">Bairro / Distrito</span>
+      <span class="d-val">${escHtml(destBai||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">CEP</span>
+      <span class="d-val">${escHtml(destCEP||'—')}</span>
+    </div>
+  </div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:3">
+      <span class="d-lbl">Município</span>
+      <span class="d-val">${escHtml(destMun||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">UF</span>
+      <span class="d-val">${escHtml(destUF||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:2">
+      <span class="d-lbl">Telefone</span>
+      <span class="d-val">${escHtml(destFone||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:2">
+      <span class="d-lbl">Inscrição Estadual</span>
+      <span class="d-val">${escHtml(destIE||'—')}</span>
+    </div>
+  </div>
+
+  \${duplicatas.length ? \`
+  <!-- ═══ FATURA ═══ -->
+  <div class="danfe-sec-hdr">Fatura</div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Número Fatura</span>
+      <span class="d-val">\${escHtml(fatNFat||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Valor Original</span>
+      <span class="d-val">R$ \${fmtBRL(fatVOrig)}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Valor Desconto</span>
+      <span class="d-val">R$ \${fmtBRL(fatVDesc)}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Valor Líquido</span>
+      <span class="d-val">R$ \${fmtBRL(fatVLiq)}</span>
+    </div>
+    \${dupCells}
+  </div>\` : ''}
+
+  <!-- ═══ PRODUTOS ═══ -->
+  <div class="danfe-sec-hdr">Dados dos Produtos / Serviços</div>
+  <div class="d-row" style="padding:0">
+    <div class="d-cell" style="flex:1;padding:0">
+      <table class="d-items-table">
+        <thead>
+          <tr>
+            <th style="width:54px">Código</th>
+            <th>Descrição do Produto / Serviço</th>
+            <th style="width:46px">NCM/SH</th>
+            <th style="width:34px">CFOP</th>
+            <th style="width:26px;text-align:center">Un</th>
+            <th style="width:44px;text-align:right">Qtd</th>
+            <th style="width:58px;text-align:right">Vl Unit.</th>
+            <th style="width:62px;text-align:right">Vl Total</th>
+            <th style="width:52px;text-align:right">Vl ICMS-ST</th>
+            <th style="width:44px;text-align:right">Alíq ICMS</th>
+            <th style="width:52px;text-align:right">Vl ICMS</th>
+            <th style="width:40px;text-align:right">Alíq IPI</th>
+          </tr>
+        </thead>
+        <tbody>${itemRows}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ IMPOSTOS ═══ -->
+  <div class="danfe-sec-hdr">Cálculo do Imposto</div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:1"><span class="d-lbl">BC do ICMS</span><span class="d-val">R$ ${fmtBRL(vProd)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl do ICMS</span><span class="d-val">R$ ${fmtBRL(vICMS)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">BC ICMS-ST</span><span class="d-val">R$ 0,00</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl ICMS-ST</span><span class="d-val">R$ ${fmtBRL(vICMSST)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl do IPI</span><span class="d-val">R$ ${fmtBRL(vIPI)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl PIS</span><span class="d-val">R$ 0,00</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl COFINS</span><span class="d-val">R$ 0,00</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Outras Desp.</span><span class="d-val">R$ ${fmtBRL(vOut)}</span></div>
+  </div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl Total Produtos</span><span class="d-val">R$ ${fmtBRL(vProd)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl Frete</span><span class="d-val">R$ ${fmtBRL(vFrete)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl Seguro</span><span class="d-val">R$ ${fmtBRL(vSeg)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Desconto</span><span class="d-val">R$ ${fmtBRL(vDesc)}</span></div>
+    <div class="d-cell" style="flex:1"><span class="d-lbl">Vl IPI Devol.</span><span class="d-val">R$ 0,00</span></div>
+    <div class="d-cell" style="flex:3;background:#f0f0f0">
+      <span class="d-lbl" style="font-size:8px">VALOR TOTAL DA NOTA FISCAL</span>
+      <span class="d-val" style="font-size:17px;letter-spacing:-0.5px">R$ ${fmtBRL(vTotal)}</span>
+    </div>
+  </div>
+
+  <!-- ═══ TRANSPORTE ═══ -->
+  <div class="danfe-sec-hdr">Transportador / Volumes Transportados</div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:3">
+      <span class="d-lbl">Razão Social / Nome</span>
+      <span class="d-val">${escHtml(transpNome||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:2">
+      <span class="d-lbl">Frete por Conta</span>
+      <span class="d-val sm">${escHtml(modFreteText)}</span>
+    </div>
+    <div class="d-cell" style="flex:2">
+      <span class="d-lbl">CNPJ / CPF</span>
+      <span class="d-val">${escHtml(transpDoc||'—')}</span>
+    </div>
+  </div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:3">
+      <span class="d-lbl">Endereço</span>
+      <span class="d-val">${escHtml(transpEnder||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:2">
+      <span class="d-lbl">Município</span>
+      <span class="d-val">${escHtml(transpMun||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">UF</span>
+      <span class="d-val">${escHtml(transpUF||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">Placa Veículo</span>
+      <span class="d-val">${escHtml(transpPlaca||'—')}</span>
+    </div>
+    <div class="d-cell" style="flex:1">
+      <span class="d-lbl">UF Veículo</span>
+      <span class="d-val">${escHtml(transpVUF||'—')}</span>
+    </div>
+  </div>
+
+  \${infCpl ? \`
+  <!-- ═══ INF. COMPLEMENTARES ═══ -->
+  <div class="danfe-sec-hdr">Informações Complementares</div>
+  <div class="d-row">
+    <div class="d-cell" style="flex:1;min-height:35px">
+      <span class="d-val" style="font-size:8px;white-space:pre-wrap;font-weight:400;line-height:1.5">\${escHtml(infCpl)}</span>
+    </div>
+  </div>\` : ''}
+
+  <!-- ═══ RODAPÉ ═══ -->
+  <div style="margin-top:8px;padding-top:6px;border-top:1px dashed #bbb;font-size:7px;color:#999;text-align:center">
+    Pré-visualização gerada pelo <strong>OrangeNFe</strong> &nbsp;·&nbsp;
+    Este documento não possui validade fiscal até ser transmitido e autorizado pela SEFAZ
+  </div>
+  `;
 }
 
 /* ══════════════════ EMITIR ══════════════════ */
@@ -3631,6 +4576,9 @@ function emitir() {
 renderReboques();
 renderVolumes();
 renderItemsList();
+renderDetPag();
+renderDuplicatas();
+initNumMasks();
 
 /* ══════════════════ SUPABASE CONFIG ══════════════════
    1. Crie o projeto em https://supabase.com
@@ -3715,7 +4663,7 @@ function getFormSnapshot() {
   // Seções principais do formulário (tabs 1-5)
   const sections = [
     '#sec-identificacao', '#sec-destinatario', '#sec-transporte',
-    '#sec-pagamento', '#sec-info-adicional'
+    '#sec-pagamento', '#sec-info-adicional', '#sec-exportacao', '#sec-compras'
   ];
   sections.forEach((sel, sIdx) => {
     const sec = document.querySelector(sel);
@@ -3746,7 +4694,7 @@ function setFormSnapshot(snap) {
 
   const sections = [
     '#sec-identificacao', '#sec-destinatario', '#sec-transporte',
-    '#sec-pagamento', '#sec-info-adicional'
+    '#sec-pagamento', '#sec-info-adicional', '#sec-exportacao', '#sec-compras'
   ];
   sections.forEach((sel, sIdx) => {
     const sec = document.querySelector(sel);
@@ -3794,6 +4742,15 @@ async function saveRascunho(silent = false) {
     formSnapshot: getFormSnapshot(),
     items: JSON.parse(JSON.stringify(items)),
     parcelaCount,
+    detPags:    JSON.parse(JSON.stringify(detPags)),
+    duplicatas: JSON.parse(JSON.stringify(duplicatas)),
+    reboques:   JSON.parse(JSON.stringify(reboques)),
+    volumes:    JSON.parse(JSON.stringify(volumes)),
+    nfeRefs:    JSON.parse(JSON.stringify(nfeRefs)),
+    autXMLs:    JSON.parse(JSON.stringify(autXMLs)),
+    obsCont:    JSON.parse(JSON.stringify(obsCont)),
+    obsFiscos:  JSON.parse(JSON.stringify(obsFiscos)),
+    procRefs:   JSON.parse(JSON.stringify(procRefs)),
     savedAt: new Date().toISOString()
   };
 
@@ -3906,11 +4863,31 @@ async function loadRascunho(id) {
     items = Array.isArray(d.items) ? d.items : [];
     parcelaCount = d.parcelaCount || 1;
 
+    // Restaura listas dinâmicas
+    detPags    = Array.isArray(d.detPags)    ? d.detPags    : [];
+    duplicatas = Array.isArray(d.duplicatas) ? d.duplicatas : [];
+    reboques   = Array.isArray(d.reboques)   ? d.reboques   : [];
+    volumes    = Array.isArray(d.volumes)    ? d.volumes    : [];
+    nfeRefs    = Array.isArray(d.nfeRefs)    ? d.nfeRefs    : [];
+    autXMLs    = Array.isArray(d.autXMLs)    ? d.autXMLs    : [];
+    obsCont    = Array.isArray(d.obsCont)    ? d.obsCont    : [];
+    obsFiscos  = Array.isArray(d.obsFiscos)  ? d.obsFiscos  : [];
+    procRefs   = Array.isArray(d.procRefs)   ? d.procRefs   : [];
+
     // Restaura formulário
     setFormSnapshot(d.formSnapshot || {});
 
     // Re-renderiza
     renderItemsList();
+    renderDetPag();
+    renderDuplicatas();
+    renderReboques();
+    renderVolumes();
+    renderNFeRefs();
+    renderAutXMLs();
+    renderObsCont();
+    renderObsFisco();
+    renderProcRefs();
     updateResumo();
     closeRascunhos();
     showToast('✓ Rascunho carregado!', 'success');
@@ -3969,10 +4946,34 @@ renderItemsList = function(...args) {
 document.addEventListener('DOMContentLoaded', () => {
   initSupabase();
   // Auto-save ao alterar qualquer campo do formulário
-  document.querySelectorAll('#sec-identificacao,#sec-destinatario,#sec-transporte,#sec-pagamento')
-    .forEach(sec => sec.addEventListener('input', scheduleAutoSave));
+  document.querySelectorAll(
+    '#sec-identificacao,#sec-destinatario,#sec-transporte,#sec-pagamento,#sec-info-adicional,#sec-exportacao,#sec-compras'
+  ).forEach(sec => sec.addEventListener('input', scheduleAutoSave));
+  // Fechar DANFE com ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeDanfe();
+  });
 });
 </script>
+
+<!-- ══════════════════════════════════════════════
+     DANFE PRÉ-VISUALIZAÇÃO
+══════════════════════════════════════════════ -->
+<div id="danfe-overlay" class="danfe-overlay">
+  <div class="danfe-toolbar">
+    <h2>👁 Pré-visualização DANFE</h2>
+    <div class="dtb-actions">
+      <button class="dtb-btn primary" onclick="printDanfe()">🖨 Imprimir / Salvar PDF</button>
+      <button class="dtb-btn secondary" onclick="closeDanfe()">✕ Fechar</button>
+    </div>
+  </div>
+  <div class="danfe-notice">
+    ⚠️ Esta é uma pré-visualização. O DANFE oficial com código de barras e chave de acesso válida é gerado apenas após autorização pela SEFAZ.
+  </div>
+  <div id="danfe-doc" class="danfe-doc">
+    <!-- Gerado via buildDanfe() -->
+  </div>
+</div>
 
 </body>
 </html>

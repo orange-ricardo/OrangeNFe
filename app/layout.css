@@ -246,3 +246,10 @@ tbody tr:hover td { background:#fafafa; }
 ::-webkit-scrollbar { width:5px;height:5px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:#ddd;border-radius:10px; }
+
+/* ══════════════════ ZEBRA STRIPING GLOBAL ══════════════════
+   Par: #f3f4f8 · Ímpar: #fff  |  Hover mantém prioridade
+══════════════════════════════════════════════════════════════ */
+tbody tr:nth-child(odd)  td { background:#fff; }
+tbody tr:nth-child(even) td { background:#f3f4f8; }
+tbody tr:hover           td { background:#fafafa !important; }
