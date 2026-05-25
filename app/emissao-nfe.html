@@ -279,36 +279,116 @@
 
           <!-- ── 1. IDENTIFICAÇÃO ── -->
           <div class="form-section" id="sec-identificacao">
-            <div class="form-section-title">Dados da Nota</div>
-            <div class="form-row cols-3">
+            <div class="form-section-title">Cabeçalho da Nota</div>
+            <div class="form-row cols-5">
               <div class="form-group">
-                <label>Natureza da Operação</label>
-                <select>
-                  <option>Venda de mercadoria</option>
-                  <option>Remessa para conserto</option>
-                  <option>Devolução de compra</option>
-                  <option>Transferência entre filiais</option>
+                <label>Modelo</label>
+                <select id="ident-modelo">
+                  <option value="55">55 – NF-e</option>
+                  <option value="65">65 – NFC-e</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Série</label><input type="number" id="ident-serie" value="1" min="1"/></div>
+              <div class="form-group"><label>Número</label><input type="number" id="ident-numero" value="248" readonly style="background:#f0f0f0"/></div>
+              <div class="form-group"><label>Data/Hora Emissão</label><input type="datetime-local" id="ident-demissao"/></div>
+              <div class="form-group"><label>Data/Hora Saída/Entrada</label><input type="datetime-local" id="ident-dsaida"/></div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>Tipo de Impressão (tpImp)</label>
+                <select id="ident-tpimp">
+                  <option value="1">1 – Retrato</option>
+                  <option value="2">2 – Paisagem</option>
+                  <option value="3">3 – Simplificado</option>
+                  <option value="4">4 – DANFE NFC-e</option>
+                  <option value="5">5 – Mensagem eletrônica</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>Tipo de Operação</label>
-                <select><option>Saída</option><option>Entrada</option></select>
+                <label>Tipo de Emissão (tpEmis)</label>
+                <select id="ident-tpemis">
+                  <option value="1">1 – Normal</option>
+                  <option value="2">2 – Contingência FS</option>
+                  <option value="3">3 – Regime especial NFF</option>
+                  <option value="4">4 – DPEC</option>
+                  <option value="5">5 – Contingência FS-DA</option>
+                  <option value="6">6 – SVC-AN</option>
+                  <option value="7">7 – SVC-RS</option>
+                  <option value="9">9 – Off-line NFC-e</option>
+                </select>
               </div>
               <div class="form-group">
-                <label>Finalidade</label>
-                <select>
-                  <option>NF-e Normal</option>
-                  <option>NF-e Complementar</option>
-                  <option>NF-e de Ajuste</option>
-                  <option>Devolução / Retorno</option>
+                <label>Finalidade de Emissão (finNFe)</label>
+                <select id="ident-finnfe">
+                  <option value="1">1 – NF-e Normal</option>
+                  <option value="2">2 – NF-e Complementar</option>
+                  <option value="3">3 – NF-e de Ajuste</option>
+                  <option value="4">4 – Devolução / Retorno</option>
+                </select>
+              </div>
+              <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:10px">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0">
+                  <input type="checkbox" id="ident-nfemanual" style="width:16px;height:16px;accent-color:#f97316"/>
+                  NF-e Manual
+                </label>
+              </div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Natureza da Operação (natOp)</label>
+                <input type="text" id="ident-natop" value="Venda de mercadoria" placeholder="Natureza da operação" maxlength="60"/>
+              </div>
+              <div class="form-group">
+                <label>Tipo do Documento (tpNF)</label>
+                <select id="ident-tpnf">
+                  <option value="1">1 – Saída</option>
+                  <option value="0">0 – Entrada</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>CFOP Padrão</label>
+                <select id="ident-cfop">
+                  <option value="5102">5102 – Venda merc. adq. 3º</option>
+                  <option value="5405">5405 – Venda merc. c/ ST (CS)</option>
+                  <option value="5949">5949 – Outra saída</option>
+                  <option value="6102">6102 – Venda interestadual</option>
+                  <option value="6404">6404 – Venda merc. ST interestadual</option>
                 </select>
               </div>
             </div>
-            <div class="form-row cols-4">
-              <div class="form-group"><label>Série</label><input type="number" value="1" min="1"/></div>
-              <div class="form-group"><label>Número</label><input type="number" value="248" readonly style="background:#f0f0f0"/></div>
-              <div class="form-group"><label>Data de Emissão</label><input type="date" value="2026-05-23"/></div>
-              <div class="form-group"><label>Data de Saída</label><input type="date" value="2026-05-23"/></div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Consumidor Final (indFinal)</label>
+                <select id="ident-indfinal">
+                  <option value="0">0 – Não</option>
+                  <option value="1">1 – Sim (B2C)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Presença do Comprador (indPres)</label>
+                <select id="ident-indpres">
+                  <option value="0">0 – Não se aplica</option>
+                  <option value="1">1 – Operação presencial</option>
+                  <option value="2">2 – Pela internet</option>
+                  <option value="3">3 – Teleatendimento</option>
+                  <option value="4">4 – Entrega domicílio NFC-e</option>
+                  <option value="5">5 – Operação itinerante</option>
+                  <option value="9">9 – Outros</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Intermediador / Marketplace (indIntermed)</label>
+                <select id="ident-indintermed" onchange="toggleIntermediador()">
+                  <option value="0">0 – Sem intermediador</option>
+                  <option value="1">1 – Com intermediador</option>
+                </select>
+              </div>
+            </div>
+            <div id="ident-intermed-wrap" style="display:none">
+              <div class="form-row cols-2">
+                <div class="form-group"><label>CNPJ do Intermediador (CNPJOrig)</label><input type="text" id="ident-cnpjintermed" placeholder="00.000.000/0001-00" maxlength="18"/></div>
+                <div class="form-group"><label>Identificador no Intermediador (idCadIntTran)</label><input type="text" id="ident-idcadint" placeholder="ex: vendedor@marketplace.com.br" maxlength="255"/></div>
+              </div>
             </div>
             <div class="tab-nav-footer">
               <span class="step-info">Passo 1 de 5</span>
@@ -320,33 +400,168 @@
           <!-- ── 2. DESTINATÁRIO ── -->
           <div class="form-section" id="sec-destinatario" style="display:none">
             <div class="form-section-title">Destinatário</div>
+            <div style="display:flex;gap:24px;margin-bottom:14px;padding:8px 14px;background:#f8f9fc;border-radius:8px">
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:700;font-size:13px">
+                <input type="radio" name="dest-tipo" value="pj" checked onchange="onDestTipoChange()"/> Pessoa Jurídica
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px">
+                <input type="radio" name="dest-tipo" value="pf" onchange="onDestTipoChange()"/> Pessoa Física
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px">
+                <input type="radio" name="dest-tipo" value="ext" onchange="onDestTipoChange()"/> Pessoa Estrangeira
+              </label>
+            </div>
             <div class="form-row">
               <div class="form-group">
-                <label>CNPJ / CPF do Destinatário</label>
+                <label id="dest-doc-label">CNPJ do Destinatário</label>
                 <div class="cnpj-search">
-                  <input type="text" placeholder="00.000.000/0001-00 ou 000.000.000-00" id="cnpj-input"/>
+                  <input type="text" id="cnpj-input" placeholder="00.000.000/0001-00"/>
                   <button onclick="buscarCNPJ()">🔍 Buscar</button>
                 </div>
               </div>
             </div>
-            <div class="form-row cols-2">
-              <div class="form-group"><label>Razão Social / Nome</label><input type="text" placeholder="Nome do destinatário" id="razao-social"/></div>
-              <div class="form-group"><label>Inscrição Estadual</label><input type="text" placeholder="Isento ou número"/></div>
-            </div>
-            <div class="form-row cols-3">
-              <div class="form-group"><label>CEP</label><input type="text" placeholder="00000-000"/></div>
-              <div class="form-group"><label>Logradouro</label><input type="text" placeholder="Rua, Avenida..."/></div>
-              <div class="form-group"><label>Número</label><input type="text" placeholder="Nº"/></div>
+            <div class="form-row cols-4">
+              <div class="form-group" style="grid-column:span 2"><label>Razão Social / Nome</label><input type="text" id="razao-social" placeholder="Nome do destinatário" maxlength="60"/></div>
+              <div class="form-group">
+                <label>Indicador da IE (indIEDest)</label>
+                <select id="dest-indieDest">
+                  <option value="1">1 – Contribuinte ICMS</option>
+                  <option value="2">2 – Contribuinte Isento</option>
+                  <option value="9">9 – Não Contribuinte</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Inscrição Estadual (IE)</label><input type="text" id="dest-ie" placeholder="Isento ou número"/></div>
             </div>
             <div class="form-row cols-4">
-              <div class="form-group"><label>Complemento</label><input type="text" placeholder="Apto, Sala..."/></div>
-              <div class="form-group"><label>Bairro</label><input type="text" placeholder="Bairro"/></div>
-              <div class="form-group"><label>Município</label><input type="text" placeholder="Cidade"/></div>
+              <div class="form-group"><label>Inscrição SUFRAMA (ISUF)</label><input type="text" id="dest-isuf" placeholder="9 dígitos"/></div>
+              <div class="form-group"><label>Inscrição Municipal (IM)</label><input type="text" id="dest-im" placeholder="Inscrição municipal"/></div>
+              <div class="form-group"><label>Telefone (fone)</label><input type="text" id="dest-fone" placeholder="(00) 00000-0000"/></div>
+              <div class="form-group"><label>E-mail (email)</label><input type="email" id="dest-email" placeholder="email@destinatario.com.br" maxlength="60"/></div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group"><label>CEP (CEP)</label><input type="text" id="dest-cep" placeholder="00000-000"/></div>
+              <div class="form-group" style="grid-column:span 2"><label>Logradouro (xLgr)</label><input type="text" id="dest-logr" placeholder="Rua, Avenida..." maxlength="60"/></div>
+              <div class="form-group"><label>Número (nro)</label><input type="text" id="dest-nro" placeholder="Nº" maxlength="60"/></div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group"><label>Complemento (xCpl)</label><input type="text" id="dest-cpl" placeholder="Apto, Sala..." maxlength="60"/></div>
+              <div class="form-group"><label>Bairro (xBairro)</label><input type="text" id="dest-bairro" placeholder="Bairro" maxlength="60"/></div>
+              <div class="form-group"><label>Município (xMun)</label><input type="text" id="dest-mun" placeholder="Cidade" maxlength="60"/></div>
               <div class="form-group">
-                <label>UF</label>
-                <select><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>SC</option><option>BA</option><option>GO</option><option>DF</option></select>
+                <label>UF (UF)</label>
+                <select id="dest-uf">
+                  <option value="">-- UF --</option>
+                  <option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option>
+                  <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
+                  <option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option>
+                  <option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                  <option>RO</option><option>RR</option><option>RS</option><option>SC</option><option selected>SP</option>
+                  <option>SE</option><option>TO</option><option>EX</option>
+                </select>
               </div>
             </div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>País (xPais)</label>
+                <select id="dest-pais">
+                  <option value="1058">BRASIL</option>
+                  <option value="0158">ARGENTINA</option>
+                  <option value="0249">CHILE</option>
+                  <option value="0698">ESTADOS UNIDOS</option>
+                  <option value="0949">PARAGUAI</option>
+                  <option value="0965">PERU</option>
+                  <option value="1130">PORTUGAL</option>
+                  <option value="1175">REINO UNIDO</option>
+                  <option value="1690">URUGUAI</option>
+                  <option value="9999">OUTROS</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Destino da Operação (idDest)</label>
+                <select id="dest-iddest">
+                  <option value="1">1 – Operação Interna</option>
+                  <option value="2">2 – Operação Interestadual</option>
+                  <option value="3">3 – Operação com Exterior</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Código IBGE Município (cMun)</label>
+                <input type="text" id="dest-cmun" placeholder="7 dígitos ex: 3550308" maxlength="7"/>
+              </div>
+            </div>
+
+            <!-- Local de Retirada -->
+            <div style="margin-top:14px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;margin-bottom:10px">
+                <input type="checkbox" id="dest-retirada-ck" style="accent-color:#f97316" onchange="toggleLocalRetirada()"/>
+                Local de retirada diferente do endereço do emitente (retirada)
+              </label>
+              <div id="dest-retirada-wrap" style="display:none;border:1.5px solid #e8eaf0;border-radius:8px;padding:14px;background:#fafbfc">
+                <div style="display:flex;gap:20px;margin-bottom:10px">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="ret-tipo" value="pj" checked/> Pessoa Jurídica</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="ret-tipo" value="pf"/> Pessoa Física</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="ret-tipo" value="ni"/> Não informar</label>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group"><label>CNPJ / CPF</label><input type="text" id="ret-doc" placeholder="CNPJ ou CPF"/></div>
+                  <div class="form-group"><label>Razão Social / Nome (xNome)</label><input type="text" id="ret-nome" maxlength="60"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group"><label>IE</label><input type="text" id="ret-ie"/></div>
+                  <div class="form-group"><label>Telefone</label><input type="text" id="ret-fone"/></div>
+                  <div class="form-group"><label>E-mail</label><input type="email" id="ret-email"/></div>
+                  <div class="form-group"><label>CEP</label><input type="text" id="ret-cep"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group" style="grid-column:span 2"><label>Logradouro</label><input type="text" id="ret-logr" maxlength="60"/></div>
+                  <div class="form-group"><label>Número</label><input type="text" id="ret-nro"/></div>
+                  <div class="form-group"><label>Complemento</label><input type="text" id="ret-cpl"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group"><label>Bairro</label><input type="text" id="ret-bairro"/></div>
+                  <div class="form-group"><label>Município</label><input type="text" id="ret-mun"/></div>
+                  <div class="form-group"><label>UF</label><select id="ret-uf"><option value="">--</option><option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option><option>RR</option><option>RS</option><option>SC</option><option selected>SP</option><option>SE</option><option>TO</option></select></div>
+                  <div class="form-group"><label>País</label><select id="ret-pais"><option value="1058">BRASIL</option><option value="9999">OUTROS</option></select></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Local de Entrega -->
+            <div style="margin-top:14px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;margin-bottom:10px">
+                <input type="checkbox" id="dest-entrega-ck" style="accent-color:#f97316" onchange="toggleLocalEntrega()"/>
+                Local de entrega diferente do endereço do destinatário (entrega)
+              </label>
+              <div id="dest-entrega-wrap" style="display:none;border:1.5px solid #e8eaf0;border-radius:8px;padding:14px;background:#fafbfc">
+                <div style="display:flex;gap:20px;margin-bottom:10px">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="entr-tipo" value="pj" checked/> Pessoa Jurídica</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="entr-tipo" value="pf"/> Pessoa Física</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="entr-tipo" value="ni"/> Não informar</label>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group"><label>CNPJ / CPF</label><input type="text" id="entr-doc" placeholder="CNPJ ou CPF"/></div>
+                  <div class="form-group"><label>Razão Social / Nome</label><input type="text" id="entr-nome" maxlength="60"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group"><label>IE</label><input type="text" id="entr-ie"/></div>
+                  <div class="form-group"><label>Telefone</label><input type="text" id="entr-fone"/></div>
+                  <div class="form-group"><label>E-mail</label><input type="email" id="entr-email"/></div>
+                  <div class="form-group"><label>CEP</label><input type="text" id="entr-cep"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group" style="grid-column:span 2"><label>Logradouro</label><input type="text" id="entr-logr" maxlength="60"/></div>
+                  <div class="form-group"><label>Número</label><input type="text" id="entr-nro"/></div>
+                  <div class="form-group"><label>Complemento</label><input type="text" id="entr-cpl"/></div>
+                </div>
+                <div class="form-row cols-4">
+                  <div class="form-group"><label>Bairro</label><input type="text" id="entr-bairro"/></div>
+                  <div class="form-group"><label>Município</label><input type="text" id="entr-mun"/></div>
+                  <div class="form-group"><label>UF</label><select id="entr-uf"><option value="">--</option><option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option><option>RR</option><option>RS</option><option>SC</option><option selected>SP</option><option>SE</option><option>TO</option></select></div>
+                  <div class="form-group"><label>País</label><select id="entr-pais"><option value="1058">BRASIL</option><option value="9999">OUTROS</option></select></div>
+                </div>
+              </div>
+            </div>
+
             <div class="tab-nav-footer">
               <button class="btn secondary" onclick="prevTab()">← Identificação</button>
               <div class="tab-progress" id="prog-2"></div>
@@ -389,32 +604,72 @@
           <!-- ── 4. TRANSPORTE ── -->
           <div class="form-section" id="sec-transporte" style="display:none">
             <div class="form-section-title">Transporte</div>
-            <div class="form-row cols-3">
+            <div class="form-row cols-2">
               <div class="form-group">
-                <label>Modalidade do Frete</label>
-                <select><option value="0">0 – Emitente (CIF)</option><option value="1">1 – Destinatário (FOB)</option><option value="2">2 – Terceiros</option><option value="9">9 – Sem frete</option></select>
+                <label>Modalidade do Frete (modFrete)</label>
+                <select id="transp-modfrete">
+                  <option value="0">0 – Por conta do Emitente (CIF)</option>
+                  <option value="1">1 – Por conta do Destinatário (FOB)</option>
+                  <option value="2">2 – Por conta de Terceiros</option>
+                  <option value="3">3 – Transporte próprio – Remetente</option>
+                  <option value="4">4 – Transporte próprio – Destinatário</option>
+                  <option value="9">9 – Sem Frete</option>
+                </select>
               </div>
-              <div class="form-group"><label>CNPJ da Transportadora</label><input type="text" placeholder="00.000.000/0001-00"/></div>
-              <div class="form-group"><label>Razão Social</label><input type="text" placeholder="Nome da transportadora"/></div>
             </div>
-            <div class="form-row cols-4">
-              <div class="form-group"><label>IE da Transportadora</label><input type="text" placeholder="Isento ou nº"/></div>
-              <div class="form-group"><label>Endereço</label><input type="text" placeholder="Logradouro"/></div>
-              <div class="form-group"><label>Município</label><input type="text" placeholder="Cidade"/></div>
-              <div class="form-group"><label>UF</label><select><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>SC</option><option>BA</option><option>GO</option><option>DF</option></select></div>
+
+            <!-- Transportadora -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title">Transportadora (transporta)</div>
+              <div style="display:flex;gap:20px;margin-bottom:10px">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="transp-tipo" value="pj" checked/> Pessoa Jurídica</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="transp-tipo" value="pf"/> Pessoa Física</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="radio" name="transp-tipo" value="ext"/> Pessoa Estrangeira</label>
+              </div>
+              <div class="form-row cols-3">
+                <div class="form-group"><label>CNPJ / CPF (CNPJ/CPF)</label><input type="text" id="transp-doc" placeholder="00.000.000/0001-00"/></div>
+                <div class="form-group"><label>Razão Social (xNome)</label><input type="text" id="transp-nome" maxlength="60"/></div>
+                <div class="form-group"><label>IE (IE)</label><input type="text" id="transp-ie" placeholder="Isento ou nº"/></div>
+              </div>
+              <div class="form-row cols-4">
+                <div class="form-group" style="grid-column:span 2"><label>Endereço (xEnder)</label><input type="text" id="transp-ender" placeholder="Logradouro, nº, bairro" maxlength="60"/></div>
+                <div class="form-group"><label>Município (xMun)</label><input type="text" id="transp-mun"/></div>
+                <div class="form-group"><label>UF (UF)</label><select id="transp-uf"><option value="">--</option><option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option><option>RR</option><option>RS</option><option>SC</option><option selected>SP</option><option>SE</option><option>TO</option></select></div>
+              </div>
             </div>
-            <div class="form-section-title" style="margin-top:12px">Volumes</div>
-            <div class="form-row cols-4">
-              <div class="form-group"><label>Quantidade</label><input type="number" placeholder="1" min="0"/></div>
-              <div class="form-group"><label>Espécie</label><input type="text" placeholder="ex: CAIXA, FARDO"/></div>
-              <div class="form-group"><label>Peso Bruto (kg)</label><input type="number" step="0.001" placeholder="0.000"/></div>
-              <div class="form-group"><label>Peso Líquido (kg)</label><input type="number" step="0.001" placeholder="0.000"/></div>
+
+            <!-- Veículo -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title">Veículo de Transporte (veicTransp)</div>
+              <div class="form-row cols-3">
+                <div class="form-group"><label>Placa (placa)</label><input type="text" id="transp-placa" placeholder="AAA-0000" maxlength="8"/></div>
+                <div class="form-group"><label>UF (UF)</label><select id="transp-veic-uf"><option value="">--</option><option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option><option>RR</option><option>RS</option><option>SC</option><option selected>SP</option><option>SE</option><option>TO</option></select></div>
+                <div class="form-group"><label>RNTC / ANTT (RNTC)</label><input type="text" id="transp-rntc" placeholder="Registro ANTT" maxlength="20"/></div>
+              </div>
             </div>
-            <div class="form-row cols-3">
-              <div class="form-group"><label>Marca</label><input type="text" placeholder="Marca dos volumes"/></div>
-              <div class="form-group"><label>Numeração</label><input type="text" placeholder="ex: 001 a 010"/></div>
-              <div class="form-group"><label>Lacres</label><input type="text" placeholder="Número dos lacres (sep. por vírgula)"/></div>
+
+            <!-- Reboques -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Reboques (reboque)
+                <button class="list-add-btn" onclick="addReboque()">＋ Adicionar reboque</button>
+              </div>
+              <div id="reboque-list">
+                <div style="font-size:12px;color:#aaa;padding:6px 0">Nenhum reboque cadastrado.</div>
+              </div>
             </div>
+
+            <!-- Volumes -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Volumes Transportados (vol)
+                <button class="list-add-btn" onclick="addVolume()">＋ Adicionar volume</button>
+              </div>
+              <div id="volume-list">
+                <div style="font-size:12px;color:#aaa;padding:6px 0">Nenhum volume cadastrado.</div>
+              </div>
+            </div>
+
             <div class="tab-nav-footer">
               <button class="btn secondary" onclick="prevTab()">← Itens</button>
               <div class="tab-progress" id="prog-4"></div>
@@ -473,10 +728,65 @@
           <!-- ── INFO ADICIONAL ── -->
           <div class="form-section" id="sec-info-adicional" style="display:none">
             <div class="form-section-title">Informações Adicionais</div>
-            <div class="form-group">
-              <label>Informações complementares</label>
-              <textarea id="infoadicionais-geral" placeholder="Observações, referências, condições de pagamento..."></textarea>
+
+            <div class="form-row cols-1">
+              <div class="form-group">
+                <label>Informações complementares de Interesse do Contribuinte (infCpl)</label>
+                <textarea id="infoadicionais-geral" rows="4" placeholder="Observações, referências, condições de pagamento..." style="resize:vertical"></textarea>
+              </div>
             </div>
+            <div class="form-row cols-1">
+              <div class="form-group">
+                <label>Informações de Interesse do Fisco (infAdFisco)</label>
+                <textarea id="infoadicionais-fisco" rows="3" placeholder="Informações de interesse do fisco..." style="resize:vertical" maxlength="2000"></textarea>
+              </div>
+            </div>
+
+            <!-- NF-e referenciadas -->
+            <div class="nfe-group" style="margin-top:12px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Notas Fiscais Referenciadas (NFref)
+                <button class="list-add-btn" onclick="addNFeRef()">＋ Adicionar</button>
+              </div>
+              <div id="nferef-list"><div style="font-size:12px;color:#aaa;padding:4px 0">Nenhuma NF referenciada.</div></div>
+            </div>
+
+            <!-- Autorizados XML -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Autorizados a acessar o XML da NF-e (autXML)
+                <button class="list-add-btn" onclick="addAutXML()">＋ Adicionar</button>
+              </div>
+              <div id="autxml-list"><div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum autorizado informado.</div></div>
+            </div>
+
+            <!-- Uso livre contribuinte -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Grupo de uso livre do Contribuinte (obsCont)
+                <button class="list-add-btn" onclick="addObsCont()">＋ Adicionar</button>
+              </div>
+              <div id="obscont-list"><div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum campo informado.</div></div>
+            </div>
+
+            <!-- Uso livre fisco -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Grupo de uso livre do Fisco (obsFisco)
+                <button class="list-add-btn" onclick="addObsFisco()">＋ Adicionar</button>
+              </div>
+              <div id="obsfisco-list"><div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum campo informado.</div></div>
+            </div>
+
+            <!-- Processo referenciado -->
+            <div class="nfe-group" style="margin-top:10px">
+              <div class="nfe-group-title" style="justify-content:space-between">
+                Processo Referenciado (procRef)
+                <button class="list-add-btn" onclick="addProcRef()">＋ Adicionar</button>
+              </div>
+              <div id="procref-list"><div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum processo referenciado.</div></div>
+            </div>
+
             <div class="tab-nav-footer">
               <button class="btn secondary" onclick="prevTab()">← Transporte</button>
               <div class="tab-progress" id="prog-5"></div>
@@ -3105,7 +3415,200 @@ function removeParcela(btn) {
   btn.closest('tr').remove();
 }
 
+/* ══════════════════ IDENTIFICAÇÃO ══════════════════ */
+function toggleIntermediador() {
+  const v = document.getElementById('ident-indintermed').value;
+  document.getElementById('ident-intermed-wrap').style.display = v === '1' ? '' : 'none';
+}
+
 /* ══════════════════ DESTINATÁRIO ══════════════════ */
+function onDestTipoChange() {
+  const v = document.querySelector('input[name="dest-tipo"]:checked')?.value || 'pj';
+  const lbl = document.getElementById('dest-doc-label');
+  const inp = document.getElementById('cnpj-input');
+  if (v === 'pj')  { lbl.textContent = 'CNPJ do Destinatário'; inp.placeholder = '00.000.000/0001-00'; }
+  if (v === 'pf')  { lbl.textContent = 'CPF do Destinatário';  inp.placeholder = '000.000.000-00'; }
+  if (v === 'ext') { lbl.textContent = 'Identificação do Estrangeiro'; inp.placeholder = 'ID estrangeiro'; }
+}
+function toggleLocalRetirada() {
+  const ck = document.getElementById('dest-retirada-ck');
+  document.getElementById('dest-retirada-wrap').style.display = ck.checked ? '' : 'none';
+}
+function toggleLocalEntrega() {
+  const ck = document.getElementById('dest-entrega-ck');
+  document.getElementById('dest-entrega-wrap').style.display = ck.checked ? '' : 'none';
+}
+
+/* ══════════════════ TRANSPORTE — LISTAS ══════════════════ */
+let reboques = [];
+let volumes  = [];
+
+function addReboque() {
+  const idx = reboques.length;
+  reboques.push({ placa:'', uf:'', rntc:'' });
+  renderReboques();
+}
+function removeReboque(i) { reboques.splice(i,1); renderReboques(); }
+function renderReboques() {
+  const el = document.getElementById('reboque-list');
+  if (!reboques.length) { el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:6px 0">Nenhum reboque cadastrado.</div>'; return; }
+  el.innerHTML = reboques.map((r,i)=>`
+    <div class="list-item-box">
+      <button class="del-btn del-corner" onclick="removeReboque(${i})">🗑</button>
+      <div class="form-row cols-3">
+        <div class="form-group"><label>Placa</label><input type="text" value="${r.placa}" maxlength="8" placeholder="AAA-0000" onchange="reboques[${i}].placa=this.value"/></div>
+        <div class="form-group"><label>UF</label><select onchange="reboques[${i}].uf=this.value"><option value="">--</option><option ${r.uf==='AC'?'selected':''}>AC</option><option ${r.uf==='SP'?'selected':''}>SP</option><option ${r.uf==='RJ'?'selected':''}>RJ</option><option ${r.uf==='MG'?'selected':''}>MG</option><option ${r.uf==='RS'?'selected':''}>RS</option><option ${r.uf==='PR'?'selected':''}>PR</option><option ${r.uf==='SC'?'selected':''}>SC</option></select></div>
+        <div class="form-group"><label>RNTC (ANTT)</label><input type="text" value="${r.rntc}" maxlength="20" onchange="reboques[${i}].rntc=this.value"/></div>
+      </div>
+    </div>`).join('');
+}
+
+function addVolume() {
+  volumes.push({ qVol:'', esp:'', marca:'', nVol:'', pesoL:'', pesoB:'', lacres:[] });
+  renderVolumes();
+}
+function removeVolume(i) { volumes.splice(i,1); renderVolumes(); }
+function addLacre(vi) { volumes[vi].lacres.push(''); renderVolumes(); }
+function removeLacre(vi,li) { volumes[vi].lacres.splice(li,1); renderVolumes(); }
+function renderVolumes() {
+  const el = document.getElementById('volume-list');
+  if (!volumes.length) { el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:6px 0">Nenhum volume cadastrado.</div>'; return; }
+  el.innerHTML = volumes.map((v,i)=>`
+    <div class="list-item-box">
+      <button class="del-btn del-corner" onclick="removeVolume(${i})">🗑</button>
+      <div class="form-row cols-4" style="margin-bottom:6px">
+        <div class="form-group"><label>Qtd Vol. (qVol)</label><input type="number" value="${v.qVol}" placeholder="0" onchange="volumes[${i}].qVol=this.value"/></div>
+        <div class="form-group"><label>Espécie (esp)</label><input type="text" value="${v.esp}" placeholder="CAIXA, FARDO..." maxlength="60" onchange="volumes[${i}].esp=this.value"/></div>
+        <div class="form-group"><label>Marca (marca)</label><input type="text" value="${v.marca}" maxlength="60" onchange="volumes[${i}].marca=this.value"/></div>
+        <div class="form-group"><label>Numeração (nVol)</label><input type="text" value="${v.nVol}" maxlength="60" onchange="volumes[${i}].nVol=this.value"/></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Peso Líquido kg (pesoL)</label><input type="number" step="0.001" value="${v.pesoL}" placeholder="0.000" onchange="volumes[${i}].pesoL=this.value"/></div>
+        <div class="form-group"><label>Peso Bruto kg (pesoB)</label><input type="number" step="0.001" value="${v.pesoB}" placeholder="0.000" onchange="volumes[${i}].pesoB=this.value"/></div>
+      </div>
+      <div style="margin-top:8px">
+        <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+          Lacres (nLacre)
+          <button class="list-add-btn" style="padding:3px 10px;font-size:11px" onclick="addLacre(${i})">＋ Lacre</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${v.lacres.map((l,li)=>`
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="text" value="${l}" placeholder="Nº lacre" maxlength="60" style="width:130px;padding:6px 8px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px" onchange="volumes[${i}].lacres[${li}]=this.value"/>
+              <button class="del-btn" onclick="removeLacre(${i},${li})">✕</button>
+            </div>`).join('')}
+          ${v.lacres.length===0?'<span style="font-size:11px;color:#aaa">Nenhum lacre</span>':''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════ INF. ADICIONAIS — LISTAS ══════════════════ */
+let nfeRefs   = [];
+let autXMLs   = [];
+let obsCont   = [];
+let obsFiscos = [];
+let procRefs  = [];
+
+function addNFeRef() {
+  nfeRefs.push({ tipo:'nfe', chave:'', modelo:'', serie:'', numero:'', dataEmissao:'', ie:'', uf:'' });
+  renderNFeRefs();
+}
+function removeNFeRef(i) { nfeRefs.splice(i,1); renderNFeRefs(); }
+function renderNFeRefs() {
+  const el = document.getElementById('nferef-list');
+  if (!nfeRefs.length) { el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:4px 0">Nenhuma NF referenciada.</div>'; return; }
+  el.innerHTML = nfeRefs.map((r,i)=>`
+    <div class="list-item-box">
+      <button class="del-btn del-corner" onclick="removeNFeRef(${i})">🗑</button>
+      <div class="form-row cols-2" style="margin-bottom:6px">
+        <div class="form-group"><label>Tipo</label><select onchange="nfeRefs[${i}].tipo=this.value;renderNFeRefs()">
+          <option value="nfe" ${r.tipo==='nfe'?'selected':''}>NF-e / NFC-e (chave)</option>
+          <option value="nfp" ${r.tipo==='nfp'?'selected':''}>NF de Produtor</option>
+          <option value="cte" ${r.tipo==='cte'?'selected':''}>CT-e (chave)</option>
+          <option value="ecf" ${r.tipo==='ecf'?'selected':''}>Cupom Fiscal ECF</option>
+        </select></div>
+      </div>
+      ${r.tipo==='nfe'||r.tipo==='cte'?`<div class="form-group"><label>Chave de Acesso (refNFe / refCTe)</label><input type="text" value="${r.chave}" maxlength="44" placeholder="44 dígitos" onchange="nfeRefs[${i}].chave=this.value"/></div>`:''}
+      ${r.tipo==='nfp'?`<div class="form-row cols-4">
+        <div class="form-group"><label>UF (cUF)</label><input type="text" value="${r.uf}" maxlength="2" onchange="nfeRefs[${i}].uf=this.value"/></div>
+        <div class="form-group"><label>AAMM (AAMM)</label><input type="text" value="${r.dataEmissao}" maxlength="6" placeholder="202601" onchange="nfeRefs[${i}].dataEmissao=this.value"/></div>
+        <div class="form-group"><label>IE Emitente (IE)</label><input type="text" value="${r.ie}" onchange="nfeRefs[${i}].ie=this.value"/></div>
+        <div class="form-group"><label>Modelo (mod)</label><input type="text" value="${r.modelo}" maxlength="2" placeholder="01/04" onchange="nfeRefs[${i}].modelo=this.value"/></div>
+        <div class="form-group"><label>Série (serie)</label><input type="text" value="${r.serie}" maxlength="3" onchange="nfeRefs[${i}].serie=this.value"/></div>
+        <div class="form-group"><label>Número (nNF)</label><input type="text" value="${r.numero}" onchange="nfeRefs[${i}].numero=this.value"/></div>
+      </div>`:''}
+      ${r.tipo==='ecf'?`<div class="form-row cols-3">
+        <div class="form-group"><label>Modelo ECF (modECF)</label><input type="text" value="${r.modelo}" maxlength="2" onchange="nfeRefs[${i}].modelo=this.value"/></div>
+        <div class="form-group"><label>Nº ECF (nECF)</label><input type="text" value="${r.serie}" maxlength="3" onchange="nfeRefs[${i}].serie=this.value"/></div>
+        <div class="form-group"><label>Nº COO (nCOO)</label><input type="text" value="${r.numero}" onchange="nfeRefs[${i}].numero=this.value"/></div>
+      </div>`:''}
+    </div>`).join('');
+}
+
+function addAutXML() { autXMLs.push({ doc:'' }); renderAutXMLs(); }
+function removeAutXML(i) { autXMLs.splice(i,1); renderAutXMLs(); }
+function renderAutXMLs() {
+  const el = document.getElementById('autxml-list');
+  if (!autXMLs.length) { el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum autorizado informado.</div>'; return; }
+  el.innerHTML = autXMLs.map((a,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <input type="text" value="${a.doc}" placeholder="CNPJ ou CPF (14 ou 11 dígitos)" maxlength="14" style="flex:1;padding:8px 10px;border:1.5px solid #e8eaf0;border-radius:6px;font-size:12px" onchange="autXMLs[${i}].doc=this.value"/>
+      <button class="del-btn" onclick="removeAutXML(${i})">🗑</button>
+    </div>`).join('');
+}
+
+function addObsCont() { obsCont.push({ xCampo:'', xTexto:'' }); renderObsCont(); }
+function removeObsCont(i) { obsCont.splice(i,1); renderObsCont(); }
+function renderObsCont() {
+  const el = document.getElementById('obscont-list');
+  if (!obsCont.length) { el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum campo informado.</div>'; return; }
+  el.innerHTML = obsCont.map((o,i)=>`
+    <div class="list-item-box">
+      <button class="del-btn del-corner" onclick="removeObsCont(${i})">🗑</button>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Campo (xCampo)</label><input type="text" value="${o.xCampo}" maxlength="20" onchange="obsCont[${i}].xCampo=this.value"/></div>
+        <div class="form-group"><label>Texto (xTexto)</label><input type="text" value="${o.xTexto}" maxlength="60" onchange="obsCont[${i}].xTexto=this.value"/></div>
+      </div>
+    </div>`).join('');
+}
+
+function addObsFisco() { obsFiscos.push({ xCampo:'', xTexto:'' }); renderObsFisco(); }
+function removeObsFisco(i) { obsFiscos.splice(i,1); renderObsFisco(); }
+function renderObsFisco() {
+  const el = document.getElementById('obsfisco-list');
+  if (!obsFiscos.length) { el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum campo informado.</div>'; return; }
+  el.innerHTML = obsFiscos.map((o,i)=>`
+    <div class="list-item-box">
+      <button class="del-btn del-corner" onclick="removeObsFisco(${i})">🗑</button>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Campo (xCampo)</label><input type="text" value="${o.xCampo}" maxlength="20" onchange="obsFiscos[${i}].xCampo=this.value"/></div>
+        <div class="form-group"><label>Texto (xTexto)</label><input type="text" value="${o.xTexto}" maxlength="60" onchange="obsFiscos[${i}].xTexto=this.value"/></div>
+      </div>
+    </div>`).join('');
+}
+
+function addProcRef() { procRefs.push({ nProc:'', indProc:'0' }); renderProcRefs(); }
+function removeProcRef(i) { procRefs.splice(i,1); renderProcRefs(); }
+function renderProcRefs() {
+  const el = document.getElementById('procref-list');
+  if (!procRefs.length) { el.innerHTML = '<div style="font-size:12px;color:#aaa;padding:4px 0">Nenhum processo referenciado.</div>'; return; }
+  el.innerHTML = procRefs.map((p,i)=>`
+    <div class="list-item-box">
+      <button class="del-btn del-corner" onclick="removeProcRef(${i})">🗑</button>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Número do Processo (nProc)</label><input type="text" value="${p.nProc}" maxlength="60" onchange="procRefs[${i}].nProc=this.value"/></div>
+        <div class="form-group"><label>Indicador Origem (indProc)</label><select onchange="procRefs[${i}].indProc=this.value">
+          <option value="0" ${p.indProc==='0'?'selected':''}>0 – SEFAZ</option>
+          <option value="1" ${p.indProc==='1'?'selected':''}>1 – Justiça Federal</option>
+          <option value="2" ${p.indProc==='2'?'selected':''}>2 – Justiça Estadual</option>
+          <option value="3" ${p.indProc==='3'?'selected':''}>3 – SECEX/RFB</option>
+          <option value="9" ${p.indProc==='9'?'selected':''}>9 – Outros</option>
+        </select></div>
+      </div>
+    </div>`).join('');
+}
+
 function buscarCNPJ() {
   const v = document.getElementById('cnpj-input').value.replace(/\D/g,'');
   if(v.length===14) document.getElementById('razao-social').value = 'Empresa Exemplo Ltda (via API)';
@@ -3125,6 +3628,8 @@ function emitir() {
 }
 
 /* ══════════════════ INIT ══════════════════ */
+renderReboques();
+renderVolumes();
 renderItemsList();
 
 /* ══════════════════ SUPABASE CONFIG ══════════════════
