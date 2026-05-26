@@ -6,6 +6,8 @@
   <link rel="shortcut icon" href="assets/orange-icone.ico"/>
   <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
   <title>OrangeNFe · Notas Emitidas</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
     /* ── FILTROS ── */
@@ -219,11 +221,6 @@
   <div class="powered-by-strip">
     <span class="pb-label">Powered by</span>
     <img class="pb-orange" src="assets/orange-logotipo.png" alt="Orange Custom Systems"/>
-    <div class="pb-divider"></div>
-    <div class="pb-server-row">
-      <span class="pb-server-label">Servidor</span>
-      <img class="pb-aws" src="assets/aws-logo.svg" alt="Amazon Web Services"/>
-    </div>
   </div>
 </aside>
 
@@ -254,16 +251,21 @@
 
     <!-- FILTROS -->
     <div class="filters">
-      <input type="text" placeholder="🔍  Buscar por nº, destinatário, CNPJ ou chave..."/>
-      <select>
-        <option>Todos os status</option>
-        <option>Autorizada</option><option>Cancelada</option><option>Em digitação</option>
-        <option>Validada</option><option>Rejeitada</option><option>Denegada</option>
-        <option>Assinando</option><option>Processando</option><option>Enviada</option>
+      <input type="text" id="notas-search" placeholder="🔍  Buscar por nº, destinatário, CNPJ ou chave..." oninput="filtrarNotas()"/>
+      <select id="notas-status" onchange="filtrarNotas()">
+        <option value="">Todos os status</option>
+        <option value="autorizada">Autorizada</option>
+        <option value="cancelada">Cancelada</option>
+        <option value="em_digitacao">Em digitação</option>
+        <option value="validada">Validada</option>
+        <option value="rejeitada">Rejeitada</option>
+        <option value="denegada">Denegada</option>
       </select>
-      <select>
-        <option>Todos os tipos</option>
-        <option>NF-e saída</option><option>NF-e entrada</option><option>NFC-e</option>
+      <select id="notas-tipo" onchange="filtrarNotas()">
+        <option value="">Todos os tipos</option>
+        <option value="NF-e">NF-e</option>
+        <option value="NFC-e">NFC-e</option>
+        <option value="NFS-e">NFS-e</option>
       </select>
       <select>
         <option>Produção + Homologação</option>
@@ -308,211 +310,8 @@
               <th>Ações</th>
             </tr>
           </thead>
-          <tbody>
-
-            <!-- AUTORIZADA -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000247</div>
-                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 7195 2460 4481</div>
-              </td>
-              <td>Mercado São Paulo Ltda<br><span style="font-size:11px;color:#aaa;">12.345.678/0001-90</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-saida">saída</span></div>
-              </td>
-              <td style="white-space:nowrap">23/05/2026<br><span style="font-size:11px;color:#aaa">14:32</span></td>
-              <td><b>R$ 3.200,00</b></td>
-              <td><span class="amb-tag amb-prod">produção</span></td>
-              <td><span class="badge autorizada">Autorizada</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn" title="Baixar DANFE">📄 DANFE</button>
-                  <button class="act-btn" title="Baixar XML">📥 XML</button>
-                  <button class="act-btn blue" title="Reenviar por e-mail" onclick="openModal('modal-email')">✉️</button>
-                  <button class="act-btn amber" title="Carta de correção">🔧 CCe</button>
-                  <button class="act-btn red" title="Cancelar nota" onclick="openModal('modal-cancelar')">✕ Cancelar</button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- AUTORIZADA -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000246</div>
-                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 6195 2460 4480</div>
-              </td>
-              <td>Tech Distribuidora ME<br><span style="font-size:11px;color:#aaa;">98.765.432/0001-10</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-saida">saída</span></div>
-              </td>
-              <td style="white-space:nowrap">23/05/2026<br><span style="font-size:11px;color:#aaa">11:15</span></td>
-              <td><b>R$ 780,50</b></td>
-              <td><span class="amb-tag amb-prod">produção</span></td>
-              <td><span class="badge autorizada">Autorizada</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn">📄 DANFE</button>
-                  <button class="act-btn">📥 XML</button>
-                  <button class="act-btn blue" onclick="openModal('modal-email')">✉️</button>
-                  <button class="act-btn amber">🔧 CCe</button>
-                  <button class="act-btn red" onclick="openModal('modal-cancelar')">✕ Cancelar</button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- CANCELADA -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000245</div>
-                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 5195 2460 4479</div>
-              </td>
-              <td>João da Silva<br><span style="font-size:11px;color:#aaa;">123.456.789-00</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-saida">saída</span></div>
-              </td>
-              <td style="white-space:nowrap">22/05/2026<br><span style="font-size:11px;color:#aaa">16:45</span></td>
-              <td><b>R$ 150,00</b></td>
-              <td><span class="amb-tag amb-prod">produção</span></td>
-              <td><span class="badge cancelada">Cancelada</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn">📄 DANFE</button>
-                  <button class="act-btn">📥 XML</button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- AUTORIZADA ENTRADA -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000244</div>
-                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 4195 2460 4478</div>
-              </td>
-              <td>Construtora Omega S/A<br><span style="font-size:11px;color:#aaa;">55.123.456/0001-77</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-entrada">entrada</span></div>
-              </td>
-              <td style="white-space:nowrap">22/05/2026<br><span style="font-size:11px;color:#aaa">09:20</span></td>
-              <td><b>R$ 12.400,00</b></td>
-              <td><span class="amb-tag amb-prod">produção</span></td>
-              <td><span class="badge autorizada">Autorizada</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn">📄 DANFE</button>
-                  <button class="act-btn">📥 XML</button>
-                  <button class="act-btn blue" onclick="openModal('modal-email')">✉️</button>
-                  <button class="act-btn amber">🔧 CCe</button>
-                  <button class="act-btn red" onclick="openModal('modal-cancelar')">✕ Cancelar</button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- EM DIGITAÇÃO -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000243</div>
-                <div class="nota-chave" style="color:#e0e0e0">— rascunho, não enviada —</div>
-              </td>
-              <td>Supermercado Norte ME<br><span style="font-size:11px;color:#aaa;">77.654.321/0001-33</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-saida">saída</span></div>
-              </td>
-              <td style="white-space:nowrap">21/05/2026<br><span style="font-size:11px;color:#aaa">18:05</span></td>
-              <td><b>R$ 920,00</b></td>
-              <td><span class="amb-tag amb-homo">homolog.</span></td>
-              <td><span class="badge digitacao">Em digitação</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn green">✏️ Editar</button>
-                  <button class="act-btn red">🗑️ Excluir</button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- VALIDADA -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000242</div>
-                <div class="nota-chave" style="color:#e0e0e0">— validada, pronta para emissão —</div>
-              </td>
-              <td>Distribuidora ABC Ltda<br><span style="font-size:11px;color:#aaa;">33.987.654/0001-44</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-saida">saída</span></div>
-              </td>
-              <td style="white-space:nowrap">21/05/2026<br><span style="font-size:11px;color:#aaa">16:30</span></td>
-              <td><b>R$ 4.500,00</b></td>
-              <td><span class="amb-tag amb-homo">homolog.</span></td>
-              <td><span class="badge validada">Validada</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn green">✏️ Editar</button>
-                  <button class="act-btn red">🗑️ Excluir</button>
-                  <button class="act-btn" style="background:#f0fdf4;border-color:#bbf7d0;color:#16a34a">▶ Emitir</button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- REJEITADA -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000241</div>
-                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 1195 2460 4474</div>
-              </td>
-              <td>Farmácia Saúde Total<br><span style="font-size:11px;color:#aaa;">44.321.654/0001-22</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-saida">saída</span></div>
-              </td>
-              <td style="white-space:nowrap">21/05/2026<br><span style="font-size:11px;color:#aaa">14:12</span></td>
-              <td><b>R$ 2.100,00</b></td>
-              <td><span class="amb-tag amb-prod">produção</span></td>
-              <td><span class="badge rejeitada">Rejeitada</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn amber">✏️ Corrigir</button>
-                  <button class="act-btn">📥 XML</button>
-                  <button class="act-btn red">🗑️ Excluir</button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- DENEGADA -->
-            <tr>
-              <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
-              <td>
-                <div class="nota-num">000240</div>
-                <div class="nota-chave">3526 0513 7096 8300 0148 5500 1000 0024 0195 2460 4473</div>
-              </td>
-              <td>Indústria XYZ S/A<br><span style="font-size:11px;color:#aaa;">66.111.222/0001-55</span></td>
-              <td>
-                <div><span class="tipo-tag tipo-nfe">NF-e</span></div>
-                <div><span class="tipo-tag tipo-saida">saída</span></div>
-              </td>
-              <td style="white-space:nowrap">20/05/2026<br><span style="font-size:11px;color:#aaa">10:00</span></td>
-              <td><b>R$ 8.750,00</b></td>
-              <td><span class="amb-tag amb-prod">produção</span></td>
-              <td><span class="badge denegada">Denegada</span></td>
-              <td>
-                <div class="row-actions">
-                  <button class="act-btn">📥 XML</button>
-                  <span style="font-size:11px;color:#9f1239;padding:4px 6px">Irregularidade fiscal</span>
-                </div>
-              </td>
-            </tr>
-
+          <tbody id="notas-body">
+            <tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">⏳ Carregando notas...</td></tr>
           </tbody>
         </table>
       </div>
@@ -520,15 +319,9 @@
       <!-- PAGINAÇÃO -->
       <div style="padding:12px 20px;border-top:1px solid #f0f0f0;">
         <div class="pagination">
-          <span>Exibindo 1–8 de 247 notas</span>
+          <span id="notas-count">—</span>
           <div class="page-btns">
-            <button class="page-btn">‹</button>
             <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <button class="page-btn">…</button>
-            <button class="page-btn">42</button>
-            <button class="page-btn">›</button>
           </div>
         </div>
       </div>
@@ -1055,9 +848,12 @@
   }
 
   // ── Chips de status ──
+  let statusChipFilter = '';
   function filterStatus(el, status) {
     document.querySelectorAll('.sum-chip').forEach(c => c.classList.remove('active-filter'));
     el.classList.add('active-filter');
+    statusChipFilter = status === 'all' ? '' : status;
+    filtrarNotas();
   }
 
   // ── Checkbox select all ──
@@ -1068,7 +864,8 @@
   function updateCount() {
     const checked = document.querySelectorAll('.row-chk:checked').length;
     document.getElementById('selCount').textContent = checked > 0 ? `(${checked} selecionadas)` : '';
-    document.getElementById('chkTodos').checked = checked === document.querySelectorAll('.row-chk').length;
+    const total = document.querySelectorAll('.row-chk').length;
+    document.getElementById('chkTodos').checked = total > 0 && checked === total;
   }
 
   // ── Valida motivo cancelamento ──
@@ -1086,10 +883,108 @@
     btn.style.color = '#f97316';
   }
 
+  // ── DB render ──
+  function notaActionsHtml(n) {
+    if (n.status === 'autorizada') {
+      return `<button class="act-btn" title="Baixar DANFE">📄 DANFE</button>
+        <button class="act-btn" title="Baixar XML">📥 XML</button>
+        <button class="act-btn blue" title="Reenviar por e-mail" onclick="openModal('modal-email')">✉️</button>
+        <button class="act-btn amber" title="Carta de correção">🔧 CCe</button>
+        <button class="act-btn red" title="Cancelar nota" onclick="openModal('modal-cancelar')">✕ Cancelar</button>`;
+    }
+    if (n.status === 'cancelada' || n.status === 'denegada') {
+      return `<button class="act-btn" title="Baixar XML">📥 XML</button>`;
+    }
+    if (n.status === 'rejeitada') {
+      return `<button class="act-btn amber">✏️ Corrigir</button>
+        <button class="act-btn">📥 XML</button>`;
+    }
+    if (n.status === 'validada') {
+      return `<button class="act-btn green">✏️ Editar</button>
+        <button class="act-btn" style="background:#f0fdf4;border-color:#bbf7d0;color:#16a34a">▶ Emitir</button>`;
+    }
+    return `<button class="act-btn green">✏️ Editar</button>
+      <button class="act-btn red">🗑️ Excluir</button>`;
+  }
+
+  function renderNotas(data) {
+    const tbody = document.getElementById('notas-body');
+    document.getElementById('notas-count').textContent = `Exibindo ${data.length} nota${data.length !== 1 ? 's' : ''}`;
+    if (data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">Nenhuma nota encontrada.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(n => {
+      const dt = n.data_emissao ? new Date(n.data_emissao) : null;
+      const dataStr = dt ? dt.toLocaleDateString('pt-BR') : '—';
+      const horaStr = dt ? dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
+      const tipo = n.tipo_nota || 'NF-e';
+      const op = n.tipo_operacao || 'saida';
+      const amb = n.ambiente || 'homologacao';
+      const status = n.status || 'em_digitacao';
+      const statusLabel = {
+        autorizada:'Autorizada', cancelada:'Cancelada', em_digitacao:'Em digitação',
+        validada:'Validada', rejeitada:'Rejeitada', denegada:'Denegada',
+        processando:'Processando', enviada:'Enviada', assinando:'Assinando',
+      }[status] || status;
+      const chaveDisplay = n.chave_acesso
+        ? `<div class="nota-chave">${n.chave_acesso.replace(/(.{4})/g,'$1 ').trim()}</div>`
+        : `<div class="nota-chave" style="color:#e0e0e0">— ${statusLabel.toLowerCase()} —</div>`;
+      return `<tr>
+        <td><input type="checkbox" class="row-chk" style="accent-color:#f97316" onchange="updateCount()"/></td>
+        <td>
+          <div class="nota-num">${n.numero ? n.numero.padStart(6,'0') : '——'}</div>
+          ${chaveDisplay}
+        </td>
+        <td>${n.destinatario_nome||'—'}<br><span style="font-size:11px;color:#aaa;">${n.destinatario_doc||''}</span></td>
+        <td>
+          <div><span class="tipo-tag tipo-nfe">${tipo}</span></div>
+          <div><span class="tipo-tag tipo-${op}">${op}</span></div>
+        </td>
+        <td style="white-space:nowrap">${dataStr}<br><span style="font-size:11px;color:#aaa">${horaStr}</span></td>
+        <td><b>R$ ${fmtMoney(n.valor_total)}</b></td>
+        <td><span class="amb-tag ${amb==='producao'?'amb-prod':'amb-homo'}">${amb==='producao'?'produção':'homolog.'}</span></td>
+        <td><span class="badge ${status}">${statusLabel}</span></td>
+        <td><div class="row-actions">${notaActionsHtml(n)}</div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  let todasNotas = [];
+  async function carregarNotas() {
+    document.getElementById('notas-body').innerHTML =
+      `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">⏳ Carregando notas...</td></tr>`;
+    try {
+      todasNotas = await dbGetNotasEmitidas();
+      filtrarNotas();
+    } catch(e) {
+      showToast('Erro ao carregar notas: ' + e.message, 'error');
+      document.getElementById('notas-body').innerHTML =
+        `<tr><td colspan="9" style="text-align:center;padding:40px;color:#dc2626;">Erro ao carregar. Recarregue a página.</td></tr>`;
+    }
+  }
+
+  function filtrarNotas() {
+    const q = (document.getElementById('notas-search').value || '').toLowerCase();
+    const status = document.getElementById('notas-status').value || statusChipFilter;
+    const tipo = document.getElementById('notas-tipo').value;
+    const r = todasNotas.filter(n =>
+      (!q || (n.destinatario_nome||'').toLowerCase().includes(q) ||
+             (n.numero||'').includes(q) ||
+             (n.chave_acesso||'').includes(q) ||
+             (n.destinatario_doc||'').includes(q)) &&
+      (!status || n.status === status) &&
+      (!tipo || n.tipo_nota === tipo)
+    );
+    renderNotas(r);
+  }
+
   // Fechar modais com ESC
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
   });
+
+  carregarNotas();
 </script>
 </body>
 </html>

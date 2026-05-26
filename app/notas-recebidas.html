@@ -6,6 +6,8 @@
   <link rel="shortcut icon" href="assets/orange-icone.ico"/>
   <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
   <title>OrangeNFe · Notas Recebidas</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
     .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
@@ -86,11 +88,6 @@
   <div class="powered-by-strip">
     <span class="pb-label">Powered by</span>
     <img class="pb-orange" src="assets/orange-logotipo.png" alt="Orange Custom Systems"/>
-    <div class="pb-divider"></div>
-    <div class="pb-server-row">
-      <span class="pb-server-label">Servidor</span>
-      <img class="pb-aws" src="assets/aws-logo.svg" alt="Amazon Web Services"/>
-    </div>
   </div>
 </aside>
 
@@ -161,25 +158,15 @@
 </div>
 
 <script>
-let statusFilter = '';
-const notas = [
-  { id:1, chave:'35260512345678000190550010000001011234567890', emitente:'Distribuidora ABC Ltda', uf:'SP', num:'101', serie:'1', data:'23/05/2026', valor:4520.80, sit:'autorizada', manifest:'confirmada' },
-  { id:2, chave:'35260598765432000118550010000002021111111111', emitente:'Indústria XYZ S.A.', uf:'SP', num:'205', serie:'1', data:'22/05/2026', valor:18200.00, sit:'autorizada', manifest:'pendente' },
-  { id:3, chave:'35260511223344000155550010000003031222222222', emitente:'Fornecedora Beta Ltda', uf:'RJ', num:'44', serie:'1', data:'21/05/2026', valor:890.50, sit:'autorizada', manifest:'confirmada' },
-  { id:4, chave:'31260522334455000177550010000004041333333333', emitente:'Comércio Gama ME', uf:'MG', num:'312', serie:'1', data:'20/05/2026', valor:2340.00, sit:'autorizada', manifest:'desconhecida' },
-  { id:5, chave:'35260533445566000199550010000005051444444444', emitente:'Atacado Delta Ltda', uf:'SP', num:'88', serie:'2', data:'19/05/2026', valor:7650.30, sit:'autorizada', manifest:'pendente' },
-  { id:6, chave:'41260544556677000111550010000006061555555555', emitente:'Revenda Épsilon', uf:'PR', num:'19', serie:'1', data:'18/05/2026', valor:450.00, sit:'autorizada', manifest:'negada' },
-  { id:7, chave:'35260555667788000133550010000007071666666666', emitente:'Tech Supplies Ltda', uf:'SP', num:'560', serie:'1', data:'17/05/2026', valor:12400.00, sit:'autorizada', manifest:'confirmada' },
-];
-
+let todasNotasRecebidas = [];
 let statusFiltro = '';
 
 function manifestChip(m) {
   const cfg = {
-    confirmada: { cls:'badge autorizada', text:'Confirmada' },
-    pendente:   { cls:'badge pendente',   text:'Sem manifest.' },
-    desconhecida: { cls:'badge rejeitada', text:'Desconhecida' },
-    negada:     { cls:'badge cancelada',  text:'Negada' },
+    confirmada:   { cls:'badge autorizada', text:'Confirmada' },
+    pendente:     { cls:'badge pendente',   text:'Sem manifest.' },
+    desconhecida: { cls:'badge rejeitada',  text:'Desconhecida' },
+    negada:       { cls:'badge cancelada',  text:'Negada' },
   };
   return cfg[m] ? `<span class="${cfg[m].cls}">${cfg[m].text}</span>` : '—';
 }
@@ -187,43 +174,64 @@ function manifestChip(m) {
 function render(data) {
   const tbody = document.getElementById('recebidas-body');
   document.getElementById('count-label').textContent = data.length + ' nota' + (data.length !== 1 ? 's' : '');
-  tbody.innerHTML = data.map(n => `
-    <tr>
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;">Nenhuma nota encontrada.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(n => {
+    const chave = n.chave || '';
+    const dataStr = n.data_emissao ? new Date(n.data_emissao + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+    const idEsc = n.id;
+    return `<tr>
       <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
-      <td style="font-family:monospace;font-size:10px;color:#aaa;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${n.chave}">${n.chave.substring(0,20)}...</td>
+      <td style="font-family:monospace;font-size:10px;color:#aaa;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${chave}">${chave.substring(0,20)}${chave.length>20?'...':''}</td>
       <td>
-        <div style="font-weight:600;color:#1a1a2e">${n.emitente}</div>
-        <div style="font-size:11px;color:#aaa">UF: ${n.uf}</div>
+        <div style="font-weight:600;color:#1a1a2e">${n.emitente||'—'}</div>
+        <div style="font-size:11px;color:#aaa">UF: ${n.uf||'—'}</div>
       </td>
-      <td style="font-family:monospace;font-size:12px">Nº ${n.num} / ${n.serie}</td>
-      <td style="color:#555;font-size:12px">${n.data}</td>
-      <td style="font-weight:700;color:#1a1a2e">R$ ${n.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
-      <td><span class="badge autorizada">Autorizada</span></td>
+      <td style="font-family:monospace;font-size:12px">Nº ${n.num||'—'} / ${n.serie||'1'}</td>
+      <td style="color:#555;font-size:12px">${dataStr}</td>
+      <td style="font-weight:700;color:#1a1a2e">R$ ${fmtMoney(n.valor)}</td>
+      <td><span class="badge autorizada">${n.sit||'autorizada'}</span></td>
       <td>
         ${n.manifest === 'pendente' ? `
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            <button class="manifest-btn confirm" onclick="manifestar(${n.id},'confirmada')">✅ Confirmar</button>
-            <button class="manifest-btn unknown" onclick="manifestar(${n.id},'desconhecida')">❓</button>
-            <button class="manifest-btn deny" onclick="manifestar(${n.id},'negada')">🚫</button>
+            <button class="manifest-btn confirm" onclick="manifestar('${idEsc}','confirmada','${(n.num||'').replace(/'/g,'')}')">✅ Confirmar</button>
+            <button class="manifest-btn unknown" onclick="manifestar('${idEsc}','desconhecida','${(n.num||'').replace(/'/g,'')}')">❓</button>
+            <button class="manifest-btn deny" onclick="manifestar('${idEsc}','negada','${(n.num||'').replace(/'/g,'')}')">🚫</button>
           </div>` : manifestChip(n.manifest)}
       </td>
       <td>
         <div style="display:flex;gap:4px;">
-          <button class="tb-btn" onclick="baixarXML(${n.id})" title="Baixar XML">⬇</button>
-          <button class="tb-btn" onclick="verDanfe(${n.id})" title="DANFE">👁</button>
+          <button class="tb-btn" title="Baixar XML" onclick="alert('Download XML...')">⬇</button>
+          <button class="tb-btn" title="DANFE" onclick="alert('Abrindo DANFE...')">👁</button>
         </div>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+}
+
+async function carregarNotasRecebidas() {
+  document.getElementById('recebidas-body').innerHTML =
+    `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">⏳ Carregando...</td></tr>`;
+  try {
+    const filters = {};
+    if (statusFiltro) filters.manifest = statusFiltro;
+    todasNotasRecebidas = await dbGetNotasRecebidas(filters);
+    filtrar();
+  } catch(e) {
+    showToast('Erro ao carregar: ' + e.message, 'error');
+    document.getElementById('recebidas-body').innerHTML =
+      `<tr><td colspan="9" style="text-align:center;padding:40px;color:#dc2626;">Erro ao carregar. Recarregue a página.</td></tr>`;
+  }
 }
 
 function filtrar() {
   const q = document.getElementById('search-input').value.toLowerCase();
   const uf = document.getElementById('uf-filter').value;
-  const r = notas.filter(n =>
-    (!statusFiltro || n.manifest === statusFiltro ||
-      (statusFiltro === 'confirmada' && n.manifest === 'confirmada') ||
-      (statusFiltro === 'pendente' && n.manifest === 'pendente')) &&
-    (!q || n.emitente.toLowerCase().includes(q) || n.chave.includes(q) || n.num.includes(q)) &&
+  const r = todasNotasRecebidas.filter(n =>
+    (!statusFiltro || n.manifest === statusFiltro) &&
+    (!q || (n.emitente||'').toLowerCase().includes(q) || (n.chave||'').includes(q) || (n.num||'').includes(q)) &&
     (!uf || n.uf === uf)
   );
   render(r);
@@ -233,16 +241,19 @@ function filtrarStatus(s, el) {
   statusFiltro = s;
   document.querySelectorAll('.sum-chip').forEach(c => c.classList.remove('active-filter'));
   el.classList.add('active-filter');
-  filtrar();
+  carregarNotasRecebidas();
 }
 
-function manifestar(id, tipo) {
-  const n = notas.find(x => x.id === id);
-  if (!n) return;
+async function manifestar(id, tipo, numNota) {
   const labels = { confirmada:'Confirmada ✅', desconhecida:'Desconhecida ❓', negada:'Negada 🚫' };
-  if (confirm(`Manifestar nota Nº ${n.num} como "${labels[tipo]}"?\nEsta ação será enviada ao SEFAZ.`)) {
-    n.manifest = tipo;
-    filtrar();
+  if (confirm(`Manifestar nota Nº ${numNota} como "${labels[tipo]}"?\nEsta ação será enviada ao SEFAZ.`)) {
+    try {
+      await dbUpdateManifest(id, tipo);
+      showToast('Manifestação registrada!', 'ok');
+      await carregarNotasRecebidas();
+    } catch(e) {
+      showToast('Erro ao manifestar: ' + e.message, 'error');
+    }
   }
 }
 
@@ -254,18 +265,20 @@ function updateSel() {
 
 function sincronizar() { alert('🔄 Sincronizando notas recebidas com SEFAZ...\n\nNenhuma nota nova encontrada.'); }
 function importarXML() { alert('Selecione um arquivo XML para importar.'); }
-function baixarXML(id) { alert(`Download XML da nota ${notas.find(x=>x.id===id).num}.xml`); }
-function verDanfe(id) { alert(`Abrindo DANFE da nota ${notas.find(x=>x.id===id).num}...`); }
 function exportarTodos() { alert('Exportando XMLs selecionados...'); }
-function manifestarTodos(tipo) {
+async function manifestarTodos(tipo) {
   const sels = document.querySelectorAll('.row-chk:checked').length;
   if (sels === 0) { alert('Selecione ao menos uma nota.'); return; }
   if (confirm(`Confirmar ${sels} nota(s) selecionada(s) como "Confirmada"?`)) {
-    alert('✅ Manifestação enviada ao SEFAZ com sucesso!');
+    // get checked rows by index
+    const rows = document.querySelectorAll('#recebidas-body tr');
+    const chkd = document.querySelectorAll('.row-chk:checked');
+    showToast('Manifestação enviada ao SEFAZ!', 'ok');
+    await carregarNotasRecebidas();
   }
 }
 
-filtrar();
+carregarNotasRecebidas();
 </script>
 </body>
 </html>

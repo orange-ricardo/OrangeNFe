@@ -6,6 +6,8 @@
   <link rel="shortcut icon" href="assets/orange-icone.ico"/>
   <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
   <title>OrangeNFe · Clientes</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
     .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
@@ -119,11 +121,6 @@
   <div class="powered-by-strip">
     <span class="pb-label">Powered by</span>
     <img class="pb-orange" src="assets/orange-logotipo.png" alt="Orange Custom Systems"/>
-    <div class="pb-divider"></div>
-    <div class="pb-server-row">
-      <span class="pb-server-label">Servidor</span>
-      <img class="pb-aws" src="assets/aws-logo.svg" alt="Amazon Web Services"/>
-    </div>
   </div>
 </aside>
 
@@ -358,17 +355,13 @@
 </div>
 
 <script>
-let clientes = [
-  { id:1, razao:'Supermercado Bom Preço Ltda', fantasia:'Bom Preço', cnpj:'12.345.678/0001-90', tipo:'PJ', cidade:'São Paulo', uf:'SP', email:'financeiro@bompreco.com.br', tel:'(11) 3333-1111', ultimoPedido:'22/05/2026' },
-  { id:2, razao:'João Carlos de Oliveira', fantasia:'', cnpj:'123.456.789-00', tipo:'PF', cidade:'Campinas', uf:'SP', email:'joao@gmail.com', tel:'(19) 98765-4321', ultimoPedido:'20/05/2026' },
-  { id:3, razao:'Padaria e Confeitaria Doce Mel Ltda', fantasia:'Doce Mel', cnpj:'98.765.432/0001-11', tipo:'PJ', cidade:'Rio de Janeiro', uf:'RJ', email:'contato@docemel.com.br', tel:'(21) 2222-3333', ultimoPedido:'18/05/2026' },
-  { id:4, razao:'Maria Fernanda Silva', fantasia:'', cnpj:'987.654.321-00', tipo:'PF', cidade:'Belo Horizonte', uf:'MG', email:'mfernanda@hotmail.com', tel:'(31) 91234-5678', ultimoPedido:'15/05/2026' },
-  { id:5, razao:'Distribuidora Norte Sul S.A.', fantasia:'Norte Sul', cnpj:'11.222.333/0001-44', tipo:'PJ', cidade:'Porto Alegre', uf:'RS', email:'comercial@nortesul.com.br', tel:'(51) 3456-7890', ultimoPedido:'10/05/2026' },
-  { id:6, razao:'Farmácia Saúde Total Ltda', fantasia:'Saúde Total', cnpj:'55.666.777/0001-88', tipo:'PJ', cidade:'Curitiba', uf:'PR', email:'farmacia@saudetotal.com.br', tel:'(41) 3234-5678', ultimoPedido:'08/05/2026' },
-  { id:7, razao:'Construtora Horizonte Ltda', fantasia:'Horizonte', cnpj:'33.444.555/0001-22', tipo:'PJ', cidade:'Salvador', uf:'BA', email:'obras@horizonte.com.br', tel:'(71) 3111-2222', ultimoPedido:'05/05/2026' },
-];
-
+let todosClientes = [];
 let editingId = null;
+
+function setLoading(msg) {
+  document.getElementById('clientes-body').innerHTML =
+    `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">${msg}</td></tr>`;
+}
 
 function render(data) {
   const tbody = document.getElementById('clientes-body');
@@ -388,28 +381,39 @@ function render(data) {
         <div style="font-weight:600;color:#1a1a2e">${c.razao}</div>
         ${c.fantasia ? `<div style="font-size:11px;color:#aaa">${c.fantasia}</div>` : ''}
       </td>
-      <td style="font-family:monospace;font-size:12px;color:#555">${c.cnpj}</td>
-      <td><span class="tipo-chip ${c.tipo === 'PJ' ? 'pj' : 'pf'}">${c.tipo}</span></td>
-      <td>${c.cidade} / ${c.uf}</td>
-      <td style="font-size:12px;color:#555">${c.email}</td>
-      <td style="font-size:12px;color:#555">${c.tel}</td>
-      <td style="font-size:12px;color:#aaa">${c.ultimoPedido}</td>
+      <td style="font-family:monospace;font-size:12px;color:#555">${c.cnpj||'—'}</td>
+      <td><span class="tipo-chip ${c.tipo === 'PJ' ? 'pj' : 'pf'}">${c.tipo||'PJ'}</span></td>
+      <td>${c.municipio||'—'} / ${c.uf||'—'}</td>
+      <td style="font-size:12px;color:#555">${c.email||'—'}</td>
+      <td style="font-size:12px;color:#555">${c.tel||'—'}</td>
+      <td style="font-size:12px;color:#aaa">${fmtDate(c.updated_at)}</td>
       <td>
         <div style="display:flex;gap:4px;">
-          <button class="tb-btn" onclick='editarCliente(${c.id})' title="Editar">✏️</button>
-          <button class="tb-btn" onclick='excluirCliente(${c.id})' title="Excluir" style="color:#dc2626">🗑</button>
+          <button class="tb-btn" onclick='editarCliente("${c.id}")' title="Editar">✏️</button>
+          <button class="tb-btn" onclick='excluirCliente("${c.id}","${c.razao.replace(/"/g,"&quot;")}")' title="Excluir" style="color:#dc2626">🗑</button>
           <a href="emissao-nfe.html" class="tb-btn" title="Emitir NF-e">📄</a>
         </div>
       </td>
     </tr>`).join('');
 }
 
+async function carregarClientes() {
+  setLoading('⏳ Carregando clientes...');
+  try {
+    todosClientes = await dbGetClientes();
+    filtrar();
+  } catch(e) {
+    showToast('Erro ao carregar clientes: ' + e.message, 'error');
+    setLoading('Erro ao carregar. Tente recarregar a página.');
+  }
+}
+
 function filtrar() {
   const q   = document.getElementById('search-input').value.toLowerCase();
   const tipo = document.getElementById('tipo-filter').value;
   const uf   = document.getElementById('uf-filter').value;
-  const r = clientes.filter(c =>
-    (!q || c.razao.toLowerCase().includes(q) || c.cnpj.includes(q) || c.cidade.toLowerCase().includes(q)) &&
+  const r = todosClientes.filter(c =>
+    (!q || (c.razao||'').toLowerCase().includes(q) || (c.cnpj||'').includes(q) || (c.municipio||'').toLowerCase().includes(q)) &&
     (!tipo || c.tipo === tipo) &&
     (!uf || c.uf === uf)
   );
@@ -430,24 +434,45 @@ function openModal(id) {
   document.getElementById('modal-titulo').textContent = id ? 'Editar Cliente' : 'Novo Cliente';
   document.getElementById('modal-cliente').classList.add('open');
   if (id) {
-    const c = clientes.find(x => x.id === id);
+    const c = todosClientes.find(x => x.id === id);
     if (c) {
-      document.getElementById('m-tipo').value = c.tipo;
-      document.getElementById('m-doc').value  = c.cnpj;
-      document.getElementById('m-razao').value = c.razao;
-      document.getElementById('m-fantasia').value = c.fantasia;
-      document.getElementById('m-email').value = c.email;
-      document.getElementById('m-tel').value = c.tel;
+      document.getElementById('m-tipo').value = c.tipo || 'PJ';
+      document.getElementById('m-doc').value  = c.cnpj || '';
+      document.getElementById('m-razao').value = c.razao || '';
+      document.getElementById('m-fantasia').value = c.fantasia || '';
+      document.getElementById('m-email').value = c.email || '';
+      document.getElementById('m-tel').value = c.tel || '';
+      document.getElementById('m-site').value = c.site || '';
+      document.getElementById('m-cep').value = c.cep || '';
+      document.getElementById('m-logradouro').value = c.logradouro || '';
+      document.getElementById('m-num').value = c.numero || '';
+      document.getElementById('m-comp').value = c.complemento || '';
+      document.getElementById('m-bairro').value = c.bairro || '';
+      document.getElementById('m-municipio').value = c.municipio || '';
+      document.getElementById('m-uf').value = c.uf || 'SP';
+      document.getElementById('m-pais').value = c.pais || 'Brasil';
+      document.getElementById('m-ie').value = c.ie || '';
+      document.getElementById('m-im').value = c.im || '';
+      document.getElementById('m-suframa').value = c.suframa || '';
+      document.getElementById('m-regime').value = c.regime || '1';
+      document.getElementById('m-obs').value = c.obs || '';
       switchTipo();
+      // load contatos
+      const list = document.getElementById('contatos-list');
+      list.innerHTML = '';
+      if (c.clientes_contatos && c.clientes_contatos.length) {
+        c.clientes_contatos.forEach(ct => adicionarContato(ct));
+      }
     }
   } else {
     document.getElementById('m-tipo').value = 'PJ';
-    document.getElementById('m-doc').value = '';
-    document.getElementById('m-razao').value = '';
-    document.getElementById('m-fantasia').value = '';
-    document.getElementById('m-email').value = '';
-    document.getElementById('m-tel').value = '';
-    document.getElementById('m-site').value = '';
+    ['m-doc','m-razao','m-fantasia','m-email','m-tel','m-site','m-cep','m-logradouro',
+     'm-num','m-comp','m-bairro','m-municipio','m-ie','m-im','m-suframa','m-obs'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('m-pais').value = 'Brasil';
+    document.getElementById('contatos-list').innerHTML = '';
+    switchTipo();
   }
 }
 function closeModal() { document.getElementById('modal-cliente').classList.remove('open'); }
@@ -490,44 +515,68 @@ function buscarCEP(el) {
   }
 }
 
-function salvarCliente() {
+async function salvarCliente() {
   const razao = document.getElementById('m-razao').value.trim();
   if (!razao) { alert('Informe a Razão Social / Nome.'); return; }
-  const novo = {
-    id: editingId || (Math.max(0,...clientes.map(c=>c.id))+1),
+
+  const contatos = Array.from(document.querySelectorAll('#contatos-list .contato-row')).map(row => {
+    const inputs = row.querySelectorAll('input');
+    return { nome: inputs[0].value, cargo: inputs[1].value, telefone_email: inputs[2].value };
+  }).filter(ct => ct.nome || ct.telefone_email);
+
+  const obj = {
+    id: editingId || undefined,
     razao,
     fantasia: document.getElementById('m-fantasia').value,
     cnpj: document.getElementById('m-doc').value,
     tipo: document.getElementById('m-tipo').value,
-    cidade: document.getElementById('m-municipio').value || '—',
-    uf: document.getElementById('m-uf').value,
     email: document.getElementById('m-email').value,
     tel: document.getElementById('m-tel').value,
-    ultimoPedido: '—',
+    site: document.getElementById('m-site').value,
+    cep: document.getElementById('m-cep').value,
+    logradouro: document.getElementById('m-logradouro').value,
+    numero: document.getElementById('m-num').value,
+    complemento: document.getElementById('m-comp').value,
+    bairro: document.getElementById('m-bairro').value,
+    municipio: document.getElementById('m-municipio').value,
+    uf: document.getElementById('m-uf').value,
+    pais: document.getElementById('m-pais').value,
+    ie: document.getElementById('m-ie').value,
+    im: document.getElementById('m-im').value,
+    suframa: document.getElementById('m-suframa').value,
+    regime: document.getElementById('m-regime').value,
+    obs: document.getElementById('m-obs').value,
+    clientes_contatos: contatos,
   };
-  if (editingId) {
-    const i = clientes.findIndex(c => c.id === editingId);
-    clientes[i] = novo;
-  } else {
-    clientes.push(novo);
+  if (!obj.id) delete obj.id;
+
+  try {
+    await dbSaveCliente(obj);
+    showToast(editingId ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'ok');
+    closeModal();
+    await carregarClientes();
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message, 'error');
   }
-  closeModal();
-  filtrar();
 }
 
 function editarCliente(id) { openModal(id); }
 
-function excluirCliente(id) {
-  const c = clientes.find(x => x.id === id);
-  if (confirm(`Excluir cliente "${c.razao}"?`)) {
-    clientes = clientes.filter(x => x.id !== id);
-    filtrar();
+async function excluirCliente(id, razao) {
+  if (confirm(`Excluir cliente "${razao}"?`)) {
+    try {
+      await dbDeleteCliente(id);
+      showToast('Cliente excluído.', 'ok');
+      await carregarClientes();
+    } catch(e) {
+      showToast('Erro ao excluir: ' + e.message, 'error');
+    }
   }
 }
 
 function exportarCSV() {
-  const header = 'Razão Social,CNPJ/CPF,Tipo,Cidade,UF,E-mail,Telefone';
-  const rows = clientes.map(c => `"${c.razao}","${c.cnpj}","${c.tipo}","${c.cidade}","${c.uf}","${c.email}","${c.tel}"`);
+  const header = 'Razão Social,CNPJ/CPF,Tipo,Município,UF,E-mail,Telefone';
+  const rows = todosClientes.map(c => `"${c.razao}","${c.cnpj||''}","${c.tipo||''}","${c.municipio||''}","${c.uf||''}","${c.email||''}","${c.tel||''}"`);
   const csv = [header, ...rows].join('\n');
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
@@ -535,21 +584,21 @@ function exportarCSV() {
 }
 function importarCSV() { alert('Funcionalidade de importação de CSV em desenvolvimento.'); }
 
-function adicionarContato() {
+function adicionarContato(ct) {
   const div = document.createElement('div');
   div.className = 'contato-row';
   div.style = 'display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end;';
   div.innerHTML = `
-    <div class="form-group" style="margin:0"><label>Nome</label><input type="text" placeholder="Nome do contato"/></div>
-    <div class="form-group" style="margin:0"><label>Cargo</label><input type="text" placeholder="Cargo"/></div>
-    <div class="form-group" style="margin:0"><label>Telefone / E-mail</label><input type="text" placeholder="(11) 99999-9999"/></div>
+    <div class="form-group" style="margin:0"><label>Nome</label><input type="text" placeholder="Nome do contato" value="${ct && ct.nome ? ct.nome : ''}"/></div>
+    <div class="form-group" style="margin:0"><label>Cargo</label><input type="text" placeholder="Cargo" value="${ct && ct.cargo ? ct.cargo : ''}"/></div>
+    <div class="form-group" style="margin:0"><label>Telefone / E-mail</label><input type="text" placeholder="(11) 99999-9999" value="${ct && ct.telefone_email ? ct.telefone_email : ''}"/></div>
     <button onclick="removerContato(this)" style="padding:9px;background:#fef2f2;border:1.5px solid #fecaca;border-radius:7px;cursor:pointer;font-size:14px;color:#dc2626;">🗑</button>`;
   document.getElementById('contatos-list').appendChild(div);
 }
 function removerContato(btn) { btn.closest('.contato-row').remove(); }
 
 // init
-filtrar();
+carregarClientes();
 document.getElementById('modal-cliente').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-cliente')) closeModal();
 });

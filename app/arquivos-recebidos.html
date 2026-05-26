@@ -6,6 +6,8 @@
   <link rel="shortcut icon" href="assets/orange-icone.ico"/>
   <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
   <title>OrangeNFe · Arquivos Recebidos</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
     .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
@@ -83,11 +85,6 @@
   <div class="powered-by-strip">
     <span class="pb-label">Powered by</span>
     <img class="pb-orange" src="assets/orange-logotipo.png" alt="Orange Custom Systems"/>
-    <div class="pb-divider"></div>
-    <div class="pb-server-row">
-      <span class="pb-server-label">Servidor</span>
-      <img class="pb-aws" src="assets/aws-logo.svg" alt="Amazon Web Services"/>
-    </div>
   </div>
 </aside>
 
@@ -157,52 +154,67 @@
 </div>
 
 <script>
-let arquivos = [
-  { id:1, nome:'NFe_35260512345678_248.xml', tipo:'xml', tamanho:'18 KB', data:'23/05/2026 14:30', origem:'Emissão automática' },
-  { id:2, nome:'DANFE_000248.pdf', tipo:'pdf', tamanho:'245 KB', data:'23/05/2026 14:30', origem:'Emissão automática' },
-  { id:3, nome:'NFe_35260598765432_101.xml', tipo:'xml', tamanho:'22 KB', data:'22/05/2026 09:15', origem:'SEFAZ – Download' },
-  { id:4, nome:'NFe_35260511223344_044.xml', tipo:'xml', tamanho:'16 KB', data:'21/05/2026 11:00', origem:'Importação manual' },
-  { id:5, nome:'backup_maio2026.zip', tipo:'zip', tamanho:'4.2 MB', data:'20/05/2026 03:00', origem:'Backup automático' },
-  { id:6, nome:'notas_maio_2026.xlsx', tipo:'xls', tamanho:'98 KB', data:'19/05/2026 18:45', origem:'Relatório exportado' },
-  { id:7, nome:'NFe_31260522334455_312.xml', tipo:'xml', tamanho:'20 KB', data:'18/05/2026 08:22', origem:'SEFAZ – Download' },
-];
+let todosArquivos = [];
+
+function fmtBytes(bytes) {
+  if (!bytes) return '—';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(0) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
 
 function render(data) {
   const tbody = document.getElementById('arquivos-body');
   document.getElementById('count-label').textContent = data.length + ' arquivo' + (data.length !== 1 ? 's' : '');
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#aaa;">Nenhum arquivo encontrado.</td></tr>`;
+    return;
+  }
   tbody.innerHTML = data.map(f => {
     const icons = { xml:'📄', pdf:'📕', zip:'📦', xls:'📊' };
+    const tipo = f.tipo || 'xml';
+    const dataStr = f.created_at ? new Date(f.created_at).toLocaleString('pt-BR') : '—';
     return `<tr>
       <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
       <td>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:18px">${icons[f.tipo] || '📁'}</span>
+          <span style="font-size:18px">${icons[tipo] || '📁'}</span>
           <span style="font-weight:600;color:#1a1a2e">${f.nome}</span>
         </div>
       </td>
-      <td><span class="file-type ${f.tipo}">${f.tipo.toUpperCase()}</span></td>
-      <td style="font-size:12px;color:#555">${f.tamanho}</td>
-      <td style="font-size:12px;color:#555">${f.data}</td>
-      <td style="font-size:12px;color:#aaa">${f.origem}</td>
+      <td><span class="file-type ${tipo}">${tipo.toUpperCase()}</span></td>
+      <td style="font-size:12px;color:#555">${fmtBytes(f.tamanho_bytes)}</td>
+      <td style="font-size:12px;color:#555">${dataStr}</td>
+      <td style="font-size:12px;color:#aaa">${f.origem||'—'}</td>
       <td>
         <div style="display:flex;gap:4px;">
-          <button class="tb-btn" onclick="baixar(${f.id})" title="Baixar">⬇</button>
-          <button class="tb-btn" onclick="excluir(${f.id})" title="Excluir" style="color:#dc2626">🗑</button>
+          <button class="tb-btn" title="Baixar" onclick="alert('Baixando: ${f.nome.replace(/'/g,'').replace(/"/g,'')}')">⬇</button>
+          <button class="tb-btn" onclick="excluir('${f.id}','${f.nome.replace(/'/g,'').replace(/"/g,'')}') " title="Excluir" style="color:#dc2626">🗑</button>
         </div>
       </td>
     </tr>`;
   }).join('');
 }
 
-function filtrar() {
-  const q = document.getElementById('search-input').value.toLowerCase();
-  const tipo = document.getElementById('tipo-filter').value;
-  const r = arquivos.filter(f =>
-    (!q || f.nome.toLowerCase().includes(q)) &&
-    (!tipo || f.tipo === tipo)
-  );
-  render(r);
+async function carregarArquivos() {
+  document.getElementById('arquivos-body').innerHTML =
+    `<tr><td colspan="7" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">⏳ Carregando...</td></tr>`;
+  try {
+    const filters = {};
+    const tipo = document.getElementById('tipo-filter').value;
+    const q = document.getElementById('search-input').value;
+    if (tipo) filters.tipo = tipo;
+    if (q) filters.search = q;
+    todosArquivos = await dbGetArquivos(filters);
+    render(todosArquivos);
+  } catch(e) {
+    showToast('Erro ao carregar: ' + e.message, 'error');
+    document.getElementById('arquivos-body').innerHTML =
+      `<tr><td colspan="7" style="text-align:center;padding:40px;color:#dc2626;">Erro ao carregar. Recarregue a página.</td></tr>`;
+  }
 }
+
+function filtrar() { carregarArquivos(); }
 
 function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c => c.checked = cb.checked); updateSel(); }
 function updateSel() {
@@ -210,14 +222,18 @@ function updateSel() {
   document.getElementById('sel-info').textContent = n > 0 ? n + ' selecionado(s)' : '';
 }
 
-function baixar(id) { alert(`Baixando: ${arquivos.find(f=>f.id===id).nome}`); }
-function excluir(id) {
-  const f = arquivos.find(x=>x.id===id);
-  if (confirm(`Excluir "${f.nome}"?`)) {
-    arquivos = arquivos.filter(x=>x.id!==id);
-    filtrar();
+async function excluir(id, nome) {
+  if (confirm(`Excluir "${nome}"?`)) {
+    try {
+      await dbDeleteArquivo(id);
+      showToast('Arquivo excluído.', 'ok');
+      await carregarArquivos();
+    } catch(e) {
+      showToast('Erro ao excluir: ' + e.message, 'error');
+    }
   }
 }
+
 function baixarSelecionados() { alert('Baixando arquivos selecionados em .zip...'); }
 function excluirSelecionados() {
   const n = document.querySelectorAll('.row-chk:checked').length;
@@ -225,21 +241,26 @@ function excluirSelecionados() {
   if (confirm(`Excluir ${n} arquivo(s)?`)) { alert('Arquivos excluídos.'); }
 }
 
-function importarArquivos(input) {
+async function importarArquivos(input) {
   const files = Array.from(input.files);
-  files.forEach(f => {
+  for (const f of files) {
     const ext = f.name.split('.').pop().toLowerCase();
-    arquivos.unshift({
-      id: Date.now() + Math.random(),
-      nome: f.name,
-      tipo: ext === 'pdf' ? 'pdf' : ext === 'zip' ? 'zip' : ext === 'xlsx' ? 'xls' : 'xml',
-      tamanho: (f.size / 1024).toFixed(0) + ' KB',
-      data: new Date().toLocaleString('pt-BR'),
-      origem: 'Importação manual',
-    });
-  });
-  filtrar();
+    const tipo = ext === 'pdf' ? 'pdf' : ext === 'zip' ? 'zip' : (ext === 'xlsx' || ext === 'xls') ? 'xls' : 'xml';
+    try {
+      const {error} = await getDB().from('arquivos_recebidos').insert({
+        nome: f.name,
+        tipo,
+        tamanho_bytes: f.size,
+        origem: 'Importação manual',
+      });
+      if (error) throw error;
+    } catch(e) {
+      showToast('Erro ao importar ' + f.name + ': ' + e.message, 'error');
+    }
+  }
+  showToast(files.length + ' arquivo(s) importado(s)!', 'ok');
   input.value = '';
+  await carregarArquivos();
 }
 
 function handleDrop(e) {
@@ -249,7 +270,7 @@ function handleDrop(e) {
   if (dt.files.length > 0) importarArquivos({ files: dt.files, value: '' });
 }
 
-filtrar();
+carregarArquivos();
 </script>
 </body>
 </html>

@@ -6,6 +6,8 @@
   <link rel="shortcut icon" href="assets/orange-icone.ico"/>
   <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
   <title>OrangeNFe · Produtos</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
     .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
@@ -99,11 +101,6 @@
   <div class="powered-by-strip">
     <span class="pb-label">Powered by</span>
     <img class="pb-orange" src="assets/orange-logotipo.png" alt="Orange Custom Systems"/>
-    <div class="pb-divider"></div>
-    <div class="pb-server-row">
-      <span class="pb-server-label">Servidor</span>
-      <img class="pb-aws" src="assets/aws-logo.svg" alt="Amazon Web Services"/>
-    </div>
   </div>
 </aside>
 
@@ -366,53 +363,67 @@
 </div>
 
 <script>
-let produtos = [
-  { id:1, codigo:'SKU001', descricao:'Arroz Tipo 1 – 5kg', ncm:'1006.30.21', cfop:'5102', unid:'SC', preco:22.90, estoque:150, estoqueMin:20, tipo:'produto', categ:'Alimentos' },
-  { id:2, codigo:'SKU002', descricao:'Feijão Carioca – 1kg', ncm:'0713.33.19', cfop:'5102', unid:'KG', preco:8.50, estoque:300, estoqueMin:50, tipo:'produto', categ:'Alimentos' },
-  { id:3, codigo:'SKU003', descricao:'Notebook Samsung Galaxy Book2 Pro', ncm:'8471.30.12', cfop:'5102', unid:'UN', preco:4299.00, estoque:5, estoqueMin:2, tipo:'produto', categ:'Informática' },
-  { id:4, codigo:'SKU004', descricao:'Detergente Líquido 500ml', ncm:'3402.20.00', cfop:'5102', unid:'UN', preco:2.99, estoque:0, estoqueMin:30, tipo:'produto', categ:'Limpeza' },
-  { id:5, codigo:'SRV001', descricao:'Instalação e Configuração de Rede', ncm:'', cfop:'5933', unid:'SV', preco:350.00, estoque:null, estoqueMin:null, tipo:'servico', categ:'Outros' },
-  { id:6, codigo:'SKU005', descricao:'Camiseta Polo Masculina GG', ncm:'6105.10.00', cfop:'5102', unid:'UN', preco:89.90, estoque:40, estoqueMin:10, tipo:'produto', categ:'Vestuário' },
-];
-
+let todosProdutos = [];
 let editingId = null;
+
+function setLoading(msg) {
+  document.getElementById('produtos-body').innerHTML =
+    `<tr><td colspan="10" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">${msg}</td></tr>`;
+}
 
 function estoqueStatus(p) {
   if (p.tipo === 'servico') return '';
-  if (p.estoque === 0) return '<span class="estoque-badge out">Sem estoque</span>';
-  if (p.estoque <= p.estoqueMin) return `<span class="estoque-badge low">${p.estoque} (baixo)</span>`;
-  return `<span class="estoque-badge ok">${p.estoque}</span>`;
+  const est = p.estoque;
+  const min = p.estoque_min;
+  if (est === 0 || est === null) return '<span class="estoque-badge out">Sem estoque</span>';
+  if (min !== null && est <= min) return `<span class="estoque-badge low">${est} (baixo)</span>`;
+  return `<span class="estoque-badge ok">${est}</span>`;
 }
 
 function render(data) {
   const tbody = document.getElementById('produtos-body');
   document.getElementById('count-label').textContent = data.length + ' produto' + (data.length !== 1 ? 's' : '');
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;color:#aaa;">Nenhum produto encontrado.</td></tr>`;
+    return;
+  }
   tbody.innerHTML = data.map(p => `
     <tr>
       <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
-      <td style="font-family:monospace;font-size:12px;color:#555">${p.codigo}</td>
+      <td style="font-family:monospace;font-size:12px;color:#555">${p.codigo||'—'}</td>
       <td><div style="font-weight:600;color:#1a1a2e">${p.descricao}</div></td>
       <td style="font-family:monospace;font-size:12px;color:#888">${p.ncm || '—'}</td>
-      <td style="font-family:monospace;font-size:12px;color:#888">${p.cfop}</td>
-      <td style="color:#555">${p.unid}</td>
-      <td style="font-weight:700;color:#1a1a2e">R$ ${p.preco.toFixed(2).replace('.',',')}</td>
+      <td style="font-family:monospace;font-size:12px;color:#888">${p.cfop||'—'}</td>
+      <td style="color:#555">${p.unid||'—'}</td>
+      <td style="font-weight:700;color:#1a1a2e">R$ ${fmtMoney(p.preco)}</td>
       <td>${estoqueStatus(p)}</td>
-      <td><span style="font-size:11px;color:#aaa">${p.categ}</span></td>
+      <td><span style="font-size:11px;color:#aaa">${p.categ||'—'}</span></td>
       <td>
         <div style="display:flex;gap:4px;">
-          <button class="tb-btn" onclick="editarProduto(${p.id})" title="Editar">✏️</button>
-          <button class="tb-btn" onclick="excluirProduto(${p.id})" title="Excluir" style="color:#dc2626">🗑</button>
+          <button class="tb-btn" onclick='editarProduto("${p.id}")' title="Editar">✏️</button>
+          <button class="tb-btn" onclick='excluirProduto("${p.id}","${p.descricao.replace(/"/g,"&quot;")}")' title="Excluir" style="color:#dc2626">🗑</button>
         </div>
       </td>
     </tr>`).join('');
+}
+
+async function carregarProdutos() {
+  setLoading('⏳ Carregando produtos...');
+  try {
+    todosProdutos = await dbGetProdutos();
+    filtrar();
+  } catch(e) {
+    showToast('Erro ao carregar produtos: ' + e.message, 'error');
+    setLoading('Erro ao carregar. Tente recarregar a página.');
+  }
 }
 
 function filtrar() {
   const q = document.getElementById('search-input').value.toLowerCase();
   const tipo = document.getElementById('tipo-filter').value;
   const categ = document.getElementById('categ-filter').value;
-  const r = produtos.filter(p =>
-    (!q || p.descricao.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q) || p.ncm.includes(q)) &&
+  const r = todosProdutos.filter(p =>
+    (!q || (p.descricao||'').toLowerCase().includes(q) || (p.codigo||'').toLowerCase().includes(q) || (p.ncm||'').includes(q)) &&
     (!tipo || p.tipo === tipo) &&
     (!categ || p.categ === categ)
   );
@@ -430,19 +441,54 @@ function openModal(id) {
   document.getElementById('modal-titulo').textContent = id ? 'Editar Produto' : 'Novo Produto';
   document.getElementById('modal-produto').classList.add('open');
   if (id) {
-    const p = produtos.find(x => x.id === id);
+    const p = todosProdutos.find(x => x.id === id);
     if (p) {
-      document.getElementById('m-codigo').value = p.codigo;
-      document.getElementById('m-descricao').value = p.descricao;
-      document.getElementById('m-tipo-p').value = p.tipo;
-      document.getElementById('m-categ').value = p.categ;
-      document.getElementById('m-unid').value = p.unid;
-      document.getElementById('m-ncm').value = p.ncm;
-      document.getElementById('m-cfop').value = p.cfop;
-      document.getElementById('m-preco').value = p.preco;
+      document.getElementById('m-codigo').value = p.codigo || '';
+      document.getElementById('m-descricao').value = p.descricao || '';
+      document.getElementById('m-tipo-p').value = p.tipo || 'produto';
+      document.getElementById('m-categ').value = p.categ || 'Outros';
+      document.getElementById('m-unid').value = p.unid || 'UN';
+      document.getElementById('m-info').value = p.info || '';
+      document.getElementById('m-ncm').value = p.ncm || '';
+      document.getElementById('m-cfop').value = p.cfop || '';
+      document.getElementById('m-cest').value = p.cest || '';
+      document.getElementById('m-ean').value = p.ean || '';
+      document.getElementById('m-origem').value = p.origem || '0';
+      document.getElementById('m-cst-icms').value = p.cst_icms || '102';
+      document.getElementById('m-cst-pis').value = p.cst_pis || '01';
+      document.getElementById('m-cst-cof').value = p.cst_cofins || '01';
+      document.getElementById('m-aliq-icms').value = p.aliq_icms || 12;
+      document.getElementById('m-aliq-pis').value = p.aliq_pis || 0.65;
+      document.getElementById('m-aliq-cof').value = p.aliq_cofins || 3;
       document.getElementById('m-estoque').value = p.estoque ?? '';
-      document.getElementById('m-estoque-min').value = p.estoqueMin ?? '';
+      document.getElementById('m-estoque-min').value = p.estoque_min ?? '';
+      document.getElementById('m-estoque-max').value = p.estoque_max ?? '';
+      document.getElementById('m-localizacao').value = p.localizacao || '';
+      document.getElementById('m-fornecedor').value = p.fornecedor || '';
+      document.getElementById('m-custo').value = p.custo || 0;
+      document.getElementById('m-preco').value = p.preco || 0;
+      document.getElementById('m-margem').value = p.margem || 0;
+      document.getElementById('m-desc-max').value = p.desc_max || 5;
+      document.getElementById('m-preco-atac').value = p.preco_atacado || 0;
     }
+  } else {
+    ['m-codigo','m-descricao','m-info','m-ncm','m-cfop','m-cest','m-ean',
+     'm-localizacao','m-fornecedor'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('m-tipo-p').value = 'produto';
+    document.getElementById('m-categ').value = 'Outros';
+    document.getElementById('m-unid').value = 'UN';
+    document.getElementById('m-origem').value = '0';
+    document.getElementById('m-aliq-icms').value = 12;
+    document.getElementById('m-aliq-pis').value = 0.65;
+    document.getElementById('m-aliq-cof').value = 3;
+    document.getElementById('m-custo').value = 0;
+    document.getElementById('m-preco').value = 0;
+    document.getElementById('m-margem').value = 0;
+    document.getElementById('m-desc-max').value = 5;
+    document.getElementById('m-preco-atac').value = 0;
+    document.getElementById('m-estoque').value = '';
+    document.getElementById('m-estoque-min').value = '';
+    document.getElementById('m-estoque-max').value = '';
   }
 }
 function closeModal() { document.getElementById('modal-produto').classList.remove('open'); }
@@ -461,51 +507,75 @@ function calcMargemP() {
   document.getElementById('m-margem').value = custo > 0 ? (((preco - custo) / custo) * 100).toFixed(2) : 0;
 }
 
-function salvarProduto() {
+async function salvarProduto() {
   const desc = document.getElementById('m-descricao').value.trim();
   if (!desc) { alert('Informe a descrição do produto.'); return; }
-  const novo = {
-    id: editingId || (Math.max(0,...produtos.map(p=>p.id))+1),
+  const obj = {
+    id: editingId || undefined,
     codigo: document.getElementById('m-codigo').value,
     descricao: desc,
-    ncm: document.getElementById('m-ncm').value,
-    cfop: document.getElementById('m-cfop').value || '5102',
-    unid: document.getElementById('m-unid').value,
-    preco: parseFloat(document.getElementById('m-preco').value) || 0,
-    estoque: parseInt(document.getElementById('m-estoque').value) || 0,
-    estoqueMin: parseInt(document.getElementById('m-estoque-min').value) || 0,
     tipo: document.getElementById('m-tipo-p').value,
     categ: document.getElementById('m-categ').value,
+    unid: document.getElementById('m-unid').value,
+    info: document.getElementById('m-info').value,
+    ncm: document.getElementById('m-ncm').value,
+    cfop: document.getElementById('m-cfop').value || '5102',
+    cest: document.getElementById('m-cest').value,
+    ean: document.getElementById('m-ean').value,
+    origem: document.getElementById('m-origem').value,
+    cst_icms: document.getElementById('m-cst-icms').value,
+    cst_pis: document.getElementById('m-cst-pis').value,
+    cst_cofins: document.getElementById('m-cst-cof').value,
+    aliq_icms: parseFloat(document.getElementById('m-aliq-icms').value) || 0,
+    aliq_pis: parseFloat(document.getElementById('m-aliq-pis').value) || 0,
+    aliq_cofins: parseFloat(document.getElementById('m-aliq-cof').value) || 0,
+    estoque: parseInt(document.getElementById('m-estoque').value) || null,
+    estoque_min: parseInt(document.getElementById('m-estoque-min').value) || null,
+    estoque_max: parseInt(document.getElementById('m-estoque-max').value) || null,
+    localizacao: document.getElementById('m-localizacao').value,
+    fornecedor: document.getElementById('m-fornecedor').value,
+    custo: parseFloat(document.getElementById('m-custo').value) || 0,
+    preco: parseFloat(document.getElementById('m-preco').value) || 0,
+    margem: parseFloat(document.getElementById('m-margem').value) || 0,
+    desc_max: parseFloat(document.getElementById('m-desc-max').value) || 0,
+    preco_atacado: parseFloat(document.getElementById('m-preco-atac').value) || 0,
   };
-  if (editingId) {
-    const i = produtos.findIndex(p => p.id === editingId);
-    produtos[i] = novo;
-  } else {
-    produtos.push(novo);
+  if (!obj.id) delete obj.id;
+
+  try {
+    await dbSaveProduto(obj);
+    showToast(editingId ? 'Produto atualizado!' : 'Produto cadastrado!', 'ok');
+    closeModal();
+    await carregarProdutos();
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message, 'error');
   }
-  closeModal();
-  filtrar();
 }
 
 function editarProduto(id) { openModal(id); }
-function excluirProduto(id) {
-  const p = produtos.find(x => x.id === id);
-  if (confirm(`Excluir produto "${p.descricao}"?`)) {
-    produtos = produtos.filter(x => x.id !== id);
-    filtrar();
+
+async function excluirProduto(id, descricao) {
+  if (confirm(`Excluir produto "${descricao}"?`)) {
+    try {
+      await dbDeleteProduto(id);
+      showToast('Produto excluído.', 'ok');
+      await carregarProdutos();
+    } catch(e) {
+      showToast('Erro ao excluir: ' + e.message, 'error');
+    }
   }
 }
 
 function exportarCSV() {
   const header = 'Código,Descrição,NCM,CFOP,Unid,Preço,Estoque,Categoria';
-  const rows = produtos.map(p => `"${p.codigo}","${p.descricao}","${p.ncm}","${p.cfop}","${p.unid}","${p.preco}","${p.estoque ?? ''}","${p.categ}"`);
+  const rows = todosProdutos.map(p => `"${p.codigo||''}","${p.descricao}","${p.ncm||''}","${p.cfop||''}","${p.unid||''}","${p.preco||0}","${p.estoque??''}","${p.categ||''}"`);
   const csv = [header,...rows].join('\n');
   const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download='produtos.csv'; a.click();
 }
 
-filtrar();
+carregarProdutos();
 document.getElementById('modal-produto').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-produto')) closeModal();
 });
