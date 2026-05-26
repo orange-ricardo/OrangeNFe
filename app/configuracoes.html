@@ -84,9 +84,6 @@
     .role-badge.viewer  { background:#f4f6f9;color:#555; }
 
     /* ── CERTIFICADO ── */
-    .cert-radio-group { display:flex;gap:24px;margin-bottom:16px; }
-    .cert-radio-group label { display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#333;cursor:pointer; }
-    .cert-radio-group input[type=radio] { accent-color:#f97316;width:15px;height:15px; }
     .cert-upload-area {
       border:2px dashed #e8eaf0;border-radius:10px;padding:20px;
       text-align:center;background:#fafbfc;cursor:pointer;transition:all 0.15s;
@@ -101,8 +98,6 @@
     .cert-info .ci-name { font-size:13px;font-weight:700;color:#1a1a2e;flex:1; }
     .cert-info .ci-expiry { font-size:11px;font-weight:700;color:#16a34a; }
     .cert-info .ci-issuer { font-size:11px;color:#aaa; }
-    .cert-a3-msg { background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;font-size:13px;color:#1d4ed8;margin-top:10px; }
-
     /* ── PARÂMETROS ── */
     .param-group-title { font-size:12px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:0.8px;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid #fff0e5; }
     .inline-badge { display:inline-block;background:#fff0e5;color:#f97316;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px; }
@@ -514,48 +509,39 @@
         <!-- ══════════════ CERTIFICADO DIGITAL ══════════════ -->
         <div id="sec-certificado" style="display:none">
           <div class="card" style="margin-bottom:16px;">
-            <div class="card-title">Certificado Digital</div>
-            <p style="font-size:13px;color:#666;margin-bottom:16px;">Escolha abaixo o tipo de certificado digital que você irá utilizar:</p>
-            <div class="cert-radio-group">
-              <label><input type="radio" name="cert-tipo" value="A1" checked onchange="toggleCertTipo(this.value)"/> Certificado A1 (Arquivo)</label>
-              <label><input type="radio" name="cert-tipo" value="A3" onchange="toggleCertTipo(this.value)"/> Certificado A3 (Cartão / Token) <span class="inline-badge">*</span></label>
+            <div class="card-title">Certificado Digital A1</div>
+            <p style="font-size:13px;color:#666;margin-bottom:16px;">Selecione o arquivo <strong>.pfx</strong> ou <strong>.p12</strong> do seu certificado A1 e informe a senha para carregar.</p>
+            <div class="cert-upload-area" onclick="document.getElementById('cert-file-input').click()">
+              <input type="file" id="cert-file-input" accept=".pfx,.p12" onchange="onCertUpload(this)"/>
+              <div style="font-size:28px;margin-bottom:6px;">🔐</div>
+              <div style="font-size:13px;font-weight:600;color:#555;">Clique para selecionar o arquivo .pfx ou .p12</div>
+              <div style="font-size:11px;color:#aaa;margin-top:4px;">Arraste e solte ou clique para abrir</div>
             </div>
-            <div id="cert-a1-area">
-              <div class="cert-upload-area" onclick="document.getElementById('cert-file-input').click()">
-                <input type="file" id="cert-file-input" accept=".pfx,.p12" onchange="onCertUpload(this)"/>
-                <div style="font-size:28px;margin-bottom:6px;">🔐</div>
-                <div style="font-size:13px;font-weight:600;color:#555;">Clique para selecionar o arquivo .pfx ou .p12</div>
-                <div style="font-size:11px;color:#aaa;margin-top:4px;">Arraste e solte ou clique para abrir</div>
+            <div id="cert-a1-info" style="display:none" class="cert-info">
+              <div style="font-size:22px;">📄</div>
+              <div style="flex:1">
+                <div class="ci-name" id="cert-filename">—</div>
+                <div class="ci-issuer" id="cert-issuer">—</div>
               </div>
-              <div id="cert-a1-info" style="display:none" class="cert-info">
-                <div style="font-size:22px;">📄</div>
-                <div style="flex:1">
-                  <div class="ci-name" id="cert-filename">—</div>
-                  <div class="ci-issuer" id="cert-issuer">—</div>
-                </div>
-                <div style="text-align:right">
-                  <div class="ci-expiry" id="cert-expiry">Aguardando validação...</div>
-                  <button class="btn danger sm" style="margin-top:6px;font-size:11px;" onclick="removerCert()">🗑 Remover</button>
-                </div>
-              </div>
-              <!-- badge verde após validação bem-sucedida -->
-              <div id="cert-validado-badge" style="display:none;align-items:center;gap:10px;margin-top:8px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
-                <span style="font-size:18px;">✅</span>
-                <span style="font-size:13px;font-weight:700;color:#16a34a;flex:1;" id="cert-cn-text">—</span>
-                <span style="font-size:11px;color:#aaa;" id="cert-expiry-text">—</span>
-              </div>
-              <div class="form-row cols-2" style="margin-top:14px;">
-                <div class="form-group">
-                  <label>Senha do certificado</label>
-                  <input type="password" id="cert-senha" placeholder="Senha do arquivo .pfx"/>
-                </div>
-                <div class="form-group" style="display:flex;align-items:flex-end;">
-                  <button class="btn primary" id="cert-load-btn" style="display:none;width:100%;" onclick="carregarCertificado()">🔓 Carregar certificado</button>
-                </div>
+              <div style="text-align:right">
+                <div class="ci-expiry" id="cert-expiry">Aguardando validação...</div>
+                <button class="btn danger sm" style="margin-top:6px;font-size:11px;" onclick="removerCert()">🗑 Remover</button>
               </div>
             </div>
-            <div id="cert-a3-area" style="display:none">
-              <div class="cert-a3-msg">ℹ️ Para usar certificado A3 (cartão ou token USB), é necessário ter o driver do dispositivo instalado e o <strong>Integrador NFeMail A3</strong> em execução na máquina.</div>
+            <!-- badge verde após validação bem-sucedida -->
+            <div id="cert-validado-badge" style="display:none;align-items:center;gap:10px;margin-top:8px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+              <span style="font-size:18px;">✅</span>
+              <span style="font-size:13px;font-weight:700;color:#16a34a;flex:1;" id="cert-cn-text">—</span>
+              <span style="font-size:11px;color:#aaa;" id="cert-expiry-text">—</span>
+            </div>
+            <div class="form-row cols-2" style="margin-top:14px;">
+              <div class="form-group">
+                <label>Senha do certificado</label>
+                <input type="password" id="cert-senha" placeholder="Senha do arquivo .pfx"/>
+              </div>
+              <div class="form-group" style="display:flex;align-items:flex-end;">
+                <button class="btn primary" id="cert-load-btn" style="display:none;width:100%;" onclick="carregarCertificado()">🔓 Carregar certificado</button>
+              </div>
             </div>
           </div>
         </div>
@@ -997,11 +983,6 @@ function showSection(id, el) {
 /* ══════════════════════════════════════════════════
    CERTIFICADO DIGITAL
 ══════════════════════════════════════════════════ */
-function toggleCertTipo(v) {
-  document.getElementById('cert-a1-area').style.display = v === 'A1' ? '' : 'none';
-  document.getElementById('cert-a3-area').style.display = v === 'A3' ? '' : 'none';
-}
-
 function onCertUpload(input) {
   const f = input.files[0]; if (!f) return;
   const reader = new FileReader();
@@ -1214,10 +1195,6 @@ async function loadConfig() {
     const sC = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
 
     // ── Certificado
-    if (cfg.cert_tipo) {
-      const r = document.querySelector(`[name="cert-tipo"][value="${cfg.cert_tipo}"]`);
-      if (r) { r.checked = true; toggleCertTipo(cfg.cert_tipo); }
-    }
     if (cfg.cert_nome) {
       _certNome = cfg.cert_nome; _certB64 = cfg.cert_b64 || null;
       _certCN = cfg.cert_cn; _certIssuer = cfg.cert_issuer;
@@ -1306,7 +1283,7 @@ async function salvar() {
 
   const cfg = {
     // Certificado
-    cert_tipo:    document.querySelector('[name="cert-tipo"]:checked')?.value || 'A1',
+    cert_tipo:    'A1',
     cert_nome:    _certNome,
     cert_b64:     _certB64,
     cert_senha:   gV('cert-senha'),
