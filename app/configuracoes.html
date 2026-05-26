@@ -82,6 +82,70 @@
     .role-badge.admin   { background:#fef3c7;color:#b45309; }
     .role-badge.operador{ background:#eff6ff;color:#2563eb; }
     .role-badge.viewer  { background:#f4f6f9;color:#555; }
+
+    /* ── CERTIFICADO ── */
+    .cert-radio-group { display:flex;gap:24px;margin-bottom:16px; }
+    .cert-radio-group label { display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#333;cursor:pointer; }
+    .cert-radio-group input[type=radio] { accent-color:#f97316;width:15px;height:15px; }
+    .cert-upload-area {
+      border:2px dashed #e8eaf0;border-radius:10px;padding:20px;
+      text-align:center;background:#fafbfc;cursor:pointer;transition:all 0.15s;
+    }
+    .cert-upload-area:hover { border-color:#f97316;background:#fff8f3; }
+    .cert-upload-area input[type=file] { display:none; }
+    .cert-info {
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;
+      border-radius:8px;margin-top:10px;
+    }
+    .cert-info .ci-name { font-size:13px;font-weight:700;color:#1a1a2e;flex:1; }
+    .cert-info .ci-expiry { font-size:11px;font-weight:700;color:#16a34a; }
+    .cert-info .ci-issuer { font-size:11px;color:#aaa; }
+    .cert-a3-msg { background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;font-size:13px;color:#1d4ed8;margin-top:10px; }
+
+    /* ── PARÂMETROS ── */
+    .param-group-title { font-size:12px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:0.8px;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid #fff0e5; }
+    .inline-badge { display:inline-block;background:#fff0e5;color:#f97316;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px; }
+
+    /* ── MODAL GENÉRICO ── */
+    .cfg-overlay {
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;
+      align-items:center;justify-content:center;
+    }
+    .cfg-overlay.open { display:flex; }
+    .cfg-modal {
+      background:#fff;border-radius:14px;padding:28px;width:620px;max-width:95vw;
+      max-height:88vh;overflow-y:auto;
+      box-shadow:0 20px 60px rgba(0,0,0,0.18);
+    }
+    .cfg-modal-title { font-size:15px;font-weight:800;color:#1a1a2e;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between; }
+    .cfg-modal-close { font-size:20px;cursor:pointer;color:#aaa;line-height:1; }
+    .cfg-modal-close:hover { color:#333; }
+
+    /* ── TABELA DE PADRÕES ── */
+    .pad-table { width:100%;border-collapse:collapse;margin-top:10px; }
+    .pad-table th { font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid #f0f0f0;text-align:left; }
+    .pad-table td { padding:10px 10px;font-size:13px;border-bottom:1px solid #f7f7f7; }
+    .pad-table tr:last-child td { border-bottom:none; }
+    .pad-empty { text-align:center;color:#bbb;padding:24px;font-size:13px;font-style:italic; }
+
+    /* ── TRIBUTO TABS ── */
+    .trib-tabs { display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap; }
+    .trib-tab {
+      padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;
+      cursor:pointer;border:1.5px solid #e8eaf0;background:#fff;color:#555;transition:all 0.15s;
+    }
+    .trib-tab.active { background:#f97316;color:#fff;border-color:#f97316; }
+    .trib-tab-panel { display:none; }
+    .trib-tab-panel.active { display:block; }
+
+    /* ── DANFE LOGO ── */
+    .danfe-logo-preview {
+      width:140px;height:60px;border:1.5px dashed #e8eaf0;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;color:#bbb;cursor:pointer;overflow:hidden;background:#fafbfc;
+    }
+    .danfe-logo-preview img { max-width:100%;max-height:100%;object-fit:contain; }
   </style>
 </head>
 <body>
@@ -138,6 +202,12 @@
         <div class="sn-item active" onclick="showSection('sec-geral',this)">🎛 Geral</div>
         <div class="sn-item" onclick="showSection('sec-notificacoes',this)">🔔 Notificações</div>
         <div class="sn-item" onclick="showSection('sec-seguranca',this)">🔒 Segurança</div>
+        <div class="sn-sep"></div>
+        <div style="padding:8px 16px 2px;font-size:10px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:1px;">Emissão NF-e</div>
+        <div class="sn-item" onclick="showSection('sec-certificado',this)">🔐 Certificado Digital</div>
+        <div class="sn-item" onclick="showSection('sec-parametros',this)">📋 Parâmetros de Emissão</div>
+        <div class="sn-item" onclick="showSection('sec-impostos',this)">🧮 Impostos / Retenções</div>
+        <div class="sn-item" onclick="showSection('sec-emailnfe',this)">📧 E-mail e DANFe</div>
         <div class="sn-sep"></div>
         <div class="sn-item" onclick="showSection('sec-usuarios',this)">👤 Usuários</div>
         <div class="sn-item" onclick="showSection('sec-plano',this)">💳 Plano e Cobrança</div>
@@ -441,7 +511,420 @@
           </div>
         </div>
 
-        <!-- API -->
+        <!-- ══════════════ CERTIFICADO DIGITAL ══════════════ -->
+        <div id="sec-certificado" style="display:none">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Certificado Digital</div>
+            <p style="font-size:13px;color:#666;margin-bottom:16px;">Escolha abaixo o tipo de certificado digital que você irá utilizar:</p>
+            <div class="cert-radio-group">
+              <label><input type="radio" name="cert-tipo" value="A1" checked onchange="toggleCertTipo(this.value)"/> Certificado A1 (Arquivo)</label>
+              <label><input type="radio" name="cert-tipo" value="A3" onchange="toggleCertTipo(this.value)"/> Certificado A3 (Cartão / Token) <span class="inline-badge">*</span></label>
+            </div>
+            <div id="cert-a1-area">
+              <div class="cert-upload-area" onclick="document.getElementById('cert-file-input').click()">
+                <input type="file" id="cert-file-input" accept=".pfx,.p12" onchange="onCertUpload(this)"/>
+                <div style="font-size:28px;margin-bottom:6px;">🔐</div>
+                <div style="font-size:13px;font-weight:600;color:#555;">Clique para selecionar o arquivo .pfx ou .p12</div>
+                <div style="font-size:11px;color:#aaa;margin-top:4px;">Arraste e solte ou clique para abrir</div>
+              </div>
+              <div id="cert-a1-info" style="display:none" class="cert-info">
+                <div style="font-size:22px;">📄</div>
+                <div style="flex:1">
+                  <div class="ci-name" id="cert-filename">—</div>
+                  <div class="ci-issuer" id="cert-issuer">—</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="ci-expiry" id="cert-expiry">—</div>
+                  <button class="btn danger sm" style="margin-top:6px;font-size:11px;" onclick="removerCert()">🗑 Remover</button>
+                </div>
+              </div>
+              <div class="form-row cols-2" style="margin-top:14px;">
+                <div class="form-group">
+                  <label>Senha do certificado</label>
+                  <input type="password" id="cert-senha" placeholder="Senha do arquivo .pfx"/>
+                </div>
+              </div>
+            </div>
+            <div id="cert-a3-area" style="display:none">
+              <div class="cert-a3-msg">ℹ️ Para usar certificado A3 (cartão ou token USB), é necessário ter o driver do dispositivo instalado e o <strong>Integrador NFeMail A3</strong> em execução na máquina.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ PARÂMETROS DE EMISSÃO ══════════════ -->
+        <div id="sec-parametros" style="display:none">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Geral</div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>Ambiente de envio</label>
+                <select id="p-ambiente">
+                  <option value="2" selected>2 - Homologação</option>
+                  <option value="1">1 - Produção</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tipo de emissão</label>
+                <select id="p-tipo-emissao">
+                  <option value="1" selected>1 - Normal</option>
+                  <option value="6">6 - EPEC (contingência)</option>
+                  <option value="7">7 - SVC-AN</option>
+                  <option value="9">9 - Off-line NFC-e</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Código UF</label>
+                <select id="p-uf">
+                  <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+                  <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                  <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+                  <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+                  <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+                  <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+                  <option selected>SP</option><option>SE</option><option>TO</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Versão NF-e / NFC-e</label>
+                <select id="p-versao"><option selected>4.00</option></select>
+              </div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>Série NF-e (Produção)</label>
+                <input type="text" id="p-serie-nfe-prod" value="1"/>
+              </div>
+              <div class="form-group">
+                <label>Série NF-e (Homologação)</label>
+                <input type="text" id="p-serie-nfe-homol" value="1"/>
+              </div>
+              <div class="form-group">
+                <label>Série NFC-e (Produção)</label>
+                <input type="text" id="p-serie-nfce-prod" value="1"/>
+              </div>
+              <div class="form-group">
+                <label>Série NFC-e (Homologação)</label>
+                <input type="text" id="p-serie-nfce-homol" value="1"/>
+              </div>
+            </div>
+            <div class="form-row cols-4">
+              <div class="form-group">
+                <label>Nº casas decimais — valor unitário</label>
+                <select id="p-decimais-unit">
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4" selected>4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="8">8</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Preenchimento padrão na emissão</div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Destinatário padrão</label>
+                <select id="p-dest-tipo">
+                  <option value="1" selected>Pessoa Jurídica</option>
+                  <option value="2">Pessoa Física</option>
+                  <option value="9">Estrangeiro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Consumidor final</label>
+                <select id="p-cons-final">
+                  <option value="0" selected>0 - Não</option>
+                  <option value="1">1 - Sim</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Presença do comprador / tomador</label>
+                <select id="p-ind-pres">
+                  <option value="1" selected>1 - Operação presencial</option>
+                  <option value="2">2 - Não presencial — Internet</option>
+                  <option value="3">3 - Não presencial — Teleatendimento</option>
+                  <option value="4">4 - NFC-e entrega em domicílio</option>
+                  <option value="9">9 - Não presencial — Outros</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Indicador de intermediário / marketplace</label>
+                <select id="p-ind-intermed">
+                  <option value="" selected>:: selecione</option>
+                  <option value="0">0 - Operação sem intermediador</option>
+                  <option value="1">1 - Operação com intermediador</option>
+                </select>
+              </div>
+            </div>
+            <div class="param-group-title">CFOP padrão</div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>CFOP padrão de saída</label>
+                <select id="p-cfop-pad">
+                  <option value="5102" selected>5102 - Venda de mercadoria</option>
+                  <option value="5101">5101 - Venda de produção própria</option>
+                  <option value="5405">5405 - Venda mercadoria ST</option>
+                  <option value="6102">6102 - Venda interestadual</option>
+                  <option value="5933">5933 - Prestação de serviço (ISSQN)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">ICMS — Base de cálculo PIS/COFINS</div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Subtrair valores do ICMS da base de cálculo do PIS/COFINS</div>
+                <div class="t-desc">Inclui ICMS, ICMS ST e ICMS Dif</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-sub-icms-piscofins"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Subtrair valores do ICMS FCP da base de cálculo do PIS/COFINS</div>
+                <div class="t-desc">Fundo de Combate à Pobreza</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-sub-fcp-piscofins"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">ICMS Desonerado — não abater do valor total da NF-e</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-icms-desonerdo"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">ICMS DIFAL — Operações interestaduais a consumidor final</div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Padrão do cálculo do DIFAL</label>
+                <select id="p-difal">
+                  <option value="1" selected>1 - Cálculo padrão — Base única [BC x (ALQ Intra - ALQ Inter)]</option>
+                  <option value="2">2 - Base dupla</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Reforma Tributária — IBS / CBS</div>
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:#1d4ed8;margin-bottom:14px;">
+              ℹ️ Campos referentes à Lei Complementar 214/2025 (IBS — Imposto sobre Bens e Serviços / CBS — Contribuição sobre Bens e Serviços).
+            </div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Situação Tributária IBS/CBS</label>
+                <select id="p-sit-ibs"><option value="">:: selecione</option><option>Tributado integralmente</option><option>Redução de base de cálculo</option><option>Isento</option><option>Não tributado</option></select>
+              </div>
+              <div class="form-group">
+                <label>Classificação Tributária</label>
+                <select id="p-class-trib"><option value="">:: selecione</option><option>Serviço</option><option>Mercadoria</option><option>Imóvel</option></select>
+              </div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>IBS Estadual — % Alíquota</label>
+                <input type="text" id="p-ibs-est" placeholder="0,00" style="text-align:right"/>
+              </div>
+              <div class="form-group">
+                <label>IBS Municipal — % Alíquota</label>
+                <input type="text" id="p-ibs-mun" placeholder="0,00" style="text-align:right"/>
+              </div>
+              <div class="form-group">
+                <label>CBS — % Alíquota</label>
+                <input type="text" id="p-cbs" placeholder="0,00" style="text-align:right"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ IMPOSTOS / RETENÇÕES ══════════════ -->
+        <div id="sec-impostos" style="display:none">
+
+          <!-- Padrões por CFOP -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <span>Padrões de impostos específicos por CFOP</span>
+              <button class="btn primary sm" onclick="abrirModalCFOP()">＋ Adicionar</button>
+            </div>
+            <table class="pad-table">
+              <thead><tr><th>CFOP</th><th>UF</th><th>Tributos</th><th>Regime</th><th></th></tr></thead>
+              <tbody id="cfop-pad-tbody">
+                <tr><td colspan="5" class="pad-empty">Nenhum padrão cadastrado.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Padrões de retenções -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <span>Padrões de retenções</span>
+              <button class="btn primary sm" onclick="abrirModalRetencao()">＋ Adicionar</button>
+            </div>
+            <table class="pad-table">
+              <thead><tr><th>Descrição</th><th>Limite</th><th>IRRF</th><th>PIS</th><th>COFINS</th><th>CSLL</th><th></th></tr></thead>
+              <tbody id="ret-tbody">
+                <tr><td colspan="7" class="pad-empty">Nenhum padrão de retenção cadastrado.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Informações adicionais -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Informações adicionais da nota fiscal</div>
+            <div class="form-group" style="margin-bottom:12px;">
+              <label>Informações complementares de Interesse do Contribuinte</label>
+              <textarea id="p-inf-contribuinte" rows="3" placeholder="Texto que será inserido automaticamente nas informações complementares de todas as notas..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Informações adicionais de Interesse do Fisco</label>
+              <textarea id="p-inf-fisco" rows="3" placeholder="Texto para o campo de interesse do Fisco..."></textarea>
+            </div>
+          </div>
+
+          <!-- Lei da Transparência -->
+          <div class="card">
+            <div class="card-title">Lei da Transparência</div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Calcular impostos separados (federal, estadual e municipal)</div>
+                <div class="t-desc">O sistema calcula automaticamente. Defina uma alíquota personalizada abaixo se necessário.</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-lei-transp" checked/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="form-row cols-4" style="margin-top:12px;">
+              <div class="form-group">
+                <label>% Alíquota personalizada</label>
+                <input type="text" id="p-aliq-transp" placeholder="0,00" style="text-align:right"/>
+              </div>
+            </div>
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:8px 12px;font-size:12px;color:#b45309;margin-top:8px;">
+              ⚠️ A alíquota "0%" no sistema irá inserir os valores que serão recolhidos pela empresa.
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ E-MAIL E DANFE ══════════════ -->
+        <div id="sec-emailnfe" style="display:none">
+
+          <!-- Manifestação automática -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Manifestação do Destinatário</div>
+            <p style="font-size:13px;color:#666;margin-bottom:12px;">Consulta e download automático de notas fiscais emitidas para seu CNPJ.</p>
+            <div style="display:flex;gap:20px;margin-bottom:12px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="radio" name="mde-ativo" value="1" checked style="accent-color:#f97316"/> Ativado
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="radio" name="mde-ativo" value="0" style="accent-color:#f97316"/> Desativado
+              </label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Manifestar automaticamente com "Operação confirmada"</div>
+                <div class="t-desc">Após 10 dias da data de autorização do documento</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-mde-auto"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+          </div>
+
+          <!-- Envio de e-mail -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Envio de e-mail — Notas emitidas</div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Não enviar a cópia da nota fiscal emitida para o e-mail do usuário</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-nao-envia-copia"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Desativar o envio automático de e-mail da nota emitida</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-desativ-email"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="form-group" style="margin-top:14px;">
+              <label>E-mails que sempre recebem cópia de todas as notas emitidas</label>
+              <input type="text" id="p-email-copia" placeholder="info@empresa.com.br, outro@empresa.com.br"/>
+              <div style="font-size:11px;color:#aaa;margin-top:4px;">Separe os e-mails com vírgula.</div>
+            </div>
+            <div class="form-group" style="margin-top:12px;">
+              <label>Mensagem adicional no e-mail da NF-e ao cliente</label>
+              <textarea id="p-msg-email" rows="3" placeholder="Texto adicional que aparecerá no corpo do e-mail enviado ao destinatário..."></textarea>
+            </div>
+          </div>
+
+          <!-- DANFe -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">DANFe</div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Mostrar Nome Fantasia no DANFe</div>
+                <div class="t-desc">Em vez da Razão Social nos dados do emitente</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-danfe-fantasia"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="t-label">Não exibir e-mail do destinatário / transportadora nas informações adicionais</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="p-danfe-no-email"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div style="margin-top:14px;">
+              <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">Logomarca do DANFe (apenas .jpg)</div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="danfe-logo-preview" id="danfe-logo-preview" onclick="document.getElementById('danfe-logo-file').click()">
+                  <span>Clique para adicionar</span>
+                </div>
+                <input type="file" id="danfe-logo-file" accept=".jpg,.jpeg" style="display:none" onchange="previewDanfeLogo(this)"/>
+                <div>
+                  <div style="font-size:12px;color:#aaa;margin-bottom:8px;">Formato: .jpg • Recomendado: 300×80 px</div>
+                  <button class="btn secondary sm" onclick="document.getElementById('danfe-logo-file').click()">📎 Selecionar imagem</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row cols-2" style="margin-top:14px;">
+              <div class="form-group">
+                <label>Alinhamento da logomarca</label>
+                <select id="p-danfe-align">
+                  <option value="centro" selected>Centro</option>
+                  <option value="esquerda">Esquerda</option>
+                  <option value="direita">Direita</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Outras configurações -->
+          <div class="card">
+            <div class="card-title">Outras configurações</div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="t-label">Permitir cliente realizar o download do XML</div></div>
+              <label class="toggle"><input type="checkbox" id="p-allow-xml-dl" checked/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="t-label">Receber resumo diário das notas</div></div>
+              <label class="toggle"><input type="checkbox" id="p-resumo-diario"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="t-label">Receber resumo semanal das notas</div></div>
+              <label class="toggle"><input type="checkbox" id="p-resumo-semanal"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="t-label">Receber resumo mensal das notas</div></div>
+              <label class="toggle"><input type="checkbox" id="p-resumo-mensal" checked/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ API (existente) ══════════════ -->
         <div id="sec-api" style="display:none">
           <div class="card" style="margin-bottom:16px;">
             <div class="card-title">Chave de API</div>
@@ -477,8 +960,14 @@
 function showSection(id, el) {
   document.querySelectorAll('.sn-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
-  const sections = ['sec-geral','sec-notificacoes','sec-seguranca','sec-usuarios','sec-plano','sec-backup','sec-api'];
-  sections.forEach(s => document.getElementById(s).style.display = s === id ? '' : 'none');
+  const sections = [
+    'sec-geral','sec-notificacoes','sec-seguranca','sec-usuarios','sec-plano',
+    'sec-backup','sec-api','sec-certificado','sec-parametros','sec-impostos','sec-emailnfe'
+  ];
+  sections.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = s === id ? '' : 'none';
+  });
 }
 
 function salvar() { alert('✅ Configurações salvas com sucesso!'); }
@@ -493,6 +982,399 @@ function regenerarKey() {
     alert('✅ Nova API Key gerada. Atualize suas integrações.');
   }
 }
+
+/* ══════════════ CERTIFICADO ══════════════ */
+function toggleCertTipo(v) {
+  document.getElementById('cert-a1-area').style.display = v === 'A1' ? '' : 'none';
+  document.getElementById('cert-a3-area').style.display = v === 'A3' ? '' : 'none';
+}
+function onCertUpload(input) {
+  const f = input.files[0]; if (!f) return;
+  document.getElementById('cert-filename').textContent = f.name;
+  document.getElementById('cert-issuer').textContent  = 'Validade: verificar após carregar';
+  document.getElementById('cert-expiry').textContent  = '—';
+  document.getElementById('cert-a1-info').style.display = 'flex';
+}
+function removerCert() {
+  document.getElementById('cert-file-input').value = '';
+  document.getElementById('cert-a1-info').style.display = 'none';
+}
+
+/* ══════════════ DANFE LOGO ══════════════ */
+function previewDanfeLogo(input) {
+  const f = input.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f);
+  document.getElementById('danfe-logo-preview').innerHTML = '<img src="' + url + '"/>';
+}
+
+/* ══════════════ TRIB TABS ══════════════ */
+function switchTribTab(name, el) {
+  document.querySelectorAll('.trib-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.trib-tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+/* ══════════════ MODAL CFOP ══════════════ */
+const _cfopRows = [];
+function abrirModalCFOP()  { document.getElementById('modal-cfop').classList.add('open'); }
+function fecharModalCFOP() { document.getElementById('modal-cfop').classList.remove('open'); }
+
+function salvarCFOP() {
+  const cfopSel = document.getElementById('modal-cfop-sel');
+  const uf      = document.getElementById('modal-cfop-uf').value || 'Todas';
+  const regime  = document.querySelector('[name="modal-regime"]:checked').value;
+  const icmsCst = document.getElementById('icms-cst').value;
+  const pisCst  = document.getElementById('pis-cst').value;
+  const regimeLabel = regime === '1' ? 'Simples' : regime === '3' ? 'Presumido/Real' : 'Todos';
+  const tribStr = [icmsCst && 'ICMS:' + icmsCst, pisCst && 'PIS:' + pisCst]
+                    .filter(Boolean).join(', ') || '—';
+  const tbody = document.getElementById('cfop-pad-tbody');
+  if (tbody.querySelector('.pad-empty')) tbody.innerHTML = '';
+  const idx = _cfopRows.length;
+  _cfopRows.push({ cfop: cfopSel.value, uf, regime, tribStr });
+  const desc = cfopSel.options[cfopSel.selectedIndex].text.split(' - ').slice(1).join(' - ');
+  tbody.insertAdjacentHTML('beforeend', `
+    <tr data-idx="${idx}">
+      <td><strong>${cfopSel.value}</strong> — ${desc}</td>
+      <td>${uf}</td>
+      <td style="font-size:12px;color:#666">${tribStr}</td>
+      <td>${regimeLabel}</td>
+      <td><button class="btn danger sm" onclick="removerCFOP(${idx})">🗑</button></td>
+    </tr>`);
+  fecharModalCFOP();
+}
+
+function removerCFOP(idx) {
+  document.querySelector(`#cfop-pad-tbody tr[data-idx="${idx}"]`)?.remove();
+  if (!document.getElementById('cfop-pad-tbody').querySelector('tr'))
+    document.getElementById('cfop-pad-tbody').innerHTML =
+      '<tr><td colspan="5" class="pad-empty">Nenhum padrão cadastrado.</td></tr>';
+}
+
+/* ══════════════ MODAL RETENÇÃO ══════════════ */
+const _retRows = [];
+function abrirModalRetencao()  { document.getElementById('modal-ret').classList.add('open'); }
+function fecharModalRetencao() { document.getElementById('modal-ret').classList.remove('open'); }
+
+function salvarRetencao() {
+  const desc   = document.getElementById('ret-desc').value   || '(sem descrição)';
+  const limite = document.getElementById('ret-limite').value || '—';
+  const irrf   = document.getElementById('ret-irrf-ac').value   || '0,00';
+  const pis    = document.getElementById('ret-pis-ac').value    || '0,00';
+  const cofins = document.getElementById('ret-cofins-ac').value || '0,00';
+  const csll   = document.getElementById('ret-csll-ac').value   || '0,00';
+  const tbody  = document.getElementById('ret-tbody');
+  if (tbody.querySelector('.pad-empty')) tbody.innerHTML = '';
+  const idx = _retRows.length;
+  _retRows.push({ desc, limite, irrf, pis, cofins, csll });
+  tbody.insertAdjacentHTML('beforeend', `
+    <tr data-idx="${idx}">
+      <td><strong>${desc}</strong></td>
+      <td style="text-align:right">R$ ${limite}</td>
+      <td style="text-align:right">${irrf}%</td>
+      <td style="text-align:right">${pis}%</td>
+      <td style="text-align:right">${cofins}%</td>
+      <td style="text-align:right">${csll}%</td>
+      <td><button class="btn danger sm" onclick="removerRetencao(${idx})">🗑</button></td>
+    </tr>`);
+  fecharModalRetencao();
+}
+
+function removerRetencao(idx) {
+  document.querySelector(`#ret-tbody tr[data-idx="${idx}"]`)?.remove();
+  if (!document.getElementById('ret-tbody').querySelector('tr'))
+    document.getElementById('ret-tbody').innerHTML =
+      '<tr><td colspan="7" class="pad-empty">Nenhum padrão de retenção cadastrado.</td></tr>';
+}
 </script>
+
+<!-- ══════════════════════════════════════════
+     MODAL — CFOP Padrão
+════════════════════════════════════════════ -->
+<div id="modal-cfop" class="cfg-overlay">
+  <div class="cfg-modal">
+    <div class="cfg-modal-title">
+      <span>Adicionar padrão de CFOP</span>
+      <span class="cfg-modal-close" onclick="fecharModalCFOP()">✕</span>
+    </div>
+
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>CFOP</label>
+        <select id="modal-cfop-sel">
+          <option value="5101">5101 - Venda de produção do estabelecimento</option>
+          <option value="5102" selected>5102 - Venda de mercadoria adquirida</option>
+          <option value="5405">5405 - Venda mercadoria c/ ST</option>
+          <option value="5933">5933 - Prestação de serviço ISSQN</option>
+          <option value="6101">6101 - Venda de produção interestadual</option>
+          <option value="6102">6102 - Venda de mercadoria interestadual</option>
+          <option value="6108">6108 - Venda merc. adq. para exportação</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>UF destino <span class="inline-badge">opcional</span></label>
+        <select id="modal-cfop-uf">
+          <option value="">Todas</option>
+          <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+          <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+          <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+          <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+          <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+          <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+          <option>SP</option><option>SE</option><option>TO</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:16px;">
+      <label>Regime do destinatário</label>
+      <div style="display:flex;gap:20px;margin-top:7px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="radio" name="modal-regime" value="" checked style="accent-color:#f97316"/> Todos
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="radio" name="modal-regime" value="1" style="accent-color:#f97316"/> Simples Nacional
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="radio" name="modal-regime" value="3" style="accent-color:#f97316"/> Lucro Presumido / Real
+        </label>
+      </div>
+    </div>
+
+    <!-- Tributo Tabs -->
+    <div class="trib-tabs">
+      <div class="trib-tab active" onclick="switchTribTab('icms',this)">ICMS</div>
+      <div class="trib-tab" onclick="switchTribTab('ipi',this)">IPI</div>
+      <div class="trib-tab" onclick="switchTribTab('pis',this)">PIS</div>
+      <div class="trib-tab" onclick="switchTribTab('cofins',this)">COFINS</div>
+    </div>
+
+    <!-- ICMS -->
+    <div id="tab-icms" class="trib-tab-panel active">
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>CST / CSOSN</label>
+          <select id="icms-cst">
+            <option value="">:: selecione</option>
+            <optgroup label="CRT 1 — Simples Nacional">
+              <option value="102">102 - Tributada s/ permissão de crédito</option>
+              <option value="103">103 - Isenção do ICMS para faixa de receita bruta</option>
+              <option value="300">300 - Imune</option>
+              <option value="400">400 - Não tributada</option>
+              <option value="500">500 - ICMS cobrado anteriormente por ST</option>
+              <option value="900">900 - Outros</option>
+            </optgroup>
+            <optgroup label="CRT 3 — Regime Normal">
+              <option value="00">00 - Tributada integralmente</option>
+              <option value="10">10 - Tributada + cobrança ICMS por ST</option>
+              <option value="20">20 - Com redução de base de cálculo</option>
+              <option value="30">30 - Isenta / não tributada + ST</option>
+              <option value="40">40 - Isenta</option>
+              <option value="41">41 - Não tributada</option>
+              <option value="50">50 - Suspensão</option>
+              <option value="51">51 - Diferimento</option>
+              <option value="60">60 - ICMS cobrado anteriormente por ST</option>
+              <option value="70">70 - Com redução de BC + cobrança ST</option>
+              <option value="90">90 - Outros</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mod. BC</label>
+          <select id="icms-modbc">
+            <option value="3" selected>3 - Valor da operação</option>
+            <option value="0">0 - Margem valor agregado (%)</option>
+            <option value="1">1 - Pauta (Valor)</option>
+            <option value="2">2 - Preço tabelado máx.</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Alíquota ICMS %</label>
+          <input type="text" id="icms-aliq" placeholder="12,00" style="text-align:right"/>
+        </div>
+      </div>
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>% Red. BC</label>
+          <input type="text" id="icms-redbc" placeholder="0,00" style="text-align:right"/>
+        </div>
+        <div class="form-group">
+          <label>Motivo desonera.</label>
+          <select id="icms-motdesoner">
+            <option value="">Nenhum</option>
+            <option value="3">3 - Uso na agropecuária</option>
+            <option value="6">6 - Utilitários e motocicletas da Amazônia</option>
+            <option value="7">7 - SUFRAMA</option>
+            <option value="9">9 - Outros</option>
+            <option value="12">12 - Fomento agropecuário</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- IPI -->
+    <div id="tab-ipi" class="trib-tab-panel">
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>CST IPI</label>
+          <select id="ipi-cst">
+            <option value="">:: selecione</option>
+            <option value="00">00 - Entrada com recuperação de crédito</option>
+            <option value="49">49 - Outras entradas</option>
+            <option value="50">50 - Saída tributada</option>
+            <option value="51">51 - Saída tributável c/ alíquota zero</option>
+            <option value="52">52 - Saída isenta</option>
+            <option value="53">53 - Saída não tributada</option>
+            <option value="54">54 - Saída imune</option>
+            <option value="55">55 - Saída c/ suspensão</option>
+            <option value="99">99 - Outras saídas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Alíquota IPI %</label>
+          <input type="text" id="ipi-aliq" placeholder="0,00" style="text-align:right"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIS -->
+    <div id="tab-pis" class="trib-tab-panel">
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>CST PIS</label>
+          <select id="pis-cst">
+            <option value="">:: selecione</option>
+            <option value="01">01 - Op. tributável — alíquota normal</option>
+            <option value="02">02 - Op. tributável — alíquota diferenciada</option>
+            <option value="03">03 - Op. tributável — qtde. certa</option>
+            <option value="04">04 - Op. tributável — monofásica</option>
+            <option value="05">05 - Op. tributável — ST</option>
+            <option value="06">06 - Op. tributável — alíquota zero</option>
+            <option value="07">07 - Op. isenta</option>
+            <option value="08">08 - Op. sem incidência</option>
+            <option value="09">09 - Op. com suspensão</option>
+            <option value="49">49 - Outras saídas</option>
+            <option value="50">50 - Op. com direito a crédito</option>
+            <option value="99">99 - Outras</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Alíquota PIS %</label>
+          <input type="text" id="pis-aliq" placeholder="0,65" style="text-align:right"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- COFINS -->
+    <div id="tab-cofins" class="trib-tab-panel">
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label>CST COFINS</label>
+          <select id="cofins-cst">
+            <option value="">:: selecione</option>
+            <option value="01">01 - Op. tributável — alíquota normal</option>
+            <option value="02">02 - Op. tributável — alíquota diferenciada</option>
+            <option value="03">03 - Op. tributável — qtde. certa</option>
+            <option value="04">04 - Op. tributável — monofásica</option>
+            <option value="05">05 - Op. tributável — ST</option>
+            <option value="06">06 - Op. tributável — alíquota zero</option>
+            <option value="07">07 - Op. isenta</option>
+            <option value="08">08 - Op. sem incidência</option>
+            <option value="09">09 - Op. com suspensão</option>
+            <option value="49">49 - Outras saídas</option>
+            <option value="50">50 - Op. com direito a crédito</option>
+            <option value="99">99 - Outras</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Alíquota COFINS %</label>
+          <input type="text" id="cofins-aliq" placeholder="3,00" style="text-align:right"/>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0;">
+      <button class="btn secondary" onclick="fecharModalCFOP()">Cancelar</button>
+      <button class="btn primary"   onclick="salvarCFOP()">✓ Salvar padrão</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL — Padrão de Retenção
+════════════════════════════════════════════ -->
+<div id="modal-ret" class="cfg-overlay">
+  <div class="cfg-modal">
+    <div class="cfg-modal-title">
+      <span>Adicionar padrão de retenção</span>
+      <span class="cfg-modal-close" onclick="fecharModalRetencao()">✕</span>
+    </div>
+
+    <div class="form-row" style="margin-bottom:12px;">
+      <div class="form-group">
+        <label>Descrição do padrão</label>
+        <input type="text" id="ret-desc" placeholder="Ex: Serviços de TI acima de R$ 6.000,00"/>
+      </div>
+    </div>
+
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Limite de retenção (R$)</label>
+        <input type="text" id="ret-limite" placeholder="6.000,00" style="text-align:right"/>
+      </div>
+      <div class="form-group">
+        <label>Empresa pública</label>
+        <select id="ret-emp-pub">
+          <option value="0" selected>Não</option>
+          <option value="1">Sim</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="param-group-title" style="margin-top:4px;">Abaixo do limite (recolhimento global)</div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label>% IRRF</label>
+        <input type="text" id="ret-irrf-ab" placeholder="0,00" style="text-align:right"/></div>
+      <div class="form-group"><label>% PIS</label>
+        <input type="text" id="ret-pis-ab" placeholder="0,00" style="text-align:right"/></div>
+      <div class="form-group"><label>% COFINS</label>
+        <input type="text" id="ret-cofins-ab" placeholder="0,00" style="text-align:right"/></div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label>% CSLL</label>
+        <input type="text" id="ret-csll-ab" placeholder="0,00" style="text-align:right"/></div>
+      <div class="form-group"><label>% INSS</label>
+        <input type="text" id="ret-inss-ab" placeholder="0,00" style="text-align:right"/></div>
+    </div>
+
+    <div class="param-group-title">Acima do limite</div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label>% IRRF</label>
+        <input type="text" id="ret-irrf-ac" placeholder="4,80" style="text-align:right"/></div>
+      <div class="form-group"><label>% PIS</label>
+        <input type="text" id="ret-pis-ac" placeholder="0,65" style="text-align:right"/></div>
+      <div class="form-group"><label>% COFINS</label>
+        <input type="text" id="ret-cofins-ac" placeholder="3,00" style="text-align:right"/></div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label>% CSLL</label>
+        <input type="text" id="ret-csll-ac" placeholder="1,00" style="text-align:right"/></div>
+      <div class="form-group"><label>% INSS</label>
+        <input type="text" id="ret-inss-ac" placeholder="0,00" style="text-align:right"/></div>
+    </div>
+
+    <div class="form-group" style="margin-top:12px;">
+      <label>Outras retenções (R$) <span class="inline-badge">opcional</span></label>
+      <input type="text" id="ret-outras" placeholder="0,00" style="text-align:right"/>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0;">
+      <button class="btn secondary" onclick="fecharModalRetencao()">Cancelar</button>
+      <button class="btn primary"   onclick="salvarRetencao()">✓ Salvar retenção</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
