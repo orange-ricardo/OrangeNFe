@@ -146,6 +146,30 @@ async function dbGetDashboardStats() {
   };
 }
 
+/* ── CONFIGURAÇÕES (single-row) ── */
+async function dbGetConfig() {
+  const { data, error } = await getDB()
+    .from('configuracoes')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data || {};
+}
+
+async function dbSaveConfig(cfg) {
+  const db = getDB();
+  cfg.updated_at = new Date().toISOString();
+  const { data: existing } = await db.from('configuracoes').select('id').limit(1).maybeSingle();
+  if (existing?.id) {
+    const { error } = await db.from('configuracoes').update(cfg).eq('id', existing.id);
+    if (error) throw error;
+  } else {
+    const { error } = await db.from('configuracoes').insert(cfg);
+    if (error) throw error;
+  }
+}
+
 /* ── Toast CSS injected ── */
 (function(){
   const s = document.createElement('style');

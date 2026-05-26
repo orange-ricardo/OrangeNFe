@@ -534,14 +534,23 @@
                   <div class="ci-issuer" id="cert-issuer">—</div>
                 </div>
                 <div style="text-align:right">
-                  <div class="ci-expiry" id="cert-expiry">—</div>
+                  <div class="ci-expiry" id="cert-expiry">Aguardando validação...</div>
                   <button class="btn danger sm" style="margin-top:6px;font-size:11px;" onclick="removerCert()">🗑 Remover</button>
                 </div>
+              </div>
+              <!-- badge verde após validação bem-sucedida -->
+              <div id="cert-validado-badge" style="display:none;align-items:center;gap:10px;margin-top:8px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+                <span style="font-size:18px;">✅</span>
+                <span style="font-size:13px;font-weight:700;color:#16a34a;flex:1;" id="cert-cn-text">—</span>
+                <span style="font-size:11px;color:#aaa;" id="cert-expiry-text">—</span>
               </div>
               <div class="form-row cols-2" style="margin-top:14px;">
                 <div class="form-group">
                   <label>Senha do certificado</label>
                   <input type="password" id="cert-senha" placeholder="Senha do arquivo .pfx"/>
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-end;">
+                  <button class="btn primary" id="cert-load-btn" style="display:none;width:100%;" onclick="carregarCertificado()">🔓 Carregar certificado</button>
                 </div>
               </div>
             </div>
@@ -956,7 +965,22 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js"></script>
 <script>
+/* ══════════════════════════════════════════════════
+   Estado global da página
+══════════════════════════════════════════════════ */
+let _certB64 = null, _certNome = null, _certCN = null,
+    _certIssuer = null, _certValidade = null;
+let _danfeLogoB64 = null;
+const _cfopRows = [];
+const _retRows  = [];
+
+/* ══════════════════════════════════════════════════
+   Navegação de seções
+══════════════════════════════════════════════════ */
 function showSection(id, el) {
   document.querySelectorAll('.sn-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
@@ -965,49 +989,109 @@ function showSection(id, el) {
     'sec-backup','sec-api','sec-certificado','sec-parametros','sec-impostos','sec-emailnfe'
   ];
   sections.forEach(s => {
-    const el = document.getElementById(s);
-    if (el) el.style.display = s === id ? '' : 'none';
+    const e = document.getElementById(s);
+    if (e) e.style.display = s === id ? '' : 'none';
   });
 }
 
-function salvar() { alert('✅ Configurações salvas com sucesso!'); }
-
-function copiarApiKey() {
-  const v = document.getElementById('api-key-input').value;
-  navigator.clipboard.writeText(v).then(() => alert('✅ API Key copiada para a área de transferência!'));
-}
-
-function regenerarKey() {
-  if (confirm('Gerar uma nova API Key?\n\nA key atual será invalidada imediatamente.')) {
-    alert('✅ Nova API Key gerada. Atualize suas integrações.');
-  }
-}
-
-/* ══════════════ CERTIFICADO ══════════════ */
+/* ══════════════════════════════════════════════════
+   CERTIFICADO DIGITAL
+══════════════════════════════════════════════════ */
 function toggleCertTipo(v) {
   document.getElementById('cert-a1-area').style.display = v === 'A1' ? '' : 'none';
   document.getElementById('cert-a3-area').style.display = v === 'A3' ? '' : 'none';
 }
+
 function onCertUpload(input) {
   const f = input.files[0]; if (!f) return;
-  document.getElementById('cert-filename').textContent = f.name;
-  document.getElementById('cert-issuer').textContent  = 'Validade: verificar após carregar';
-  document.getElementById('cert-expiry').textContent  = '—';
-  document.getElementById('cert-a1-info').style.display = 'flex';
-}
-function removerCert() {
-  document.getElementById('cert-file-input').value = '';
-  document.getElementById('cert-a1-info').style.display = 'none';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const bytes = new Uint8Array(e.target.result);
+    let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b));
+    _certB64  = btoa(bin);
+    _certNome = f.name;
+    document.getElementById('cert-filename').textContent = f.name;
+    document.getElementById('cert-issuer').textContent   = (f.size / 1024).toFixed(1) + ' KB';
+    document.getElementById('cert-expiry').textContent   = 'Aguardando validação...';
+    document.getElementById('cert-expiry').style.color   = '#aaa';
+    document.getElementById('cert-a1-info').style.display   = 'flex';
+    document.getElementById('cert-load-btn').style.display  = 'inline-flex';
+    document.getElementById('cert-validado-badge').style.display = 'none';
+  };
+  reader.readAsArrayBuffer(f);
 }
 
-/* ══════════════ DANFE LOGO ══════════════ */
+async function carregarCertificado() {
+  if (!_certB64) { showToast('Selecione um arquivo .pfx primeiro.', 'error'); return; }
+  const senha = document.getElementById('cert-senha').value;
+  if (!senha)   { showToast('Digite a senha do certificado.', 'error'); return; }
+
+  const btn = document.getElementById('cert-load-btn');
+  btn.disabled = true; btn.textContent = '⏳ Lendo...';
+
+  try {
+    const forge = window.forge;
+    const der  = forge.util.decode64(_certB64);
+    const asn1 = forge.asn1.fromDer(der);
+    const p12  = forge.pkcs12.pkcs12FromAsn1(asn1, senha);
+
+    const bags = p12.getBags({ bagType: forge.pki.oids.certBag });
+    const cert = bags[forge.pki.oids.certBag][0].cert;
+
+    _certCN       = cert.subject.getField('CN').value;
+    _certIssuer   = (cert.issuer.getField('O') || cert.issuer.getField('CN') || { value: '—' }).value;
+    _certValidade = cert.validity.notAfter;
+
+    const expStr  = _certValidade.toLocaleDateString('pt-BR');
+    const expired = _certValidade < new Date();
+
+    // painel cinza (arquivo)
+    document.getElementById('cert-filename').textContent = _certCN;
+    document.getElementById('cert-issuer').textContent   = 'Emissor: ' + _certIssuer;
+    document.getElementById('cert-expiry').textContent   = (expired ? '⚠️ Vencido: ' : 'Válido até: ') + expStr;
+    document.getElementById('cert-expiry').style.color   = expired ? '#dc2626' : '#16a34a';
+
+    // badge verde
+    document.getElementById('cert-cn-text').textContent     = _certCN;
+    document.getElementById('cert-expiry-text').textContent = 'Válido até ' + expStr;
+    document.getElementById('cert-validado-badge').style.display = 'flex';
+    document.getElementById('cert-load-btn').style.display  = 'none';
+
+    if (expired) showToast('⚠️ Certificado vencido em ' + expStr, 'error');
+    else         showToast('✅ Certificado carregado com sucesso!');
+  } catch (e) {
+    showToast('❌ Senha incorreta ou arquivo inválido.', 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = '🔓 Carregar certificado';
+  }
+}
+
+function removerCert() {
+  document.getElementById('cert-file-input').value                  = '';
+  document.getElementById('cert-a1-info').style.display             = 'none';
+  document.getElementById('cert-validado-badge').style.display      = 'none';
+  document.getElementById('cert-load-btn').style.display            = 'none';
+  _certB64 = null; _certNome = null; _certCN = null;
+  _certIssuer = null; _certValidade = null;
+}
+
+/* ══════════════════════════════════════════════════
+   DANFe LOGO
+══════════════════════════════════════════════════ */
 function previewDanfeLogo(input) {
   const f = input.files[0]; if (!f) return;
-  const url = URL.createObjectURL(f);
-  document.getElementById('danfe-logo-preview').innerHTML = '<img src="' + url + '"/>';
+  const reader = new FileReader();
+  reader.onload = e => {
+    _danfeLogoB64 = e.target.result;
+    document.getElementById('danfe-logo-preview').innerHTML = `<img src="${_danfeLogoB64}"/>`;
+  };
+  reader.readAsDataURL(f);
 }
 
-/* ══════════════ TRIB TABS ══════════════ */
+/* ══════════════════════════════════════════════════
+   TRIB TABS (modal CFOP)
+══════════════════════════════════════════════════ */
 function switchTribTab(name, el) {
   document.querySelectorAll('.trib-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.trib-tab-panel').forEach(p => p.classList.remove('active'));
@@ -1015,8 +1099,9 @@ function switchTribTab(name, el) {
   document.getElementById('tab-' + name).classList.add('active');
 }
 
-/* ══════════════ MODAL CFOP ══════════════ */
-const _cfopRows = [];
+/* ══════════════════════════════════════════════════
+   MODAL CFOP
+══════════════════════════════════════════════════ */
 function abrirModalCFOP()  { document.getElementById('modal-cfop').classList.add('open'); }
 function fecharModalCFOP() { document.getElementById('modal-cfop').classList.remove('open'); }
 
@@ -1026,13 +1111,24 @@ function salvarCFOP() {
   const regime  = document.querySelector('[name="modal-regime"]:checked').value;
   const icmsCst = document.getElementById('icms-cst').value;
   const pisCst  = document.getElementById('pis-cst').value;
+  const icmsAliq = document.getElementById('icms-aliq').value;
   const regimeLabel = regime === '1' ? 'Simples' : regime === '3' ? 'Presumido/Real' : 'Todos';
-  const tribStr = [icmsCst && 'ICMS:' + icmsCst, pisCst && 'PIS:' + pisCst]
-                    .filter(Boolean).join(', ') || '—';
+  const tribStr = [
+    icmsCst  && ('ICMS ' + icmsCst  + (icmsAliq ? ' ' + icmsAliq + '%' : '')),
+    pisCst   && ('PIS '  + pisCst),
+  ].filter(Boolean).join(' · ') || '—';
+
   const tbody = document.getElementById('cfop-pad-tbody');
   if (tbody.querySelector('.pad-empty')) tbody.innerHTML = '';
   const idx = _cfopRows.length;
-  _cfopRows.push({ cfop: cfopSel.value, uf, regime, tribStr });
+  const row = { cfop: cfopSel.value, uf, regime, icmsCst, icmsAliq,
+                icmsRedbc: document.getElementById('icms-redbc').value,
+                ipiCst:  document.getElementById('ipi-cst').value,
+                ipiAliq: document.getElementById('ipi-aliq').value,
+                pisCst, pisAliq: document.getElementById('pis-aliq').value,
+                cofinsCst: document.getElementById('cofins-cst').value,
+                cofinsAliq: document.getElementById('cofins-aliq').value };
+  _cfopRows.push(row);
   const desc = cfopSel.options[cfopSel.selectedIndex].text.split(' - ').slice(1).join(' - ');
   tbody.insertAdjacentHTML('beforeend', `
     <tr data-idx="${idx}">
@@ -1052,30 +1148,37 @@ function removerCFOP(idx) {
       '<tr><td colspan="5" class="pad-empty">Nenhum padrão cadastrado.</td></tr>';
 }
 
-/* ══════════════ MODAL RETENÇÃO ══════════════ */
-const _retRows = [];
+/* ══════════════════════════════════════════════════
+   MODAL RETENÇÃO
+══════════════════════════════════════════════════ */
 function abrirModalRetencao()  { document.getElementById('modal-ret').classList.add('open'); }
 function fecharModalRetencao() { document.getElementById('modal-ret').classList.remove('open'); }
 
 function salvarRetencao() {
+  const gV = id => document.getElementById(id).value || '0,00';
   const desc   = document.getElementById('ret-desc').value   || '(sem descrição)';
   const limite = document.getElementById('ret-limite').value || '—';
-  const irrf   = document.getElementById('ret-irrf-ac').value   || '0,00';
-  const pis    = document.getElementById('ret-pis-ac').value    || '0,00';
-  const cofins = document.getElementById('ret-cofins-ac').value || '0,00';
-  const csll   = document.getElementById('ret-csll-ac').value   || '0,00';
-  const tbody  = document.getElementById('ret-tbody');
+  const row = {
+    desc, limite,
+    empPub: document.getElementById('ret-emp-pub').value,
+    abIrrf: gV('ret-irrf-ab'), abPis: gV('ret-pis-ab'),
+    abCofins: gV('ret-cofins-ab'), abCsll: gV('ret-csll-ab'), abInss: gV('ret-inss-ab'),
+    acIrrf: gV('ret-irrf-ac'), acPis: gV('ret-pis-ac'),
+    acCofins: gV('ret-cofins-ac'), acCsll: gV('ret-csll-ac'), acInss: gV('ret-inss-ac'),
+    outras: document.getElementById('ret-outras').value || '0,00',
+  };
+  const tbody = document.getElementById('ret-tbody');
   if (tbody.querySelector('.pad-empty')) tbody.innerHTML = '';
   const idx = _retRows.length;
-  _retRows.push({ desc, limite, irrf, pis, cofins, csll });
+  _retRows.push(row);
   tbody.insertAdjacentHTML('beforeend', `
     <tr data-idx="${idx}">
       <td><strong>${desc}</strong></td>
       <td style="text-align:right">R$ ${limite}</td>
-      <td style="text-align:right">${irrf}%</td>
-      <td style="text-align:right">${pis}%</td>
-      <td style="text-align:right">${cofins}%</td>
-      <td style="text-align:right">${csll}%</td>
+      <td style="text-align:right">${row.acIrrf}%</td>
+      <td style="text-align:right">${row.acPis}%</td>
+      <td style="text-align:right">${row.acCofins}%</td>
+      <td style="text-align:right">${row.acCsll}%</td>
       <td><button class="btn danger sm" onclick="removerRetencao(${idx})">🗑</button></td>
     </tr>`);
   fecharModalRetencao();
@@ -1087,6 +1190,192 @@ function removerRetencao(idx) {
     document.getElementById('ret-tbody').innerHTML =
       '<tr><td colspan="7" class="pad-empty">Nenhum padrão de retenção cadastrado.</td></tr>';
 }
+
+/* ══════════════════════════════════════════════════
+   API KEY
+══════════════════════════════════════════════════ */
+function copiarApiKey() {
+  navigator.clipboard.writeText(document.getElementById('api-key-input').value)
+    .then(() => showToast('✅ API Key copiada!'));
+}
+function regenerarKey() {
+  if (confirm('Gerar nova API Key?\n\nA chave atual será invalidada imediatamente.'))
+    showToast('✅ Nova API Key gerada. Atualize suas integrações.');
+}
+
+/* ══════════════════════════════════════════════════
+   LOAD CONFIG (ao abrir a página)
+══════════════════════════════════════════════════ */
+async function loadConfig() {
+  try {
+    const cfg = await dbGetConfig();
+    if (!cfg?.id) return;          // tabela vazia ainda
+    const sV = (id, v) => { const e = document.getElementById(id); if (e && v != null) e.value = v; };
+    const sC = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+
+    // ── Certificado
+    if (cfg.cert_tipo) {
+      const r = document.querySelector(`[name="cert-tipo"][value="${cfg.cert_tipo}"]`);
+      if (r) { r.checked = true; toggleCertTipo(cfg.cert_tipo); }
+    }
+    if (cfg.cert_nome) {
+      _certNome = cfg.cert_nome; _certB64 = cfg.cert_b64 || null;
+      _certCN = cfg.cert_cn; _certIssuer = cfg.cert_issuer;
+      _certValidade = cfg.cert_validade ? new Date(cfg.cert_validade) : null;
+      document.getElementById('cert-filename').textContent = cfg.cert_cn || cfg.cert_nome;
+      document.getElementById('cert-issuer').textContent   = cfg.cert_issuer ? 'Emissor: ' + cfg.cert_issuer : '—';
+      if (cfg.cert_validade) {
+        const d = new Date(cfg.cert_validade), expired = d < new Date();
+        document.getElementById('cert-expiry').textContent = (expired ? '⚠️ Vencido: ' : 'Válido até: ') + d.toLocaleDateString('pt-BR');
+        document.getElementById('cert-expiry').style.color = expired ? '#dc2626' : '#16a34a';
+        document.getElementById('cert-expiry-text').textContent = 'Válido até ' + d.toLocaleDateString('pt-BR');
+      }
+      if (cfg.cert_cn) {
+        document.getElementById('cert-cn-text').textContent = cfg.cert_cn;
+        document.getElementById('cert-validado-badge').style.display = 'flex';
+      }
+      document.getElementById('cert-a1-info').style.display = 'flex';
+    }
+    if (cfg.cert_senha) sV('cert-senha', cfg.cert_senha);
+
+    // ── Parâmetros
+    sV('p-ambiente',         cfg.ambiente);
+    sV('p-tipo-emissao',     cfg.tipo_emissao);
+    sV('p-uf',               cfg.uf);
+    sV('p-versao',           cfg.versao_nfe);
+    sV('p-serie-nfe-prod',   cfg.serie_nfe_prod);
+    sV('p-serie-nfe-homol',  cfg.serie_nfe_homol);
+    sV('p-serie-nfce-prod',  cfg.serie_nfce_prod);
+    sV('p-serie-nfce-homol', cfg.serie_nfce_homol);
+    sV('p-decimais-unit',    cfg.decimais_unit);
+    sV('p-dest-tipo',        cfg.dest_tipo);
+    sV('p-cons-final',       cfg.cons_final);
+    sV('p-ind-pres',         cfg.ind_pres);
+    sV('p-ind-intermed',     cfg.ind_intermed);
+    sV('p-cfop-pad',         cfg.cfop_padrao);
+    sC('p-sub-icms-piscofins', cfg.sub_icms_piscofins);
+    sC('p-sub-fcp-piscofins',  cfg.sub_fcp_piscofins);
+    sC('p-icms-desonerdo',     cfg.icms_desonerado);
+    sV('p-difal',            cfg.difal_calc);
+    sV('p-sit-ibs',          cfg.sit_ibs);
+    sV('p-class-trib',       cfg.class_trib);
+    sV('p-ibs-est',          cfg.ibs_est);
+    sV('p-ibs-mun',          cfg.ibs_mun);
+    sV('p-cbs',              cfg.cbs);
+
+    // ── Impostos
+    sV('p-inf-contribuinte', cfg.inf_contribuinte);
+    sV('p-inf-fisco',        cfg.inf_fisco);
+    sC('p-lei-transp',       cfg.lei_transp);
+    sV('p-aliq-transp',      cfg.aliq_transp);
+
+    // ── E-mail / DANFe
+    if (cfg.mde_ativo != null) {
+      const r = document.querySelector(`[name="mde-ativo"][value="${cfg.mde_ativo ? '1' : '0'}"]`);
+      if (r) r.checked = true;
+    }
+    sC('p-mde-auto',       cfg.mde_auto);
+    sC('p-nao-envia-copia', cfg.nao_envia_copia);
+    sC('p-desativ-email',  cfg.desativ_email);
+    sV('p-email-copia',    cfg.email_copia);
+    sV('p-msg-email',      cfg.msg_email);
+    sC('p-danfe-fantasia', cfg.danfe_fantasia);
+    sC('p-danfe-no-email', cfg.danfe_no_email);
+    sV('p-danfe-align',    cfg.danfe_align);
+    sC('p-allow-xml-dl',   cfg.allow_xml_dl);
+    sC('p-resumo-diario',  cfg.resumo_diario);
+    sC('p-resumo-semanal', cfg.resumo_semanal);
+    sC('p-resumo-mensal',  cfg.resumo_mensal);
+
+    if (cfg.danfe_logo_b64) {
+      _danfeLogoB64 = cfg.danfe_logo_b64;
+      document.getElementById('danfe-logo-preview').innerHTML = `<img src="${_danfeLogoB64}"/>`;
+    }
+  } catch (e) {
+    console.error('loadConfig:', e);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   SALVAR (grava no Supabase)
+══════════════════════════════════════════════════ */
+async function salvar() {
+  const gV = id => { const e = document.getElementById(id); return e ? e.value : null; };
+  const gC = id => { const e = document.getElementById(id); return !!(e && e.checked); };
+  const pF = v  => parseFloat((v || '0').replace(',', '.')) || 0;
+
+  const cfg = {
+    // Certificado
+    cert_tipo:    document.querySelector('[name="cert-tipo"]:checked')?.value || 'A1',
+    cert_nome:    _certNome,
+    cert_b64:     _certB64,
+    cert_senha:   gV('cert-senha'),
+    cert_cn:      _certCN,
+    cert_issuer:  _certIssuer,
+    cert_validade: _certValidade ? _certValidade.toISOString().split('T')[0] : null,
+    // Parâmetros
+    ambiente:            gV('p-ambiente'),
+    tipo_emissao:        gV('p-tipo-emissao'),
+    uf:                  gV('p-uf'),
+    versao_nfe:          gV('p-versao'),
+    serie_nfe_prod:      gV('p-serie-nfe-prod'),
+    serie_nfe_homol:     gV('p-serie-nfe-homol'),
+    serie_nfce_prod:     gV('p-serie-nfce-prod'),
+    serie_nfce_homol:    gV('p-serie-nfce-homol'),
+    decimais_unit:       parseInt(gV('p-decimais-unit')) || 4,
+    dest_tipo:           gV('p-dest-tipo'),
+    cons_final:          gV('p-cons-final'),
+    ind_pres:            gV('p-ind-pres'),
+    ind_intermed:        gV('p-ind-intermed'),
+    cfop_padrao:         gV('p-cfop-pad'),
+    sub_icms_piscofins:  gC('p-sub-icms-piscofins'),
+    sub_fcp_piscofins:   gC('p-sub-fcp-piscofins'),
+    icms_desonerado:     gC('p-icms-desonerdo'),
+    difal_calc:          gV('p-difal'),
+    sit_ibs:             gV('p-sit-ibs'),
+    class_trib:          gV('p-class-trib'),
+    ibs_est:             pF(gV('p-ibs-est')),
+    ibs_mun:             pF(gV('p-ibs-mun')),
+    cbs:                 pF(gV('p-cbs')),
+    // Impostos
+    inf_contribuinte:    gV('p-inf-contribuinte'),
+    inf_fisco:           gV('p-inf-fisco'),
+    lei_transp:          gC('p-lei-transp'),
+    aliq_transp:         pF(gV('p-aliq-transp')),
+    cfop_padroes:        _cfopRows,
+    retencoes:           _retRows,
+    // E-mail / DANFe
+    mde_ativo:           document.querySelector('[name="mde-ativo"]:checked')?.value === '1',
+    mde_auto:            gC('p-mde-auto'),
+    nao_envia_copia:     gC('p-nao-envia-copia'),
+    desativ_email:       gC('p-desativ-email'),
+    email_copia:         gV('p-email-copia'),
+    msg_email:           gV('p-msg-email'),
+    danfe_fantasia:      gC('p-danfe-fantasia'),
+    danfe_no_email:      gC('p-danfe-no-email'),
+    danfe_logo_b64:      _danfeLogoB64,
+    danfe_align:         gV('p-danfe-align'),
+    allow_xml_dl:        gC('p-allow-xml-dl'),
+    resumo_diario:       gC('p-resumo-diario'),
+    resumo_semanal:      gC('p-resumo-semanal'),
+    resumo_mensal:       gC('p-resumo-mensal'),
+  };
+
+  const btn = document.querySelector('.topbar-btn.primary');
+  btn.disabled = true; btn.textContent = '⏳ Salvando...';
+  try {
+    await dbSaveConfig(cfg);
+    showToast('✅ Configurações salvas com sucesso!');
+  } catch (e) {
+    showToast('❌ Erro ao salvar: ' + (e.message || e), 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Salvar';
+  }
+}
+
+/* inicia carregando os dados ao abrir a página */
+document.addEventListener('DOMContentLoaded', loadConfig);
 </script>
 
 <!-- ══════════════════════════════════════════
