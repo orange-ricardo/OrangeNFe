@@ -181,26 +181,26 @@
       <div class="stat-card">
         <div class="stat-icon orange">📄</div>
         <div class="label">NF-e emitidas (mês)</div>
-        <div class="value">247</div>
-        <div class="delta up">▲ 18% vs mês anterior</div>
+        <div class="value" id="dash-nfe">—</div>
+        <div class="delta up" id="dash-nfe-delta"></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon green">🧾</div>
-        <div class="label">NFS-e emitidas (mês)</div>
-        <div class="value">34</div>
-        <div class="delta up">▲ 6% vs mês anterior</div>
+        <div class="label">NFC-e emitidas (mês)</div>
+        <div class="value" id="dash-nfce">—</div>
+        <div class="delta up" id="dash-nfce-delta"></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon blue">📥</div>
         <div class="label">Notas recebidas (mês)</div>
-        <div class="value">89</div>
-        <div class="delta up">▲ 12 a mais que mês anterior</div>
+        <div class="value" id="dash-recebidas">—</div>
+        <div class="delta up" id="dash-rec-delta"></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon orange">💰</div>
         <div class="label">Valor total emitido</div>
-        <div class="value">R$ 184k</div>
-        <div class="delta up">▲ 22% vs mês anterior</div>
+        <div class="value" id="dash-valor">—</div>
+        <div class="delta up" id="dash-val-delta"></div>
       </div>
     </div>
 
@@ -208,13 +208,13 @@
     <div class="info-panels">
       <div class="info-panel">
         <div class="ip-label">Arquivos Recebidos</div>
-        <div class="ip-value">12</div>
+        <div class="ip-value" id="dash-arquivos">—</div>
         <div class="ip-sub">XMLs aguardando importação</div>
         <div class="ip-action"><a href="#" class="ip-tag blue">📁 Ver arquivos</a></div>
       </div>
       <div class="info-panel">
         <div class="ip-label">Manifestação Pendente</div>
-        <div class="ip-value">7</div>
+        <div class="ip-value" id="dash-manifest">—</div>
         <div class="ip-sub">NF-e aguardando manifestação</div>
         <div class="ip-action"><a href="#" class="ip-tag orange">🔔 Manifestar agora</a></div>
       </div>
@@ -235,37 +235,8 @@
             <thead><tr>
               <th>Nº</th><th>Destinatário</th><th>Valor</th><th>Status</th>
             </tr></thead>
-            <tbody>
-              <tr>
-                <td><b>000247</b></td>
-                <td>Mercado São Paulo Ltda</td>
-                <td>R$ 3.200,00</td>
-                <td><span class="badge autorizada">Autorizada</span></td>
-              </tr>
-              <tr>
-                <td><b>000246</b></td>
-                <td>Tech Distribuidora ME</td>
-                <td>R$ 780,50</td>
-                <td><span class="badge autorizada">Autorizada</span></td>
-              </tr>
-              <tr>
-                <td><b>000245</b></td>
-                <td>João da Silva — CPF</td>
-                <td>R$ 150,00</td>
-                <td><span class="badge cancelada">Cancelada</span></td>
-              </tr>
-              <tr>
-                <td><b>000244</b></td>
-                <td>Construtora Omega S/A</td>
-                <td>R$ 12.400,00</td>
-                <td><span class="badge autorizada">Autorizada</span></td>
-              </tr>
-              <tr>
-                <td><b>000243</b></td>
-                <td>Supermercado Norte ME</td>
-                <td>R$ 920,00</td>
-                <td><span class="badge pendente">Pendente</span></td>
-              </tr>
+            <tbody id="dash-notas-tbody">
+              <tr><td colspan="4" style="text-align:center;color:#aaa;padding:24px">Carregando…</td></tr>
             </tbody>
           </table>
         </div>
@@ -333,22 +304,22 @@
               <div class="gauge-row">
                 <div class="dot" style="background:#f97316"></div>
                 <span class="gr-label">Autorizadas</span>
-                <span class="gr-val">218</span>
+                <span class="gr-val" id="dash-aut">—</span>
               </div>
               <div class="gauge-row">
                 <div class="dot" style="background:#dc2626"></div>
                 <span class="gr-label">Canceladas</span>
-                <span class="gr-val">15</span>
+                <span class="gr-val" id="dash-canc">—</span>
               </div>
               <div class="gauge-row">
                 <div class="dot" style="background:#d97706"></div>
                 <span class="gr-label">Pendentes</span>
-                <span class="gr-val">8</span>
+                <span class="gr-val" id="dash-pend">—</span>
               </div>
               <div class="gauge-row">
                 <div class="dot" style="background:#9333ea"></div>
                 <span class="gr-label">Rejeitadas</span>
-                <span class="gr-val">6</span>
+                <span class="gr-val" id="dash-rej">—</span>
               </div>
             </div>
           </div>
@@ -360,5 +331,55 @@
   </div>
 </div>
 
+<script>
+function set(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+async function loadDashboard() {
+  try {
+    const s = await dbGetDashboardStats();
+
+    set('dash-nfe',       s.nfe_mes);
+    set('dash-nfce',      s.nfce_mes);
+    set('dash-recebidas', s.recebidas_mes);
+    set('dash-valor',     'R$ ' + fmtMoney(s.valor_mes));
+    set('dash-arquivos',  s.arquivos_total);
+    set('dash-manifest',  s.pendentes_manifest);
+
+    const sb = s.status_breakdown;
+    set('dash-aut',  sb.autorizada);
+    set('dash-canc', sb.cancelada);
+    set('dash-pend', sb.pendente);
+    set('dash-rej',  sb.rejeitada);
+
+    const total = sb.autorizada + sb.cancelada + sb.pendente + sb.rejeitada || 1;
+    const pct = Math.round(sb.autorizada / total * 100);
+    const gc = document.querySelector('.gauge-circle');
+    if (gc) { gc.style.setProperty('--pct', pct + '%'); gc.querySelector('span').textContent = pct + '%'; }
+
+  } catch(e) {
+    console.error('Dashboard load error:', e);
+  }
+
+  try {
+    const notas = await dbGetNotasEmitidas();
+    const tbody = document.getElementById('dash-notas-tbody');
+    if (!tbody) return;
+    if (!notas.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:24px">Nenhuma nota emitida ainda.</td></tr>';
+      return;
+    }
+    const badgeMap = { autorizada:'autorizada', cancelada:'cancelada', em_digitacao:'pendente', validada:'pendente', rejeitada:'rejeitada', denegada:'cancelada' };
+    tbody.innerHTML = notas.slice(0, 5).map(n => `
+      <tr>
+        <td><b>${n.numero || '—'}</b></td>
+        <td>${n.destinatario_nome || '—'}</td>
+        <td>R$ ${fmtMoney(n.valor_total)}</td>
+        <td><span class="badge ${badgeMap[n.status]||'pendente'}">${n.status}</span></td>
+      </tr>`).join('');
+  } catch(e) { console.error('Notas load error:', e); }
+}
+
+loadDashboard();
+</script>
 </body>
 </html>
