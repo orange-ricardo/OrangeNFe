@@ -99,6 +99,15 @@
     .chip-africa   { background: #fdf4ff; color: #7e22ce; }
     .chip-oceania  { background: #ecfeff; color: #0e7490; }
 
+    /* ── EMPTY BANNER ── */
+    .empty-banner {
+      display:flex; align-items:center; gap:12px;
+      padding:16px 20px; border-radius:10px;
+      background:#fffbeb; border:1px solid #fde68a;
+      color:#92400e; font-size:13px; font-weight:600;
+      margin-bottom:16px;
+    }
+
     /* ── EMPTY STATE ── */
     .empty-state {
       text-align: center; padding: 52px 24px; color: #aaa;
@@ -173,6 +182,12 @@
   <div class="content">
     <div class="paises-wrap">
 
+      <!-- EMPTY BANNER -->
+      <div id="empty-banner" class="empty-banner" style="display:none">
+        <span>⚠️</span>
+        <span>Tabela vazia. Execute a migration <strong>008_paises.sql</strong> no Supabase SQL Editor para popular os países.</span>
+      </div>
+
       <!-- FILTER BAR -->
       <div class="filter-bar">
         <input type="text" id="search-input" placeholder="Buscar por nome, código BACEN ou ISO…" oninput="applyFilters()"/>
@@ -184,7 +199,7 @@
           <option value="África">África</option>
           <option value="Oceania">Oceania</option>
         </select>
-        <span class="badge-count" id="badge-count">0 países</span>
+        <span class="badge-count" id="badge-count">— países</span>
       </div>
 
       <!-- TABLE -->
@@ -199,6 +214,7 @@
             </tr>
           </thead>
           <tbody id="paises-tbody">
+            <tr><td colspan="4" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">⏳ Carregando...</td></tr>
           </tbody>
         </table>
         <div class="empty-state" id="empty-state" style="display:none">
@@ -216,172 +232,36 @@
 
 <script>
 // ══════════════════════════════════════════════
-// DADOS DE PAÍSES — BACEN / ISO Alpha-2
-// Fonte: Banco Central do Brasil (Resolução BCB)
+// PAÍSES — carregado do Supabase (tabela paises)
+// Schema: bacen, iso, nome, continente
 // ══════════════════════════════════════════════
-const PAISES = [
-  // ─── América do Sul ──────────────────────────────
-  { bacen: '1058', iso: 'BR', nome: 'Brasil',           continente: 'América' },
-  { bacen: '0531', iso: 'AR', nome: 'Argentina',        continente: 'América' },
-  { bacen: '0973', iso: 'BO', nome: 'Bolívia',          continente: 'América' },
-  { bacen: '1715', iso: 'CL', nome: 'Chile',            continente: 'América' },
-  { bacen: '1830', iso: 'CO', nome: 'Colômbia',         continente: 'América' },
-  { bacen: '2078', iso: 'EC', nome: 'Equador',          continente: 'América' },
-  { bacen: '5118', iso: 'PY', nome: 'Paraguai',         continente: 'América' },
-  { bacen: '5231', iso: 'PE', nome: 'Peru',             continente: 'América' },
-  { bacen: '7080', iso: 'UY', nome: 'Uruguai',          continente: 'América' },
-  { bacen: '7137', iso: 'VE', nome: 'Venezuela',        continente: 'América' },
-  { bacen: '6300', iso: 'SR', nome: 'Suriname',         continente: 'América' },
-  { bacen: '3301', iso: 'GY', nome: 'Guiana',           continente: 'América' },
-  { bacen: '2828', iso: 'GF', nome: 'Guiana Francesa',  continente: 'América' },
+let ALL_PAISES = [];
 
-  // ─── América do Norte e Central / Caribe ─────────
-  { bacen: '1491', iso: 'CA', nome: 'Canadá',           continente: 'América' },
-  { bacen: '2496', iso: 'US', nome: 'Estados Unidos',   continente: 'América' },
-  { bacen: '4200', iso: 'MX', nome: 'México',           continente: 'América' },
-  { bacen: '1571', iso: 'CR', nome: 'Costa Rica',       continente: 'América' },
-  { bacen: '1635', iso: 'CU', nome: 'Cuba',             continente: 'América' },
-  { bacen: '2240', iso: 'SV', nome: 'El Salvador',      continente: 'América' },
-  { bacen: '3093', iso: 'GT', nome: 'Guatemala',        continente: 'América' },
-  { bacen: '3166', iso: 'HT', nome: 'Haiti',            continente: 'América' },
-  { bacen: '3255', iso: 'HN', nome: 'Honduras',         continente: 'América' },
-  { bacen: '4235', iso: 'NI', nome: 'Nicarágua',        continente: 'América' },
-  { bacen: '5045', iso: 'PA', nome: 'Panamá',           continente: 'América' },
-  { bacen: '2100', iso: 'DO', nome: 'República Dominicana', continente: 'América' },
-  { bacen: '3370', iso: 'JM', nome: 'Jamaica',          continente: 'América' },
-  { bacen: '6253', iso: 'TT', nome: 'Trinidad e Tobago', continente: 'América' },
-  { bacen: '0884', iso: 'BB', nome: 'Barbados',         continente: 'América' },
-  { bacen: '6289', iso: 'BS', nome: 'Bahamas',          continente: 'América' },
-  { bacen: '0558', iso: 'AG', nome: 'Antígua e Barbuda', continente: 'América' },
-  { bacen: '0310', iso: 'BZ', nome: 'Belize',           continente: 'América' },
+async function init() {
+  try {
+    const { data, error } = await getDB()
+      .from('paises')
+      .select('*')
+      .order('nome');
 
-  // ─── Europa Ocidental ────────────────────────────
-  { bacen: '0370', iso: 'DE', nome: 'Alemanha',         continente: 'Europa' },
-  { bacen: '0760', iso: 'AT', nome: 'Áustria',          continente: 'Europa' },
-  { bacen: '0884', iso: 'BE', nome: 'Bélgica',          continente: 'Europa' },
-  { bacen: '2534', iso: 'FR', nome: 'França',           continente: 'Europa' },
-  { bacen: '3450', iso: 'IT', nome: 'Itália',           continente: 'Europa' },
-  { bacen: '5754', iso: 'GB', nome: 'Reino Unido',      continente: 'Europa' },
-  { bacen: '2453', iso: 'ES', nome: 'Espanha',          continente: 'Europa' },
-  { bacen: '7560', iso: 'PT', nome: 'Portugal',         continente: 'Europa' },
-  { bacen: '4995', iso: 'NO', nome: 'Noruega',          continente: 'Europa' },
-  { bacen: '6289', iso: 'SE', nome: 'Suécia',           continente: 'Europa' },
-  { bacen: '6408', iso: 'CH', nome: 'Suíça',            continente: 'Europa' },
-  { bacen: '4065', iso: 'LU', nome: 'Luxemburgo',       continente: 'Europa' },
-  { bacen: '4060', iso: 'IE', nome: 'Irlanda',          continente: 'Europa' },
-  { bacen: '3514', iso: 'IS', nome: 'Islândia',         continente: 'Europa' },
-  { bacen: '4235', iso: 'NL', nome: 'Países Baixos',    continente: 'Europa' },
-  { bacen: '0884', iso: 'DK', nome: 'Dinamarca',        continente: 'Europa' },
-  { bacen: '2464', iso: 'FI', nome: 'Finlândia',        continente: 'Europa' },
-  { bacen: '3301', iso: 'GR', nome: 'Grécia',           continente: 'Europa' },
+    if (error) throw error;
 
-  // ─── Europa Oriental / Central ───────────────────
-  { bacen: '6238', iso: 'RU', nome: 'Rússia',           continente: 'Europa' },
-  { bacen: '0795', iso: 'BY', nome: 'Bielorrússia',     continente: 'Europa' },
-  { bacen: '7081', iso: 'UA', nome: 'Ucrânia',          continente: 'Europa' },
-  { bacen: '5685', iso: 'PL', nome: 'Polônia',          continente: 'Europa' },
-  { bacen: '1090', iso: 'CZ', nome: 'República Tcheca', continente: 'Europa' },
-  { bacen: '6300', iso: 'SK', nome: 'Eslováquia',       continente: 'Europa' },
-  { bacen: '3220', iso: 'HU', nome: 'Hungria',          continente: 'Europa' },
-  { bacen: '0272', iso: 'AL', nome: 'Albânia',          continente: 'Europa' },
-  { bacen: '0930', iso: 'BG', nome: 'Bulgária',         continente: 'Europa' },
-  { bacen: '5640', iso: 'RO', nome: 'Romênia',          continente: 'Europa' },
-  { bacen: '2372', iso: 'EE', nome: 'Estônia',          continente: 'Europa' },
-  { bacen: '3638', iso: 'LV', nome: 'Letônia',          continente: 'Europa' },
-  { bacen: '3808', iso: 'LT', nome: 'Lituânia',         continente: 'Europa' },
-  { bacen: '0892', iso: 'BA', nome: 'Bósnia e Herzegovina', continente: 'Europa' },
-  { bacen: '4430', iso: 'MK', nome: 'Macedônia do Norte', continente: 'Europa' },
-  { bacen: '4200', iso: 'MD', nome: 'Moldávia',         continente: 'Europa' },
-  { bacen: '5640', iso: 'RS', nome: 'Sérvia',           continente: 'Europa' },
-  { bacen: '1590', iso: 'HR', nome: 'Croácia',          continente: 'Europa' },
-  { bacen: '4645', iso: 'ME', nome: 'Montenegro',       continente: 'Europa' },
-  { bacen: '2135', iso: 'SI', nome: 'Eslovênia',        continente: 'Europa' },
+    if (!data || data.length === 0) {
+      document.getElementById('empty-banner').style.display = 'flex';
+      document.getElementById('badge-count').textContent = '0 países';
+      document.getElementById('paises-tbody').innerHTML = '';
+      return;
+    }
 
-  // ─── Ásia Oriental e Sudeste Asiático ────────────
-  { bacen: '1768', iso: 'CN', nome: 'China',            continente: 'Ásia' },
-  { bacen: '4111', iso: 'JP', nome: 'Japão',            continente: 'Ásia' },
-  { bacen: '1872', iso: 'KR', nome: 'Coreia do Sul',    continente: 'Ásia' },
-  { bacen: '6599', iso: 'TW', nome: 'Taiwan',           continente: 'Ásia' },
-  { bacen: '3514', iso: 'HK', nome: 'Hong Kong',        continente: 'Ásia' },
-  { bacen: '5781', iso: 'SG', nome: 'Singapura',        continente: 'Ásia' },
-  { bacen: '3310', iso: 'ID', nome: 'Indonésia',        continente: 'Ásia' },
-  { bacen: '4383', iso: 'MY', nome: 'Malásia',          continente: 'Ásia' },
-  { bacen: '5258', iso: 'PH', nome: 'Filipinas',        continente: 'Ásia' },
-  { bacen: '6647', iso: 'TH', nome: 'Tailândia',        continente: 'Ásia' },
-  { bacen: '7235', iso: 'VN', nome: 'Vietnã',           continente: 'Ásia' },
-  { bacen: '0955', iso: 'MM', nome: 'Myanmar (Birmânia)', continente: 'Ásia' },
-  { bacen: '3557', iso: 'KH', nome: 'Camboja',          continente: 'Ásia' },
-  { bacen: '3620', iso: 'KP', nome: 'Coreia do Norte',  continente: 'Ásia' },
+    ALL_PAISES = data;
+    renderTable(ALL_PAISES);
+  } catch (e) {
+    document.getElementById('paises-tbody').innerHTML =
+      `<tr><td colspan="4" style="text-align:center;padding:30px;color:#dc2626;font-size:13px;">❌ Erro ao carregar: ${e.message}</td></tr>`;
+  }
+}
 
-  // ─── Ásia do Sul e Central ────────────────────────
-  { bacen: '3336', iso: 'IN', nome: 'Índia',            continente: 'Ásia' },
-  { bacen: '5279', iso: 'PK', nome: 'Paquistão',        continente: 'Ásia' },
-  { bacen: '0930', iso: 'BD', nome: 'Bangladesh',       continente: 'Ásia' },
-  { bacen: '4758', iso: 'NP', nome: 'Nepal',            continente: 'Ásia' },
-  { bacen: '0995', iso: 'LK', nome: 'Sri Lanka',        continente: 'Ásia' },
-  { bacen: '0302', iso: 'AF', nome: 'Afeganistão',      continente: 'Ásia' },
-  { bacen: '3417', iso: 'IR', nome: 'Irã',              continente: 'Ásia' },
-  { bacen: '3417', iso: 'IQ', nome: 'Iraque',           continente: 'Ásia' },
-  { bacen: '3433', iso: 'IL', nome: 'Israel',           continente: 'Ásia' },
-  { bacen: '3484', iso: 'JO', nome: 'Jordânia',         continente: 'Ásia' },
-  { bacen: '3557', iso: 'KW', nome: 'Kuwait',           continente: 'Ásia' },
-  { bacen: '3620', iso: 'LB', nome: 'Líbano',           continente: 'Ásia' },
-  { bacen: '5355', iso: 'SA', nome: 'Arábia Saudita',   continente: 'Ásia' },
-  { bacen: '7358', iso: 'AE', nome: 'Emirados Árabes Unidos', continente: 'Ásia' },
-  { bacen: '6750', iso: 'TR', nome: 'Turquia',          continente: 'Ásia' },
-  { bacen: '5070', iso: 'OM', nome: 'Omã',              continente: 'Ásia' },
-  { bacen: '3514', iso: 'QA', nome: 'Catar',            continente: 'Ásia' },
-  { bacen: '0930', iso: 'BH', nome: 'Barein',           continente: 'Ásia' },
-  { bacen: '7300', iso: 'YE', nome: 'Iêmen',            continente: 'Ásia' },
-  { bacen: '5525', iso: 'SY', nome: 'Síria',            continente: 'Ásia' },
-
-  // ─── África ──────────────────────────────────────
-  { bacen: '0418', iso: 'AO', nome: 'Angola',           continente: 'África' },
-  { bacen: '0426', iso: 'DZ', nome: 'Argélia',          continente: 'África' },
-  { bacen: '4340', iso: 'MA', nome: 'Marrocos',         continente: 'África' },
-  { bacen: '2402', iso: 'EG', nome: 'Egito',            continente: 'África' },
-  { bacen: '6238', iso: 'ZA', nome: 'África do Sul',    continente: 'África' },
-  { bacen: '4480', iso: 'NG', nome: 'Nigéria',          continente: 'África' },
-  { bacen: '2542', iso: 'ET', nome: 'Etiópia',          continente: 'África' },
-  { bacen: '3077', iso: 'GH', nome: 'Gana',             continente: 'África' },
-  { bacen: '3549', iso: 'CI', nome: 'Costa do Marfim',  continente: 'África' },
-  { bacen: '3514', iso: 'KE', nome: 'Quênia',           continente: 'África' },
-  { bacen: '6408', iso: 'TZ', nome: 'Tanzânia',         continente: 'África' },
-  { bacen: '6238', iso: 'SD', nome: 'Sudão',            continente: 'África' },
-  { bacen: '3557', iso: 'CM', nome: 'Camarões',         continente: 'África' },
-  { bacen: '2700', iso: 'MZ', nome: 'Moçambique',       continente: 'África' },
-  { bacen: '3638', iso: 'MG', nome: 'Madagascar',       continente: 'África' },
-  { bacen: '3301', iso: 'GA', nome: 'Gabão',            continente: 'África' },
-  { bacen: '5509', iso: 'SN', nome: 'Senegal',          continente: 'África' },
-  { bacen: '3255', iso: 'GN', nome: 'Guiné',            continente: 'África' },
-  { bacen: '3301', iso: 'GW', nome: 'Guiné-Bissau',     continente: 'África' },
-  { bacen: '5819', iso: 'ST', nome: 'São Tomé e Príncipe', continente: 'África' },
-  { bacen: '1571', iso: 'CV', nome: 'Cabo Verde',       continente: 'África' },
-  { bacen: '4065', iso: 'LY', nome: 'Líbia',            continente: 'África' },
-  { bacen: '6238', iso: 'ZW', nome: 'Zimbábue',         continente: 'África' },
-  { bacen: '3220', iso: 'ZM', nome: 'Zâmbia',           continente: 'África' },
-
-  // ─── Oceania ─────────────────────────────────────
-  { bacen: '0698', iso: 'AU', nome: 'Austrália',        continente: 'Oceania' },
-  { bacen: '5053', iso: 'NZ', nome: 'Nova Zelândia',    continente: 'Oceania' },
-  { bacen: '5258', iso: 'PG', nome: 'Papua Nova Guiné', continente: 'Oceania' },
-  { bacen: '2375', iso: 'FJ', nome: 'Fiji',             continente: 'Oceania' },
-  { bacen: '5495', iso: 'WS', nome: 'Samoa',            continente: 'Oceania' },
-  { bacen: '6506', iso: 'TO', nome: 'Tonga',            continente: 'Oceania' },
-  { bacen: '7340', iso: 'VU', nome: 'Vanuatu',          continente: 'Oceania' },
-  { bacen: '5060', iso: 'NC', nome: 'Nova Caledônia',   continente: 'Oceania' },
-  { bacen: '5060', iso: 'PF', nome: 'Polinésia Francesa', continente: 'Oceania' },
-  { bacen: '5532', iso: 'SB', nome: 'Ilhas Salomão',    continente: 'Oceania' },
-  { bacen: '4558', iso: 'MH', nome: 'Ilhas Marshall',   continente: 'Oceania' },
-  { bacen: '4558', iso: 'FM', nome: 'Micronésia',       continente: 'Oceania' },
-  { bacen: '5028', iso: 'NR', nome: 'Nauru',            continente: 'Oceania' },
-  { bacen: '5746', iso: 'KI', nome: 'Quiribati',        continente: 'Oceania' },
-  { bacen: '6647', iso: 'TV', nome: 'Tuvalu',           continente: 'Oceania' },
-];
-
-// ══════════════════════════════════════════════
-// CHIP DE CONTINENTE
-// ══════════════════════════════════════════════
+// ── Chip de continente ─────────────────────────
 function getContinenteClass(cont) {
   const map = {
     'América': 'chip-america',
@@ -393,14 +273,12 @@ function getContinenteClass(cont) {
   return map[cont] || 'chip-america';
 }
 
-// ══════════════════════════════════════════════
-// FILTROS
-// ══════════════════════════════════════════════
+// ── Filtros (client-side sobre cache) ──────────
 function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase().trim();
   const cont   = document.getElementById('continente-select').value;
 
-  const filtered = PAISES.filter(p => {
+  const filtered = ALL_PAISES.filter(p => {
     const matchSearch = !search ||
       p.nome.toLowerCase().includes(search) ||
       p.bacen.includes(search) ||
@@ -412,15 +290,12 @@ function applyFilters() {
   renderTable(filtered);
 }
 
-// ══════════════════════════════════════════════
-// RENDERIZAÇÃO
-// ══════════════════════════════════════════════
 function renderTable(data) {
   const tbody = document.getElementById('paises-tbody');
   const empty = document.getElementById('empty-state');
   const badge = document.getElementById('badge-count');
 
-  badge.textContent = data.length + ' países';
+  badge.textContent = data.length + ' país' + (data.length !== 1 ? 'es' : '');
 
   if (data.length === 0) {
     tbody.innerHTML = '';
@@ -433,7 +308,7 @@ function renderTable(data) {
     const isBrasil = p.iso === 'BR';
     const rowClass = isBrasil ? ' class="brasil-row"' : '';
     const chipClass = getContinenteClass(p.continente);
-    return `<tr${rowClass} onclick="copyBACEN('${p.bacen}', '${p.nome}')">
+    return `<tr${rowClass} onclick="copyBACEN('${p.bacen}', '${p.nome.replace(/'/g,"\\'")}')">
       <td><span class="bacen-code">${p.bacen}</span></td>
       <td><span class="iso-code">${p.iso}</span></td>
       <td>${p.nome}</td>
@@ -442,9 +317,7 @@ function renderTable(data) {
   }).join('');
 }
 
-// ══════════════════════════════════════════════
-// COPY + TOAST
-// ══════════════════════════════════════════════
+// ── Copy + Toast ───────────────────────────────
 let toastTimer = null;
 function copyBACEN(bacen, nome) {
   navigator.clipboard.writeText(bacen).then(() => {
@@ -462,10 +335,8 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
-renderTable(PAISES);
+// ── Init ───────────────────────────────────────
+init();
 </script>
 
 </body>

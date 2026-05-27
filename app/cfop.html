@@ -82,6 +82,15 @@
     .chip.entrada { background: #eff6ff; color: #2563eb; }
     .chip.saida   { background: #f0fdf4; color: #16a34a; }
 
+    /* ── EMPTY BANNER ── */
+    .empty-banner {
+      display:flex; align-items:center; gap:12px;
+      padding:16px 20px; border-radius:10px;
+      background:#fffbeb; border:1px solid #fde68a;
+      color:#92400e; font-size:13px; font-weight:600;
+      margin-bottom:16px;
+    }
+
     /* ── EMPTY STATE ── */
     .empty-state {
       text-align: center; padding: 52px 24px; color: #aaa;
@@ -156,6 +165,12 @@
   <div class="content">
     <div class="cfop-wrap">
 
+      <!-- EMPTY BANNER -->
+      <div id="empty-banner" class="empty-banner" style="display:none">
+        <span>⚠️</span>
+        <span>Tabela vazia. Execute a migration <strong>007_cfop.sql</strong> no Supabase SQL Editor para popular os CFOPs.</span>
+      </div>
+
       <!-- FILTER BAR -->
       <div class="filter-bar">
         <input type="text" id="search-input" placeholder="Buscar por código ou descrição…" oninput="applyFilters()"/>
@@ -168,7 +183,7 @@
           <option value="6">6.xxx – Saídas para Outros Estados</option>
           <option value="7">7.xxx – Saídas para o Exterior</option>
         </select>
-        <span class="badge-count" id="badge-count">0 CFOPs</span>
+        <span class="badge-count" id="badge-count">— CFOPs</span>
       </div>
 
       <!-- TABLE -->
@@ -178,10 +193,11 @@
             <tr>
               <th style="width:100px">Código</th>
               <th>Descrição</th>
-              <th style="width:200px">Grupo</th>
+              <th style="width:220px">Grupo</th>
             </tr>
           </thead>
           <tbody id="cfop-tbody">
+            <tr><td colspan="3" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">⏳ Carregando...</td></tr>
           </tbody>
         </table>
         <div class="empty-state" id="empty-state" style="display:none">
@@ -199,340 +215,44 @@
 
 <script>
 // ══════════════════════════════════════════════
-// DADOS DE CFOP — SEFAZ Brasil
+// CFOP — carregado do Supabase (tabela cfop)
+// Schema: codigo, descricao, grupo, tipo
 // ══════════════════════════════════════════════
-const CFOPS = [
-  // ─── GRUPO 1 – Entradas no Estado ───────────────────────────────
-  { codigo: '1.102', desc: 'Compra para comercialização' },
-  { codigo: '1.104', desc: 'Compra para uso ou consumo' },
-  { codigo: '1.116', desc: 'Compra para industrialização originada de encomenda para recebimento futuro' },
-  { codigo: '1.117', desc: 'Compra para industrialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '1.118', desc: 'Compra de mercadoria para comercialização pelo adquirente originada de encomenda para recebimento futuro' },
-  { codigo: '1.120', desc: 'Compra para industrialização, em venda à ordem, já recebida do vendedor remetente' },
-  { codigo: '1.121', desc: 'Compra para comercialização, em venda à ordem, já recebida do vendedor remetente' },
-  { codigo: '1.122', desc: 'Compra para industrialização em operação com produto sujeito ao regime de substituição tributária' },
-  { codigo: '1.124', desc: 'Industrialização efetuada por outra empresa' },
-  { codigo: '1.125', desc: 'Industrialização efetuada por outra empresa quando a mercadoria remetida para utilização no processo de industrialização não transitou pelo estabelecimento adquirente' },
-  { codigo: '1.201', desc: 'Devolução de venda de produção do estabelecimento' },
-  { codigo: '1.202', desc: 'Devolução de venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '1.203', desc: 'Devolução de venda de produção do estabelecimento, destinada à Zona Franca de Manaus ou Áreas de Livre Comércio' },
-  { codigo: '1.204', desc: 'Devolução de venda de mercadoria adquirida ou recebida de terceiros, destinada à Zona Franca de Manaus ou Áreas de Livre Comércio' },
-  { codigo: '1.205', desc: 'Anulação de valor relativo à prestação de serviço de comunicação' },
-  { codigo: '1.206', desc: 'Anulação de valor relativo a prestação de serviço de transporte' },
-  { codigo: '1.207', desc: 'Anulação de valor relativo à venda de energia elétrica' },
-  { codigo: '1.208', desc: 'Devolução de produção do estabelecimento, remetida em transferência' },
-  { codigo: '1.209', desc: 'Devolução de mercadoria adquirida ou recebida de terceiros, remetida em transferência' },
-  { codigo: '1.401', desc: 'Compra para industrialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '1.403', desc: 'Compra para comercialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '1.406', desc: 'Compra de bem para o ativo imobilizado cuja mercadoria está sujeita ao regime de substituição tributária' },
-  { codigo: '1.407', desc: 'Compra de mercadoria para uso ou consumo cuja mercadoria está sujeita ao regime de substituição tributária' },
-  { codigo: '1.408', desc: 'Transferência para industrialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '1.409', desc: 'Transferência para comercialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '1.501', desc: 'Entrada de mercadoria recebida com fim específico de exportação' },
-  { codigo: '1.503', desc: 'Entrada decorrente de devolução de produto remetido com fim específico de exportação, de produção do estabelecimento' },
-  { codigo: '1.504', desc: 'Entrada decorrente de devolução de mercadoria remetida com fim específico de exportação, adquirida ou recebida de terceiros' },
-  { codigo: '1.551', desc: 'Compra de bem para o ativo imobilizado' },
-  { codigo: '1.552', desc: 'Transferência de bem do ativo imobilizado' },
-  { codigo: '1.553', desc: 'Devolução de venda de bem do ativo imobilizado' },
-  { codigo: '1.555', desc: 'Entrada de bem do ativo imobilizado de terceiro, remetido para uso no estabelecimento' },
-  { codigo: '1.556', desc: 'Compra de material para uso ou consumo' },
-  { codigo: '1.557', desc: 'Transferência de material para uso ou consumo' },
-  { codigo: '1.603', desc: 'Ressarcimento de ICMS retido por substituição tributária' },
-  { codigo: '1.651', desc: 'Compra de combustível ou lubrificante para industrialização subseqüente' },
-  { codigo: '1.652', desc: 'Compra de combustível ou lubrificante para comercialização' },
-  { codigo: '1.653', desc: 'Compra de combustível ou lubrificante por consumidor ou usuário final' },
-  { codigo: '1.658', desc: 'Transferência de combustível e lubrificante adquirido para venda a varejo' },
-  { codigo: '1.901', desc: 'Remessa para industrialização por encomenda' },
-  { codigo: '1.902', desc: 'Retorno de mercadoria remetida para industrialização por encomenda' },
-  { codigo: '1.903', desc: 'Retorno de mercadoria remetida para industrialização e não aplicada no referido processo' },
-  { codigo: '1.904', desc: 'Retorno de remessa para venda fora do estabelecimento' },
-  { codigo: '1.905', desc: 'Entrada de mercadoria recebida para depósito em depósito fechado ou armazém geral' },
-  { codigo: '1.906', desc: 'Retorno de mercadoria remetida para depósito fechado ou armazém geral' },
-  { codigo: '1.907', desc: 'Retorno simbólico de mercadoria remetida para depósito fechado ou armazém geral' },
-  { codigo: '1.908', desc: 'Entrada de bem por conta de contrato de comodato' },
-  { codigo: '1.909', desc: 'Retorno de bem remetido por conta de contrato de comodato' },
-  { codigo: '1.923', desc: 'Entrada de mercadoria em poder de terceiros decorrente de acordo firmado anteriormente' },
-  { codigo: '1.933', desc: 'Aquisição de serviços de comunicação por não contribuinte do ICMS' },
+let ALL_CFOPS = [];
 
-  // ─── GRUPO 2 – Entradas de Outros Estados ───────────────────────
-  { codigo: '2.102', desc: 'Compra para comercialização' },
-  { codigo: '2.104', desc: 'Compra para uso ou consumo' },
-  { codigo: '2.116', desc: 'Compra para industrialização originada de encomenda para recebimento futuro' },
-  { codigo: '2.117', desc: 'Compra para industrialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '2.118', desc: 'Compra de mercadoria para comercialização pelo adquirente originada de encomenda para recebimento futuro' },
-  { codigo: '2.120', desc: 'Compra para industrialização, em venda à ordem, já recebida do vendedor remetente' },
-  { codigo: '2.121', desc: 'Compra para comercialização, em venda à ordem, já recebida do vendedor remetente' },
-  { codigo: '2.124', desc: 'Industrialização efetuada por outra empresa' },
-  { codigo: '2.201', desc: 'Devolução de venda de produção do estabelecimento' },
-  { codigo: '2.202', desc: 'Devolução de venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '2.401', desc: 'Compra para industrialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '2.403', desc: 'Compra para comercialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '2.551', desc: 'Compra de bem para o ativo imobilizado' },
-  { codigo: '2.552', desc: 'Transferência de bem do ativo imobilizado' },
-  { codigo: '2.556', desc: 'Compra de material para uso ou consumo' },
-  { codigo: '2.603', desc: 'Ressarcimento de ICMS retido por substituição tributária' },
-  { codigo: '2.651', desc: 'Compra de combustível ou lubrificante para industrialização subseqüente' },
-  { codigo: '2.652', desc: 'Compra de combustível ou lubrificante para comercialização' },
-  { codigo: '2.653', desc: 'Compra de combustível ou lubrificante por consumidor ou usuário final' },
-  { codigo: '2.904', desc: 'Retorno de remessa para venda fora do estabelecimento' },
-  { codigo: '2.906', desc: 'Retorno de mercadoria remetida para depósito fechado ou armazém geral' },
-  { codigo: '2.923', desc: 'Entrada de mercadoria em poder de terceiros decorrente de acordo firmado anteriormente' },
+async function init() {
+  try {
+    const { data, error } = await getDB()
+      .from('cfop')
+      .select('*')
+      .order('codigo');
 
-  // ─── GRUPO 3 – Entradas do Exterior ─────────────────────────────
-  { codigo: '3.102', desc: 'Compra para comercialização' },
-  { codigo: '3.126', desc: 'Compra para utilização na prestação de serviço sujeita ao ISSQN' },
-  { codigo: '3.127', desc: 'Compra para industrialização sob o regime de drawback' },
-  { codigo: '3.201', desc: 'Devolução de venda de produção do estabelecimento' },
-  { codigo: '3.202', desc: 'Devolução de venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '3.205', desc: 'Anulação de valor relativo à prestação de serviço de comunicação' },
-  { codigo: '3.551', desc: 'Compra de bem para o ativo imobilizado' },
-  { codigo: '3.553', desc: 'Devolução de venda de bem do ativo imobilizado' },
-  { codigo: '3.556', desc: 'Compra de material para uso ou consumo' },
-  { codigo: '3.651', desc: 'Compra de combustível ou lubrificante para industrialização subseqüente' },
-  { codigo: '3.652', desc: 'Compra de combustível ou lubrificante para comercialização' },
-  { codigo: '3.653', desc: 'Compra de combustível ou lubrificante por consumidor ou usuário final' },
+    if (error) throw error;
 
-  // ─── GRUPO 5 – Saídas no Estado ─────────────────────────────────
-  { codigo: '5.101', desc: 'Venda de produção do estabelecimento' },
-  { codigo: '5.102', desc: 'Venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '5.103', desc: 'Venda de produção do estabelecimento, efetuada fora do estabelecimento' },
-  { codigo: '5.104', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, efetuada fora do estabelecimento' },
-  { codigo: '5.105', desc: 'Venda de produção do estabelecimento que não deva por ela transitar' },
-  { codigo: '5.106', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, que não deva por ela transitar' },
-  { codigo: '5.109', desc: 'Venda de produção do estabelecimento, destinada à Zona Franca de Manaus ou Áreas de Livre Comércio' },
-  { codigo: '5.110', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, destinada à Zona Franca de Manaus ou Áreas de Livre Comércio' },
-  { codigo: '5.111', desc: 'Venda de produção do estabelecimento remetida anteriormente em consignação industrial' },
-  { codigo: '5.112', desc: 'Venda de mercadoria adquirida ou recebida de terceiros remetida anteriormente em consignação industrial' },
-  { codigo: '5.113', desc: 'Venda de produção do estabelecimento remetida anteriormente em consignação mercantil' },
-  { codigo: '5.114', desc: 'Venda de mercadoria adquirida ou recebida de terceiros remetida anteriormente em consignação mercantil' },
-  { codigo: '5.115', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, recebida anteriormente em consignação mercantil' },
-  { codigo: '5.116', desc: 'Venda de produção do estabelecimento originada de encomenda para entrega futura' },
-  { codigo: '5.117', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, originada de encomenda para entrega futura' },
-  { codigo: '5.120', desc: 'Venda de produção do estabelecimento, com fornecimento de alimentação e bebidas' },
-  { codigo: '5.122', desc: 'Venda de produção do estabelecimento remetida para industrialização, por conta e ordem do adquirente' },
-  { codigo: '5.124', desc: 'Industrialização efetuada para outra empresa' },
-  { codigo: '5.125', desc: 'Industrialização efetuada para outra empresa quando a mercadoria recebida para utilização no processo de industrialização não transitou pelo estabelecimento adquirente-remitente' },
-  { codigo: '5.151', desc: 'Transferência de produção do estabelecimento' },
-  { codigo: '5.152', desc: 'Transferência de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '5.153', desc: 'Transferência de energia elétrica' },
-  { codigo: '5.155', desc: 'Transferência de produção do estabelecimento, que não deva por ela transitar' },
-  { codigo: '5.156', desc: 'Transferência de mercadoria adquirida ou recebida de terceiros, que não deva por ela transitar' },
-  { codigo: '5.201', desc: 'Devolução de compra para industrialização' },
-  { codigo: '5.202', desc: 'Devolução de compra para comercialização' },
-  { codigo: '5.204', desc: 'Devolução de compra para uso ou consumo' },
-  { codigo: '5.205', desc: 'Anulação de valor relativo à aquisição de serviço de comunicação' },
-  { codigo: '5.206', desc: 'Anulação de valor relativo à aquisição de serviço de transporte' },
-  { codigo: '5.207', desc: 'Anulação de valor relativo à compra de energia elétrica' },
-  { codigo: '5.208', desc: 'Devolução de mercadoria recebida em transferência para industrialização' },
-  { codigo: '5.209', desc: 'Devolução de mercadoria recebida em transferência para comercialização' },
-  { codigo: '5.210', desc: 'Devolução de compra para utilização na prestação de serviço' },
-  { codigo: '5.211', desc: 'Devolução de compras para industrialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '5.212', desc: 'Devolução de compras para comercialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '5.213', desc: 'Devolução de entrada de mercadoria com previsão de posterior ajuste ou fixação de preço, em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '5.214', desc: 'Devolução de compra para uso ou consumo em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '5.301', desc: 'Venda de produção do estabelecimento' },
-  { codigo: '5.302', desc: 'Venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '5.303', desc: 'Venda de produção do estabelecimento, efetuada fora do estabelecimento' },
-  { codigo: '5.304', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, efetuada fora do estabelecimento' },
-  { codigo: '5.351', desc: 'Venda de produção do estabelecimento' },
-  { codigo: '5.352', desc: 'Venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '5.353', desc: 'Venda de produção do estabelecimento, efetuada fora do estabelecimento' },
-  { codigo: '5.354', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, efetuada fora do estabelecimento' },
-  { codigo: '5.401', desc: 'Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto' },
-  { codigo: '5.403', desc: 'Venda de mercadoria adquirida ou recebida de terceiros em operação com mercadoria sujeita ao regime de substituição tributária, na condição de contribuinte substituto' },
-  { codigo: '5.405', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, sujeita ao regime de substituição tributária, na condição de contribuinte-substituído' },
-  { codigo: '5.408', desc: 'Transferência de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária' },
-  { codigo: '5.409', desc: 'Transferência de mercadoria adquirida ou recebida de terceiros em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '5.410', desc: 'Devolução de compra para industrialização em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '5.501', desc: 'Remessa de produção do estabelecimento, com fim específico de exportação' },
-  { codigo: '5.502', desc: 'Remessa de mercadoria adquirida ou recebida de terceiros, com fim específico de exportação' },
-  { codigo: '5.503', desc: 'Devolução de mercadoria recebida com fim específico de exportação' },
-  { codigo: '5.504', desc: 'Remessa de mercadorias para formação de lote de exportação, de produtos industrializados ou produzidos pelo próprio estabelecimento' },
-  { codigo: '5.505', desc: 'Remessa de mercadorias, adquiridas ou recebidas de terceiros, para formação de lote de exportação' },
-  { codigo: '5.551', desc: 'Venda de bem do ativo imobilizado' },
-  { codigo: '5.552', desc: 'Transferência de bem do ativo imobilizado' },
-  { codigo: '5.553', desc: 'Devolução de compra de bem para o ativo imobilizado' },
-  { codigo: '5.554', desc: 'Remessa de bem do ativo imobilizado para uso fora do estabelecimento' },
-  { codigo: '5.555', desc: 'Devolução de bem do ativo imobilizado de terceiro, recebido para uso no estabelecimento' },
-  { codigo: '5.556', desc: 'Venda de material de uso ou consumo' },
-  { codigo: '5.557', desc: 'Transferência de material de uso ou consumo' },
-  { codigo: '5.601', desc: 'Transferência de crédito de ICMS acumulado' },
-  { codigo: '5.602', desc: 'Transferência de saldo credor de ICMS para outro estabelecimento da mesma empresa, destinado à compensação de saldo devedor de ICMS' },
-  { codigo: '5.603', desc: 'Ressarcimento de ICMS retido por substituição tributária' },
-  { codigo: '5.605', desc: 'Transferência de saldo devedor de ICMS de outro estabelecimento da mesma empresa' },
-  { codigo: '5.606', desc: 'Utilização de saldo credor de ICMS para extinção por compensação de débitos fiscais' },
-  { codigo: '5.651', desc: 'Venda de combustível ou lubrificante de produção do estabelecimento destinados à industrialização subseqüente' },
-  { codigo: '5.652', desc: 'Venda de combustível ou lubrificante de produção do estabelecimento destinados à comercialização' },
-  { codigo: '5.653', desc: 'Venda de combustível ou lubrificante de produção do estabelecimento destinados a consumidor ou usuário final' },
-  { codigo: '5.655', desc: 'Venda de combustível ou lubrificante adquiridos ou recebidos de terceiros destinados a consumidor ou usuário final' },
-  { codigo: '5.656', desc: 'Venda de combustível ou lubrificante adquiridos ou recebidos de terceiros destinados a consumidor ou usuário final' },
-  { codigo: '5.657', desc: 'Remessa de combustível ou lubrificante adquiridos ou recebidos de terceiros para venda fora do estabelecimento' },
-  { codigo: '5.658', desc: 'Transferência de combustível ou lubrificante adquiridos ou recebidos de terceiros' },
-  { codigo: '5.901', desc: 'Remessa para industrialização por encomenda' },
-  { codigo: '5.902', desc: 'Retorno de mercadoria utilizada na industrialização por encomenda' },
-  { codigo: '5.903', desc: 'Retorno de mercadoria recebida para industrialização e não aplicada no referido processo' },
-  { codigo: '5.904', desc: 'Remessa para venda fora do estabelecimento' },
-  { codigo: '5.905', desc: 'Remessa para depósito fechado ou armazém geral' },
-  { codigo: '5.906', desc: 'Retorno de mercadoria depositada em depósito fechado ou armazém geral' },
-  { codigo: '5.907', desc: 'Retorno simbólico de mercadoria depositada em depósito fechado ou armazém geral' },
-  { codigo: '5.908', desc: 'Remessa de bem por conta de contrato de comodato' },
-  { codigo: '5.909', desc: 'Retorno de bem remetido por conta de contrato de comodato' },
-  { codigo: '5.910', desc: 'Remessa em bonificação, doação ou brinde' },
-  { codigo: '5.911', desc: 'Remessa de amostra grátis' },
-  { codigo: '5.912', desc: 'Remessa de mercadoria ou bem para demonstração' },
-  { codigo: '5.913', desc: 'Retorno de mercadoria ou bem recebido para demonstração' },
-  { codigo: '5.914', desc: 'Remessa de mercadoria ou bem para exposição ou feira' },
-  { codigo: '5.915', desc: 'Remessa de mercadoria ou bem para conserto ou reparo' },
-  { codigo: '5.916', desc: 'Retorno de mercadoria ou bem recebido para conserto ou reparo' },
-  { codigo: '5.917', desc: 'Remessa de mercadoria em consignação mercantil ou industrial' },
-  { codigo: '5.918', desc: 'Devolução de mercadoria recebida em consignação mercantil ou industrial' },
-  { codigo: '5.919', desc: 'Devolução simbólica de mercadoria vendida ou utilizada em processo industrial, recebida anteriormente em consignação mercantil ou industrial' },
-  { codigo: '5.920', desc: 'Remessa de vasilhame ou sacaria' },
-  { codigo: '5.921', desc: 'Devolução de vasilhame ou sacaria' },
-  { codigo: '5.922', desc: 'Lançamento efetuado a título de simples faturamento decorrente de venda para entrega futura' },
-  { codigo: '5.923', desc: 'Remessa de mercadoria por conta e ordem de terceiros, em venda à ordem ou em operações com armazém geral ou depósito fechado' },
-  { codigo: '5.924', desc: 'Remessa para industrialização por conta e ordem do adquirente da mercadoria, quando esta não transitar pelo estabelecimento do adquirente' },
-  { codigo: '5.925', desc: 'Retorno de mercadoria remetida para industrialização por conta e ordem do adquirente da mercadoria, quando esta não transitou pelo estabelecimento do adquirente' },
-  { codigo: '5.926', desc: 'Lançamento efetuado a título de reclassificação de mercadoria decorrente de formação de kit ou de sua desagregação' },
-  { codigo: '5.927', desc: 'Lançamento efetuado a título de baixa de estoque decorrente de perda, roubo ou deterioração' },
-  { codigo: '5.928', desc: 'Lançamento efetuado a título de baixa de estoque decorrente do encerramento da atividade da empresa' },
-  { codigo: '5.929', desc: 'Lançamento efetuado em decorrência de emissão de documento fiscal relativo a operação ou prestação também acobertada por documento fiscal emitido por outra empresa' },
-  { codigo: '5.931', desc: 'Lançamento efetuado em decorrência da responsabilidade de retenção do imposto por substituição tributária, atribuída ao remetente ou alienante da mercadoria, pelo serviço de transporte realizado por transportador autônomo ou por empresa transportadora de outra UF, não inscrita no cadastro de contribuintes da UF onde iniciado o serviço' },
-  { codigo: '5.932', desc: 'Prestação de serviço de transporte iniciada em UF diversa daquela onde inscrito o prestador' },
-  { codigo: '5.933', desc: 'Prestação de serviço tributado pelo ISSQN' },
-  { codigo: '5.934', desc: 'Remessa simbólica de mercadoria depositada em armazém geral ou depósito fechado' },
-  { codigo: '5.949', desc: 'Outra saída de mercadoria ou prestação de serviço não especificado' },
+    if (!data || data.length === 0) {
+      document.getElementById('empty-banner').style.display = 'flex';
+      document.getElementById('badge-count').textContent = '0 CFOPs';
+      document.getElementById('cfop-tbody').innerHTML = '';
+      return;
+    }
 
-  // ─── GRUPO 6 – Saídas para Outros Estados ───────────────────────
-  { codigo: '6.101', desc: 'Venda de produção do estabelecimento' },
-  { codigo: '6.102', desc: 'Venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '6.103', desc: 'Venda de produção do estabelecimento, efetuada fora do estabelecimento' },
-  { codigo: '6.104', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, efetuada fora do estabelecimento' },
-  { codigo: '6.105', desc: 'Venda de produção do estabelecimento que não deva por ela transitar' },
-  { codigo: '6.106', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, que não deva por ela transitar' },
-  { codigo: '6.107', desc: 'Venda de produção do estabelecimento, destinada a não contribuinte' },
-  { codigo: '6.108', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, destinada a não contribuinte' },
-  { codigo: '6.109', desc: 'Venda de produção do estabelecimento, destinada à Zona Franca de Manaus ou Áreas de Livre Comércio' },
-  { codigo: '6.110', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, destinada à Zona Franca de Manaus ou Áreas de Livre Comércio' },
-  { codigo: '6.116', desc: 'Venda de produção do estabelecimento originada de encomenda para entrega futura' },
-  { codigo: '6.117', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, originada de encomenda para entrega futura' },
-  { codigo: '6.120', desc: 'Venda de produção do estabelecimento, com fornecimento de alimentação e bebidas' },
-  { codigo: '6.122', desc: 'Venda de produção do estabelecimento remetida para industrialização, por conta e ordem do adquirente' },
-  { codigo: '6.123', desc: 'Industrialização efetuada para outra empresa' },
-  { codigo: '6.124', desc: 'Industrialização efetuada para outra empresa quando a mercadoria recebida para utilização no processo de industrialização não transitou pelo estabelecimento adquirente-remitente' },
-  { codigo: '6.151', desc: 'Transferência de produção do estabelecimento' },
-  { codigo: '6.152', desc: 'Transferência de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '6.153', desc: 'Transferência de energia elétrica' },
-  { codigo: '6.201', desc: 'Devolução de compra para industrialização' },
-  { codigo: '6.202', desc: 'Devolução de compra para comercialização' },
-  { codigo: '6.205', desc: 'Anulação de valor relativo à aquisição de serviço de comunicação' },
-  { codigo: '6.206', desc: 'Anulação de valor relativo à aquisição de serviço de transporte' },
-  { codigo: '6.207', desc: 'Anulação de valor relativo à compra de energia elétrica' },
-  { codigo: '6.208', desc: 'Devolução de mercadoria recebida em transferência para industrialização' },
-  { codigo: '6.209', desc: 'Devolução de mercadoria recebida em transferência para comercialização' },
-  { codigo: '6.210', desc: 'Devolução de compra para utilização na prestação de serviço' },
-  { codigo: '6.301', desc: 'Venda de produção do estabelecimento' },
-  { codigo: '6.302', desc: 'Venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '6.351', desc: 'Venda de produção do estabelecimento' },
-  { codigo: '6.352', desc: 'Venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '6.401', desc: 'Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto' },
-  { codigo: '6.403', desc: 'Venda de mercadoria adquirida ou recebida de terceiros em operação com mercadoria sujeita ao regime de substituição tributária, na condição de contribuinte substituto' },
-  { codigo: '6.404', desc: 'Venda de mercadoria sujeita ao regime de substituição tributária, cujo imposto já tenha sido retido anteriormente' },
-  { codigo: '6.408', desc: 'Transferência de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária' },
-  { codigo: '6.409', desc: 'Transferência de mercadoria adquirida ou recebida de terceiros em operação com mercadoria sujeita ao regime de substituição tributária' },
-  { codigo: '6.501', desc: 'Remessa de produção do estabelecimento, com fim específico de exportação' },
-  { codigo: '6.502', desc: 'Remessa de mercadoria adquirida ou recebida de terceiros, com fim específico de exportação' },
-  { codigo: '6.503', desc: 'Devolução de mercadoria recebida com fim específico de exportação' },
-  { codigo: '6.551', desc: 'Venda de bem do ativo imobilizado' },
-  { codigo: '6.552', desc: 'Transferência de bem do ativo imobilizado' },
-  { codigo: '6.553', desc: 'Devolução de compra de bem para o ativo imobilizado' },
-  { codigo: '6.554', desc: 'Remessa de bem do ativo imobilizado para uso fora do estabelecimento' },
-  { codigo: '6.555', desc: 'Devolução de bem do ativo imobilizado de terceiro, recebido para uso no estabelecimento' },
-  { codigo: '6.556', desc: 'Venda de material de uso ou consumo' },
-  { codigo: '6.557', desc: 'Transferência de material de uso ou consumo' },
-  { codigo: '6.603', desc: 'Ressarcimento de ICMS retido por substituição tributária' },
-  { codigo: '6.651', desc: 'Venda de combustível ou lubrificante de produção do estabelecimento destinados à industrialização subseqüente' },
-  { codigo: '6.653', desc: 'Venda de combustível ou lubrificante de produção do estabelecimento destinados a consumidor ou usuário final' },
-  { codigo: '6.656', desc: 'Venda de combustível ou lubrificante adquiridos ou recebidos de terceiros destinados a consumidor ou usuário final' },
-  { codigo: '6.657', desc: 'Remessa de combustível ou lubrificante adquiridos ou recebidos de terceiros para venda fora do estabelecimento' },
-  { codigo: '6.658', desc: 'Transferência de combustível ou lubrificante adquiridos ou recebidos de terceiros' },
-  { codigo: '6.901', desc: 'Remessa para industrialização por encomenda' },
-  { codigo: '6.902', desc: 'Retorno de mercadoria utilizada na industrialização por encomenda' },
-  { codigo: '6.903', desc: 'Retorno de mercadoria recebida para industrialização e não aplicada no referido processo' },
-  { codigo: '6.904', desc: 'Remessa para venda fora do estabelecimento' },
-  { codigo: '6.905', desc: 'Remessa para depósito fechado ou armazém geral' },
-  { codigo: '6.906', desc: 'Retorno de mercadoria depositada em depósito fechado ou armazém geral' },
-  { codigo: '6.907', desc: 'Retorno simbólico de mercadoria depositada em depósito fechado ou armazém geral' },
-  { codigo: '6.908', desc: 'Remessa de bem por conta de contrato de comodato' },
-  { codigo: '6.909', desc: 'Retorno de bem remetido por conta de contrato de comodato' },
-  { codigo: '6.910', desc: 'Remessa em bonificação, doação ou brinde' },
-  { codigo: '6.911', desc: 'Remessa de amostra grátis' },
-  { codigo: '6.912', desc: 'Remessa de mercadoria ou bem para demonstração' },
-  { codigo: '6.913', desc: 'Retorno de mercadoria ou bem recebido para demonstração' },
-  { codigo: '6.914', desc: 'Remessa de mercadoria ou bem para exposição ou feira' },
-  { codigo: '6.915', desc: 'Remessa de mercadoria ou bem para conserto ou reparo' },
-  { codigo: '6.916', desc: 'Retorno de mercadoria ou bem recebido para conserto ou reparo' },
-  { codigo: '6.917', desc: 'Remessa de mercadoria em consignação mercantil ou industrial' },
-  { codigo: '6.918', desc: 'Devolução de mercadoria recebida em consignação mercantil ou industrial' },
-  { codigo: '6.919', desc: 'Devolução simbólica de mercadoria vendida ou utilizada em processo industrial, recebida anteriormente em consignação mercantil ou industrial' },
-  { codigo: '6.920', desc: 'Remessa de vasilhame ou sacaria' },
-  { codigo: '6.921', desc: 'Devolução de vasilhame ou sacaria' },
-  { codigo: '6.922', desc: 'Lançamento efetuado a título de simples faturamento decorrente de venda para entrega futura' },
-  { codigo: '6.923', desc: 'Remessa de mercadoria por conta e ordem de terceiros, em venda à ordem ou em operações com armazém geral ou depósito fechado' },
-  { codigo: '6.924', desc: 'Remessa para industrialização por conta e ordem do adquirente da mercadoria, quando esta não transitar pelo estabelecimento do adquirente' },
-  { codigo: '6.925', desc: 'Retorno de mercadoria remetida para industrialização por conta e ordem do adquirente da mercadoria, quando esta não transitou pelo estabelecimento do adquirente' },
-  { codigo: '6.929', desc: 'Lançamento efetuado em decorrência de emissão de documento fiscal relativo a operação ou prestação também acobertada por documento fiscal emitido por outra empresa' },
-  { codigo: '6.933', desc: 'Prestação de serviço tributado pelo ISSQN' },
-  { codigo: '6.949', desc: 'Outra saída de mercadoria ou prestação de serviço não especificado' },
-
-  // ─── GRUPO 7 – Saídas para o Exterior ───────────────────────────
-  { codigo: '7.101', desc: 'Venda de produção do estabelecimento' },
-  { codigo: '7.102', desc: 'Venda de mercadoria adquirida ou recebida de terceiros' },
-  { codigo: '7.105', desc: 'Venda de produção do estabelecimento, que não deva por ela transitar' },
-  { codigo: '7.106', desc: 'Venda de mercadoria adquirida ou recebida de terceiros, que não deva por ela transitar' },
-  { codigo: '7.127', desc: 'Venda de produção do estabelecimento sob o regime de drawback' },
-  { codigo: '7.201', desc: 'Devolução de compra para industrialização' },
-  { codigo: '7.202', desc: 'Devolução de compra para comercialização' },
-  { codigo: '7.210', desc: 'Devolução de compra para utilização na prestação de serviço' },
-  { codigo: '7.211', desc: 'Devolução de compras para industrialização sob o regime de drawback' },
-  { codigo: '7.501', desc: 'Exportação de mercadorias recebidas com fim específico de exportação' },
-  { codigo: '7.504', desc: 'Exportação de mercadorias recebidas com fim específico de exportação' },
-  { codigo: '7.551', desc: 'Venda de bem do ativo imobilizado' },
-  { codigo: '7.553', desc: 'Devolução de compra de bem para o ativo imobilizado' },
-  { codigo: '7.556', desc: 'Venda de material de uso ou consumo' },
-  { codigo: '7.601', desc: 'Exportação de combustíveis de produção do estabelecimento' },
-  { codigo: '7.651', desc: 'Exportação de combustível ou lubrificante de produção do estabelecimento' },
-  { codigo: '7.930', desc: 'Lançamento efetuado a título de devolução de bem do ativo imobilizado, em operações com o exterior' },
-  { codigo: '7.949', desc: 'Outra saída de mercadoria ou prestação de serviço não especificado' },
-];
-
-// ══════════════════════════════════════════════
-// FUNÇÕES DE GRUPO
-// ══════════════════════════════════════════════
-function getGrupoInfo(codigo) {
-  const g = codigo.charAt(0);
-  const grupoMap = {
-    '1': { label: '1.xxx – Entradas no Estado',          tipo: 'entrada' },
-    '2': { label: '2.xxx – Entradas de Outros Estados',  tipo: 'entrada' },
-    '3': { label: '3.xxx – Entradas do Exterior',        tipo: 'entrada' },
-    '5': { label: '5.xxx – Saídas no Estado',            tipo: 'saida'   },
-    '6': { label: '6.xxx – Saídas para Outros Estados',  tipo: 'saida'   },
-    '7': { label: '7.xxx – Saídas para o Exterior',      tipo: 'saida'   },
-  };
-  return grupoMap[g] || { label: 'Outros', tipo: 'entrada' };
+    ALL_CFOPS = data;
+    renderTable(ALL_CFOPS);
+  } catch (e) {
+    document.getElementById('cfop-tbody').innerHTML =
+      `<tr><td colspan="3" style="text-align:center;padding:30px;color:#dc2626;font-size:13px;">❌ Erro ao carregar: ${e.message}</td></tr>`;
+  }
 }
 
-// ══════════════════════════════════════════════
-// RENDERIZAÇÃO
-// ══════════════════════════════════════════════
+// ── Filtros (client-side sobre cache) ──────────
 function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase().trim();
   const grupo  = document.getElementById('grupo-select').value;
 
-  const filtered = CFOPS.filter(c => {
+  const filtered = ALL_CFOPS.filter(c => {
     const matchSearch = !search ||
       c.codigo.toLowerCase().includes(search) ||
-      c.desc.toLowerCase().includes(search);
+      c.descricao.toLowerCase().includes(search);
     const matchGrupo = !grupo || c.codigo.startsWith(grupo + '.');
     return matchSearch && matchGrupo;
   });
@@ -545,7 +265,7 @@ function renderTable(data) {
   const empty = document.getElementById('empty-state');
   const badge = document.getElementById('badge-count');
 
-  badge.textContent = data.length + ' CFOPs';
+  badge.textContent = data.length + ' CFOP' + (data.length !== 1 ? 's' : '');
 
   if (data.length === 0) {
     tbody.innerHTML = '';
@@ -555,24 +275,22 @@ function renderTable(data) {
   empty.style.display = 'none';
 
   tbody.innerHTML = data.map(c => {
-    const gi = getGrupoInfo(c.codigo);
+    const chipClass = c.tipo === 'saida' ? 'saida' : 'entrada';
     return `<tr onclick="copyCFOP('${c.codigo}')">
       <td><span class="cfop-code">${c.codigo}</span></td>
-      <td>${c.desc}</td>
-      <td><span class="chip ${gi.tipo}">${gi.label}</span></td>
+      <td>${c.descricao}</td>
+      <td><span class="chip ${chipClass}">${c.grupo}</span></td>
     </tr>`;
   }).join('');
 }
 
-// ══════════════════════════════════════════════
-// COPY + TOAST
-// ══════════════════════════════════════════════
+// ── Copy + Toast ───────────────────────────────
 let toastTimer = null;
 function copyCFOP(codigo) {
   navigator.clipboard.writeText(codigo).then(() => {
     showToast('Código ' + codigo + ' copiado!');
   }).catch(() => {
-    showToast('Código ' + codigo + ' copiado!');
+    showToast('Código ' + codigo);
   });
 }
 
@@ -584,10 +302,8 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
-renderTable(CFOPS);
+// ── Init ───────────────────────────────────────
+init();
 </script>
 
 </body>
