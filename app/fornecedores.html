@@ -61,13 +61,12 @@
     .modal-body { padding:24px; }
     .modal-footer { padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px; }
 
-    .tab-strip { display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px; }
-    .tab-strip .tab {
-      padding:8px 16px;font-size:13px;font-weight:600;
-      color:#aaa;cursor:pointer;border-bottom:2px solid transparent;
-      margin-bottom:-2px;transition:all 0.15s;
+    .section-divider {
+      font-size:11px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.8px;color:#aaa;
+      margin:20px 0 14px;padding-bottom:8px;
+      border-bottom:1px solid #f0f0f0;
     }
-    .tab-strip .tab.active { color:#f97316;border-bottom-color:#f97316; }
   </style>
 </head>
 <body>
@@ -179,13 +178,7 @@
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="tab-strip">
-        <div class="tab active" onclick="modalTab('tab-dados',this)">Dados Gerais</div>
-        <div class="tab" onclick="modalTab('tab-end',this)">Endereço</div>
-        <div class="tab" onclick="modalTab('tab-fiscal',this)">Fiscal</div>
-      </div>
-
-      <!-- TAB DADOS -->
+      <!-- DADOS GERAIS -->
       <div id="tab-dados">
         <div class="form-row cols-2">
           <div class="form-group">
@@ -235,8 +228,9 @@
         </div>
       </div>
 
-      <!-- TAB ENDEREÇO -->
-      <div id="tab-end" style="display:none">
+      <!-- ENDEREÇO -->
+      <div class="section-divider">📍 Endereço</div>
+      <div id="tab-end">
         <div class="form-row cols-3">
           <div class="form-group">
             <label>CEP</label>
@@ -294,8 +288,9 @@
         </div>
       </div>
 
-      <!-- TAB FISCAL -->
-      <div id="tab-fiscal" style="display:none">
+      <!-- FISCAL -->
+      <div class="section-divider">🧾 Fiscal</div>
+      <div id="tab-fiscal">
         <div class="form-row cols-2">
           <div class="form-group">
             <label>Inscrição Estadual</label>
@@ -434,18 +429,9 @@ function openModal(id) {
     document.getElementById('m-uf').value      = 'SP';
   }
   switchTipo();
-  // reset to first tab
-  document.querySelectorAll('.tab-strip .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-  ['tab-dados','tab-end','tab-fiscal'].forEach((t,i)=>document.getElementById(t).style.display=i===0?'':'none');
   document.getElementById('modal-forn').classList.add('open');
 }
 function closeModal() { document.getElementById('modal-forn').classList.remove('open'); }
-
-function modalTab(id, el) {
-  document.querySelectorAll('.tab-strip .tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  ['tab-dados','tab-end','tab-fiscal'].forEach(t=>document.getElementById(t).style.display=t===id?'':'none');
-}
 
 function switchTipo() {
   const pj = document.getElementById('m-tipo').value==='PJ';
