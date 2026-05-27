@@ -229,12 +229,18 @@ async function iniciarSeed() {
   let inserted = 0;
   try {
     for (let b = 0; b < batches.length; b++) {
-      const batch = batches[b].map(m => ({
-        ibge: String(m.id).padStart(7, '0'),
-        nome: m.nome,
-        uf: m.microrregiao.mesorregiao.UF.sigla,
-        nome_uf: m.microrregiao.mesorregiao.UF.nome,
-      }));
+      const batch = batches[b].map(m => {
+        // alguns municípios usam regiao-imediata em vez de microrregiao
+        const uf = m.microrregiao?.mesorregiao?.UF
+                || m['regiao-imediata']?.['regiao-intermediaria']?.UF
+                || null;
+        return {
+          ibge: String(m.id).padStart(7, '0'),
+          nome: m.nome,
+          uf: uf?.sigla || '??',
+          nome_uf: uf?.nome || m.nome,
+        };
+      }).filter(m => m.uf !== '??'); // descarta os sem UF mapeável
 
       const { error } = await getDB()
         .from('municipios')
