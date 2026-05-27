@@ -174,7 +174,7 @@
         <div class="form-row cols-3">
           <div class="form-group">
             <label>CEP</label>
-            <input type="text" value="01310-100" id="e-cep"/>
+            <input type="text" value="01310-100" id="e-cep" oninput="buscarCEP(this)"/>
           </div>
           <div class="form-group" style="grid-column:span 2">
             <label>Logradouro</label>
@@ -196,13 +196,13 @@
           </div>
           <div class="form-group">
             <label>Município</label>
-            <input type="text" value="São Paulo" id="e-municipio"/>
+            <input type="text" value="São Paulo" id="e-municipio" onblur="buscarIBGEMunicipio()"/>
           </div>
         </div>
         <div class="form-row cols-3">
           <div class="form-group">
             <label>UF</label>
-            <select id="e-uf">
+            <select id="e-uf" onchange="buscarIBGEMunicipio()">
               <option selected>SP</option><option>RJ</option><option>MG</option>
               <option>RS</option><option>PR</option><option>SC</option>
             </select>
@@ -452,6 +452,25 @@ function previewLogo(input) {
     document.getElementById('logo-preview').style.display = 'block';
   };
   reader.readAsDataURL(file);
+}
+
+/* ── CEP / IBGE ── */
+async function buscarCEP(el) {
+  await dbBuscarCEP(el.value, {
+    logradouro: 'e-end', bairro: 'e-bairro',
+    municipio: 'e-municipio', uf: 'e-uf', ibge: 'e-ibge'
+  });
+}
+
+async function buscarIBGEMunicipio() {
+  const nome = document.getElementById('e-municipio').value;
+  const uf   = document.getElementById('e-uf').value;
+  if (!nome || !uf) return;
+  const ibgeEl = document.getElementById('e-ibge');
+  if (ibgeEl && !ibgeEl.value) {
+    const m = await dbGetMunicipioIBGE(nome, uf);
+    if (m) ibgeEl.value = m.ibge;
+  }
 }
 
 /* ── Carregar dados ao abrir ── */

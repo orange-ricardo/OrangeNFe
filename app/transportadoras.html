@@ -255,13 +255,13 @@
           </div>
           <div class="form-group">
             <label>Município</label>
-            <input type="text" id="m-municipio" placeholder="Cidade"/>
+            <input type="text" id="m-municipio" placeholder="Cidade" onblur="buscarIBGEMunicipio()"/>
           </div>
         </div>
         <div class="form-row cols-2">
           <div class="form-group">
             <label>UF</label>
-            <select id="m-uf">
+            <select id="m-uf" onchange="buscarIBGEMunicipio()">
               <option>SP</option><option>RJ</option><option>MG</option>
               <option>RS</option><option>PR</option><option>SC</option>
               <option>BA</option><option>GO</option><option>DF</option>
@@ -273,6 +273,16 @@
           <div class="form-group">
             <label>País</label>
             <input type="text" id="m-pais" value="Brasil"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Cód. IBGE do Município</label>
+            <input type="text" id="m-ibge" placeholder="7 dígitos (auto)" maxlength="7" readonly style="background:#f8f9fc;color:#888;cursor:default;" title="Preenchido automaticamente pelo CEP ou município"/>
+          </div>
+          <div class="form-group">
+            <label>Cód. IBGE do País</label>
+            <input type="text" id="m-ibge-pais" value="1058" placeholder="BACEN (1058=Brasil)" maxlength="4"/>
           </div>
         </div>
       </div>
@@ -388,6 +398,8 @@ function openModal(id) {
       document.getElementById('m-municipio').value = t.municipio||'';
       document.getElementById('m-uf').value        = t.uf||'SP';
       document.getElementById('m-pais').value      = 'Brasil';
+      document.getElementById('m-ibge').value       = t.ibge||'';
+      document.getElementById('m-ibge-pais').value  = t.ibge_pais||'1058';
     }
   } else {
     fields.forEach(fid=>{const el=document.getElementById(fid);if(el)el.value='';});
@@ -415,18 +427,21 @@ function switchTipo() {
   document.getElementById('m-doc').placeholder   = pj?'00.000.000/0001-00':'000.000.000-00';
 }
 
-function buscarCEP(el) {
-  const v = el.value.replace(/\D/g,'');
-  if (v.length===8) {
-    fetch(`https://viacep.com.br/ws/${v}/json/`)
-      .then(r=>r.json()).then(d=>{
-        if (!d.erro) {
-          document.getElementById('m-logradouro').value = d.logradouro||'';
-          document.getElementById('m-bairro').value     = d.bairro||'';
-          document.getElementById('m-municipio').value  = d.localidade||'';
-          document.getElementById('m-uf').value         = d.uf||'SP';
-        }
-      }).catch(()=>{});
+async function buscarCEP(el) {
+  await dbBuscarCEP(el.value, {
+    logradouro: 'm-logradouro', bairro: 'm-bairro',
+    municipio: 'm-municipio', uf: 'm-uf', ibge: 'm-ibge'
+  });
+}
+
+async function buscarIBGEMunicipio() {
+  const nome = document.getElementById('m-municipio').value;
+  const uf   = document.getElementById('m-uf').value;
+  if (!nome || !uf) return;
+  const ibgeEl = document.getElementById('m-ibge');
+  if (ibgeEl && !ibgeEl.value) {
+    const m = await dbGetMunicipioIBGE(nome, uf);
+    if (m) ibgeEl.value = m.ibge;
   }
 }
 
@@ -453,6 +468,8 @@ async function salvar() {
     bairro: document.getElementById('m-bairro').value,
     municipio: document.getElementById('m-municipio').value,
     uf: document.getElementById('m-uf').value,
+    ibge: document.getElementById('m-ibge').value,
+    ibge_pais: document.getElementById('m-ibge-pais').value || '1058',
   };
   if (!obj.id) delete obj.id;
   try {

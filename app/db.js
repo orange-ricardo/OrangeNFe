@@ -146,6 +146,40 @@ async function dbGetDashboardStats() {
   };
 }
 
+/* ── MUNICIPIOS / IBGE ── */
+async function dbGetMunicipioIBGE(nome, uf) {
+  if (!nome || !uf) return null;
+  const {data} = await getDB()
+    .from('municipios')
+    .select('ibge,nome,uf')
+    .ilike('nome', nome.trim())
+    .eq('uf', uf.toUpperCase())
+    .limit(1)
+    .maybeSingle();
+  return data;
+}
+
+/**
+ * Consulta ViaCEP e preenche campos de endereço.
+ * @param {string} cep - CEP sem formatação (8 dígitos)
+ * @param {object} ids - mapa de campo → id do elemento
+ *   ex: { logradouro:'m-logradouro', bairro:'m-bairro', municipio:'m-municipio', uf:'m-uf', ibge:'m-ibge' }
+ */
+async function dbBuscarCEP(cep, ids) {
+  const v = cep.replace(/\D/g,'');
+  if (v.length !== 8) return;
+  try {
+    const r = await fetch(`https://viacep.com.br/ws/${v}/json/`);
+    const d = await r.json();
+    if (d.erro) return;
+    if (ids.logradouro) { const el=document.getElementById(ids.logradouro); if(el && !el.value) el.value = d.logradouro||''; }
+    if (ids.bairro)     { const el=document.getElementById(ids.bairro);     if(el) el.value = d.bairro||''; }
+    if (ids.municipio)  { const el=document.getElementById(ids.municipio);  if(el) el.value = d.localidade||''; }
+    if (ids.uf)         { const el=document.getElementById(ids.uf);         if(el) el.value = d.uf||'SP'; }
+    if (ids.ibge && d.ibge) { const el=document.getElementById(ids.ibge); if(el) el.value = d.ibge; }
+  } catch(e) { /* silencioso — sem internet */ }
+}
+
 /* ── FORNECEDORES ── */
 async function dbGetFornecedores() {
   const {data,error} = await getDB().from('fornecedores').select('*').order('razao');
