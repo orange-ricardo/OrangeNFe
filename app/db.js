@@ -146,6 +146,69 @@ async function dbGetDashboardStats() {
   };
 }
 
+/* ── FORNECEDORES ── */
+async function dbGetFornecedores() {
+  const {data,error} = await getDB().from('fornecedores').select('*').order('razao');
+  if(error) throw error; return data||[];
+}
+async function dbSaveFornecedor(f) {
+  const {id,...fields} = f;
+  fields.updated_at = new Date().toISOString();
+  if(id) {
+    const {error} = await getDB().from('fornecedores').update(fields).eq('id',id);
+    if(error) throw error; return id;
+  } else {
+    const {data,error} = await getDB().from('fornecedores').insert(fields).select().single();
+    if(error) throw error; return data.id;
+  }
+}
+async function dbDeleteFornecedor(id) {
+  const {error} = await getDB().from('fornecedores').delete().eq('id',id);
+  if(error) throw error;
+}
+
+/* ── TRANSPORTADORAS ── */
+async function dbGetTransportadoras() {
+  const {data,error} = await getDB().from('transportadoras').select('*').order('razao');
+  if(error) throw error; return data||[];
+}
+async function dbSaveTransportadora(t) {
+  const {id,...fields} = t;
+  fields.updated_at = new Date().toISOString();
+  if(id) {
+    const {error} = await getDB().from('transportadoras').update(fields).eq('id',id);
+    if(error) throw error; return id;
+  } else {
+    const {data,error} = await getDB().from('transportadoras').insert(fields).select().single();
+    if(error) throw error; return data.id;
+  }
+}
+async function dbDeleteTransportadora(id) {
+  const {error} = await getDB().from('transportadoras').delete().eq('id',id);
+  if(error) throw error;
+}
+
+/* ── EMPRESA (single-row) ── */
+async function dbGetEmpresa() {
+  const { data, error } = await getDB()
+    .from('empresa').select('*').limit(1).maybeSingle();
+  if (error) throw error;
+  return data || {};
+}
+
+async function dbSaveEmpresa(emp) {
+  const db = getDB();
+  emp.updated_at = new Date().toISOString();
+  const { data: existing } = await db.from('empresa').select('id').limit(1).maybeSingle();
+  if (existing?.id) {
+    const { error } = await db.from('empresa').update(emp).eq('id', existing.id);
+    if (error) throw error;
+  } else {
+    const { error } = await db.from('empresa').insert(emp);
+    if (error) throw error;
+  }
+}
+
 /* ── CONFIGURAÇÕES (single-row) ── */
 async function dbGetConfig() {
   const { data, error } = await getDB()

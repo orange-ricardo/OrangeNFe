@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
   <link rel="icon" type="image/x-icon" href="assets/orange-icone.ico"/>
   <link rel="shortcut icon" href="assets/orange-icone.ico"/>
   <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
-  <title>OrangeNFe · Clientes</title>
+  <title>OrangeNFe · Fornecedores</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
@@ -41,14 +41,13 @@
     .tipo-chip.pj { background:#eff6ff;color:#2563eb; }
     .tipo-chip.pf { background:#f0fdf4;color:#16a34a; }
 
-    /* MODAL */
     .modal-overlay {
       display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
       z-index:1000;align-items:center;justify-content:center;
     }
     .modal-overlay.open { display:flex; }
     .modal {
-      background:#fff;border-radius:14px;width:680px;max-width:95vw;
+      background:#fff;border-radius:14px;width:700px;max-width:95vw;
       max-height:90vh;overflow-y:auto;
       box-shadow:0 20px 60px rgba(0,0,0,0.2);
     }
@@ -57,33 +56,18 @@
       padding:20px 24px;border-bottom:1px solid #f0f0f0;
     }
     .modal-header h2 { font-size:15px;font-weight:800;color:#1a1a2e; }
-    .modal-close {
-      background:none;border:none;font-size:20px;cursor:pointer;
-      color:#aaa;line-height:1;transition:color 0.15s;
-    }
+    .modal-close { background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;transition:color 0.15s; }
     .modal-close:hover { color:#333; }
     .modal-body { padding:24px; }
-    .modal-footer {
-      padding:16px 24px;border-top:1px solid #f0f0f0;
-      display:flex;justify-content:flex-end;gap:8px;
-    }
+    .modal-footer { padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px; }
 
-    .tab-strip {
-      display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px;
-    }
+    .tab-strip { display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px; }
     .tab-strip .tab {
       padding:8px 16px;font-size:13px;font-weight:600;
       color:#aaa;cursor:pointer;border-bottom:2px solid transparent;
       margin-bottom:-2px;transition:all 0.15s;
     }
     .tab-strip .tab.active { color:#f97316;border-bottom-color:#f97316; }
-
-    .empty-state {
-      text-align:center;padding:60px 20px;
-    }
-    .empty-state .es-icon { font-size:48px;margin-bottom:12px; }
-    .empty-state h3 { font-size:15px;font-weight:700;color:#333;margin-bottom:6px; }
-    .empty-state p { font-size:13px;color:#aaa; }
   </style>
 </head>
 <body>
@@ -101,9 +85,9 @@
   <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
   <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
   <div class="sidebar-section">Cadastros</div>
-  <a href="clientes.html" class="nav-item active"><span class="ni">👥</span> Clientes</a>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
   <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
-  <a href="fornecedores.html" class="nav-item"><span class="ni">🏭</span> Fornecedores</a>
+  <a href="fornecedores.html" class="nav-item active"><span class="ni">🏭</span> Fornecedores</a>
   <a href="transportadoras.html" class="nav-item"><span class="ni">🚛</span> Transportadoras</a>
   <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
   <div class="sidebar-section">Ferramentas</div>
@@ -128,15 +112,14 @@
 
 <div class="main">
   <div class="topbar">
-    <div class="topbar-title">Clientes</div>
+    <div class="topbar-title">Fornecedores</div>
     <div class="topbar-actions">
-      <button class="topbar-btn primary" onclick="openModal()">＋ Novo Cliente</button>
+      <button class="topbar-btn primary" onclick="openModal()">＋ Novo Fornecedor</button>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- FILTROS -->
     <div class="filters">
       <input type="text" id="search-input" placeholder="🔍  Buscar por nome, CNPJ, CPF ou cidade..." oninput="filtrar()"/>
       <select id="tipo-filter" onchange="filtrar()">
@@ -154,32 +137,29 @@
       <span id="count-label" style="font-size:12px;color:#aaa;font-weight:600;"></span>
     </div>
 
-    <!-- TABELA -->
     <div class="card" style="padding:0;overflow:hidden;">
       <div class="table-toolbar">
         <div style="display:flex;gap:6px;">
           <button class="tb-btn" onclick="exportarCSV()">⬇ Exportar CSV</button>
-          <button class="tb-btn" onclick="importarCSV()">⬆ Importar</button>
         </div>
         <div style="font-size:12px;color:#aaa;" id="sel-info"></div>
       </div>
       <div class="table-wrap">
-        <table id="clientes-table">
+        <table id="fornecedores-table">
           <thead>
             <tr>
               <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"/></th>
               <th>Razão Social / Nome</th>
               <th>CNPJ / CPF</th>
               <th>Tipo</th>
+              <th>Regime</th>
               <th>Cidade / UF</th>
               <th>E-mail</th>
               <th>Telefone</th>
-              <th>Último Pedido</th>
               <th></th>
             </tr>
           </thead>
-          <tbody id="clientes-body">
-          </tbody>
+          <tbody id="fornecedores-body"></tbody>
         </table>
       </div>
     </div>
@@ -187,11 +167,11 @@
   </div>
 </div>
 
-<!-- MODAL NOVO/EDITAR CLIENTE -->
-<div class="modal-overlay" id="modal-cliente">
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-forn">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="modal-titulo">Novo Cliente</h2>
+      <h2 id="modal-titulo">Novo Fornecedor</h2>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -199,9 +179,9 @@
         <div class="tab active" onclick="modalTab('tab-dados',this)">Dados Gerais</div>
         <div class="tab" onclick="modalTab('tab-end',this)">Endereço</div>
         <div class="tab" onclick="modalTab('tab-fiscal',this)">Fiscal</div>
-        <div class="tab" onclick="modalTab('tab-contato',this)">Contatos</div>
       </div>
 
+      <!-- TAB DADOS -->
       <div id="tab-dados">
         <div class="form-row cols-2">
           <div class="form-group">
@@ -243,8 +223,15 @@
             <input type="text" id="m-site" placeholder="www.empresa.com.br"/>
           </div>
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Observações</label>
+            <textarea id="m-obs" rows="3" placeholder="Informações adicionais sobre o fornecedor..."></textarea>
+          </div>
+        </div>
       </div>
 
+      <!-- TAB ENDEREÇO -->
       <div id="tab-end" style="display:none">
         <div class="form-row cols-3">
           <div class="form-group">
@@ -293,6 +280,7 @@
         </div>
       </div>
 
+      <!-- TAB FISCAL -->
       <div id="tab-fiscal" style="display:none">
         <div class="form-row cols-2">
           <div class="form-group">
@@ -318,223 +306,173 @@
             <input type="text" id="m-suframa" placeholder="Nº Suframa (Zona Franca)"/>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Observações Fiscais</label>
-            <textarea id="m-obs" placeholder="Informações fiscais relevantes..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div id="tab-contato" style="display:none">
-        <div id="contatos-list">
-          <div class="contato-row" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end;">
-            <div class="form-group" style="margin:0">
-              <label>Nome</label>
-              <input type="text" placeholder="Nome do contato"/>
-            </div>
-            <div class="form-group" style="margin:0">
-              <label>Cargo</label>
-              <input type="text" placeholder="Cargo"/>
-            </div>
-            <div class="form-group" style="margin:0">
-              <label>Telefone / E-mail</label>
-              <input type="text" placeholder="(11) 99999-9999"/>
-            </div>
-            <button onclick="removerContato(this)" style="padding:9px;background:#fef2f2;border:1.5px solid #fecaca;border-radius:7px;cursor:pointer;font-size:14px;color:#dc2626;">🗑</button>
-          </div>
-        </div>
-        <button onclick="adicionarContato()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#fff8f3;border:1.5px dashed #fcd9b6;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#f97316;margin-top:4px;">
-          ＋ Adicionar contato
-        </button>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn secondary" onclick="closeModal()">Cancelar</button>
-      <button class="btn primary" onclick="salvarCliente()">💾 Salvar cliente</button>
+      <button class="btn primary" onclick="salvar()">💾 Salvar fornecedor</button>
     </div>
   </div>
 </div>
 
 <script>
-let todosClientes = [];
+const REGIMES = {1:'Simples Nacional',2:'Simples Exc.',3:'Regime Normal'};
+let todos = [];
 let editingId = null;
 
 function setLoading(msg) {
-  document.getElementById('clientes-body').innerHTML =
+  document.getElementById('fornecedores-body').innerHTML =
     `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">${msg}</td></tr>`;
 }
 
 function render(data) {
-  const tbody = document.getElementById('clientes-body');
-  document.getElementById('count-label').textContent = data.length + ' cliente' + (data.length !== 1 ? 's' : '');
-  if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
-      <div class="es-icon">👥</div>
-      <h3>Nenhum cliente encontrado</h3>
-      <p>Tente ajustar os filtros ou cadastre um novo cliente.</p>
+  const tbody = document.getElementById('fornecedores-body');
+  document.getElementById('count-label').textContent = data.length + ' fornecedor' + (data.length !== 1 ? 'es' : '');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div style="text-align:center;padding:60px 20px;">
+      <div style="font-size:48px;margin-bottom:12px;">🏭</div>
+      <h3 style="font-size:15px;font-weight:700;color:#333;margin-bottom:6px;">Nenhum fornecedor encontrado</h3>
+      <p style="font-size:13px;color:#aaa;">Cadastre seu primeiro fornecedor clicando em "+ Novo Fornecedor".</p>
     </div></td></tr>`;
     return;
   }
-  tbody.innerHTML = data.map(c => `
+  tbody.innerHTML = data.map(f => `
     <tr>
       <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
       <td>
-        <div style="font-weight:600;color:#1a1a2e">${c.razao}</div>
-        ${c.fantasia ? `<div style="font-size:11px;color:#aaa">${c.fantasia}</div>` : ''}
+        <div style="font-weight:600;color:#1a1a2e">${f.razao}</div>
+        ${f.fantasia ? `<div style="font-size:11px;color:#aaa">${f.fantasia}</div>` : ''}
       </td>
-      <td style="font-family:monospace;font-size:12px;color:#555">${c.cnpj||'—'}</td>
-      <td><span class="tipo-chip ${c.tipo === 'PJ' ? 'pj' : 'pf'}">${c.tipo||'PJ'}</span></td>
-      <td>${c.municipio||'—'} / ${c.uf||'—'}</td>
-      <td style="font-size:12px;color:#555">${c.email||'—'}</td>
-      <td style="font-size:12px;color:#555">${c.tel||'—'}</td>
-      <td style="font-size:12px;color:#aaa">${fmtDate(c.updated_at)}</td>
+      <td style="font-family:monospace;font-size:12px;color:#555">${f.cnpj||f.cpf||'—'}</td>
+      <td><span class="tipo-chip ${(f.tipo||'PJ')==='PJ'?'pj':'pf'}">${f.tipo||'PJ'}</span></td>
+      <td style="font-size:12px;color:#555">${REGIMES[f.regime]||'—'}</td>
+      <td>${f.municipio||'—'} / ${f.uf||'—'}</td>
+      <td style="font-size:12px;color:#555">${f.email||'—'}</td>
+      <td style="font-size:12px;color:#555">${f.tel||'—'}</td>
       <td>
         <div style="display:flex;gap:4px;">
-          <button class="tb-btn" onclick='editarCliente("${c.id}")' title="Editar">✏️</button>
-          <button class="tb-btn" onclick='excluirCliente("${c.id}","${c.razao.replace(/"/g,"&quot;")}")' title="Excluir" style="color:#dc2626">🗑</button>
-          <a href="emissao-nfe.html" class="tb-btn" title="Emitir NF-e">📄</a>
+          <button class="tb-btn" onclick='editar("${f.id}")' title="Editar">✏️</button>
+          <button class="tb-btn" onclick='excluir("${f.id}","${(f.razao||'').replace(/"/g,'&quot;')}")' title="Excluir" style="color:#dc2626">🗑</button>
         </div>
       </td>
     </tr>`).join('');
 }
 
-async function carregarClientes() {
-  setLoading('⏳ Carregando clientes...');
-  try {
-    todosClientes = await dbGetClientes();
-    filtrar();
-  } catch(e) {
-    showToast('Erro ao carregar clientes: ' + e.message, 'error');
-    setLoading('Erro ao carregar. Tente recarregar a página.');
-  }
+async function carregar() {
+  setLoading('⏳ Carregando fornecedores...');
+  try { todos = await dbGetFornecedores(); filtrar(); }
+  catch(e) { showToast('Erro ao carregar: '+e.message,'error'); setLoading('Erro ao carregar. Recarregue a página.'); }
 }
 
 function filtrar() {
-  const q   = document.getElementById('search-input').value.toLowerCase();
+  const q    = document.getElementById('search-input').value.toLowerCase();
   const tipo = document.getElementById('tipo-filter').value;
   const uf   = document.getElementById('uf-filter').value;
-  const r = todosClientes.filter(c =>
-    (!q || (c.razao||'').toLowerCase().includes(q) || (c.cnpj||'').includes(q) || (c.municipio||'').toLowerCase().includes(q)) &&
-    (!tipo || c.tipo === tipo) &&
-    (!uf || c.uf === uf)
-  );
-  render(r);
+  render(todos.filter(f =>
+    (!q || (f.razao||'').toLowerCase().includes(q) || (f.cnpj||'').includes(q) || (f.municipio||'').toLowerCase().includes(q)) &&
+    (!tipo || f.tipo === tipo) &&
+    (!uf   || f.uf === uf)
+  ));
 }
 
-function toggleAll(cb) {
-  document.querySelectorAll('.row-chk').forEach(c => c.checked = cb.checked);
-  updateSel();
-}
+function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c => c.checked=cb.checked); updateSel(); }
 function updateSel() {
   const n = document.querySelectorAll('.row-chk:checked').length;
-  document.getElementById('sel-info').textContent = n > 0 ? n + ' selecionado(s)' : '';
+  document.getElementById('sel-info').textContent = n>0 ? n+' selecionado(s)' : '';
 }
 
 function openModal(id) {
-  editingId = id || null;
-  document.getElementById('modal-titulo').textContent = id ? 'Editar Cliente' : 'Novo Cliente';
-  document.getElementById('modal-cliente').classList.add('open');
+  editingId = id||null;
+  document.getElementById('modal-titulo').textContent = id ? 'Editar Fornecedor' : 'Novo Fornecedor';
+  const fields = ['m-doc','m-razao','m-fantasia','m-email','m-tel','m-site','m-obs',
+                  'm-cep','m-logradouro','m-num','m-comp','m-bairro','m-municipio','m-ie','m-im','m-suframa'];
   if (id) {
-    const c = todosClientes.find(x => x.id === id);
-    if (c) {
-      document.getElementById('m-tipo').value = c.tipo || 'PJ';
-      document.getElementById('m-doc').value  = c.cnpj || '';
-      document.getElementById('m-razao').value = c.razao || '';
-      document.getElementById('m-fantasia').value = c.fantasia || '';
-      document.getElementById('m-email').value = c.email || '';
-      document.getElementById('m-tel').value = c.tel || '';
-      document.getElementById('m-site').value = c.site || '';
-      document.getElementById('m-cep').value = c.cep || '';
-      document.getElementById('m-logradouro').value = c.logradouro || '';
-      document.getElementById('m-num').value = c.numero || '';
-      document.getElementById('m-comp').value = c.complemento || '';
-      document.getElementById('m-bairro').value = c.bairro || '';
-      document.getElementById('m-municipio').value = c.municipio || '';
-      document.getElementById('m-uf').value = c.uf || 'SP';
-      document.getElementById('m-pais').value = c.pais || 'Brasil';
-      document.getElementById('m-ie').value = c.ie || '';
-      document.getElementById('m-im').value = c.im || '';
-      document.getElementById('m-suframa').value = c.suframa || '';
-      document.getElementById('m-regime').value = c.regime || '1';
-      document.getElementById('m-obs').value = c.obs || '';
-      switchTipo();
-      // load contatos
-      const list = document.getElementById('contatos-list');
-      list.innerHTML = '';
-      if (c.clientes_contatos && c.clientes_contatos.length) {
-        c.clientes_contatos.forEach(ct => adicionarContato(ct));
-      }
+    const f = todos.find(x=>x.id===id);
+    if (f) {
+      document.getElementById('m-tipo').value    = f.tipo||'PJ';
+      document.getElementById('m-doc').value     = f.cnpj||f.cpf||'';
+      document.getElementById('m-razao').value   = f.razao||'';
+      document.getElementById('m-fantasia').value= f.fantasia||'';
+      document.getElementById('m-email').value   = f.email||'';
+      document.getElementById('m-tel').value     = f.tel||'';
+      document.getElementById('m-site').value    = f.site||'';
+      document.getElementById('m-obs').value     = f.obs||'';
+      document.getElementById('m-cep').value     = f.cep||'';
+      document.getElementById('m-logradouro').value = f.logradouro||'';
+      document.getElementById('m-num').value     = f.numero||'';
+      document.getElementById('m-comp').value    = f.complemento||'';
+      document.getElementById('m-bairro').value  = f.bairro||'';
+      document.getElementById('m-municipio').value = f.municipio||'';
+      document.getElementById('m-uf').value      = f.uf||'SP';
+      document.getElementById('m-pais').value    = 'Brasil';
+      document.getElementById('m-ie').value      = f.ie||'';
+      document.getElementById('m-im').value      = f.im||'';
+      document.getElementById('m-suframa').value = f.suframa||'';
+      document.getElementById('m-regime').value  = f.regime||'1';
     }
   } else {
-    document.getElementById('m-tipo').value = 'PJ';
-    ['m-doc','m-razao','m-fantasia','m-email','m-tel','m-site','m-cep','m-logradouro',
-     'm-num','m-comp','m-bairro','m-municipio','m-ie','m-im','m-suframa','m-obs'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.getElementById('m-pais').value = 'Brasil';
-    document.getElementById('contatos-list').innerHTML = '';
-    switchTipo();
+    fields.forEach(fid => { const el=document.getElementById(fid); if(el) el.value=''; });
+    document.getElementById('m-tipo').value    = 'PJ';
+    document.getElementById('m-pais').value    = 'Brasil';
+    document.getElementById('m-regime').value  = '1';
+    document.getElementById('m-uf').value      = 'SP';
   }
+  switchTipo();
+  // reset to first tab
+  document.querySelectorAll('.tab-strip .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  ['tab-dados','tab-end','tab-fiscal'].forEach((t,i)=>document.getElementById(t).style.display=i===0?'':'none');
+  document.getElementById('modal-forn').classList.add('open');
 }
-function closeModal() { document.getElementById('modal-cliente').classList.remove('open'); }
+function closeModal() { document.getElementById('modal-forn').classList.remove('open'); }
 
 function modalTab(id, el) {
-  document.querySelectorAll('.tab-strip .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-strip .tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  ['tab-dados','tab-end','tab-fiscal','tab-contato'].forEach(t => {
-    document.getElementById(t).style.display = t === id ? '' : 'none';
-  });
+  ['tab-dados','tab-end','tab-fiscal'].forEach(t=>document.getElementById(t).style.display=t===id?'':'none');
 }
 
 function switchTipo() {
-  const pj = document.getElementById('m-tipo').value === 'PJ';
-  document.getElementById('l-doc').textContent   = pj ? 'CNPJ' : 'CPF';
-  document.getElementById('l-razao').textContent = pj ? 'Razão Social' : 'Nome Completo';
-  document.getElementById('g-fantasia').style.display = pj ? '' : 'none';
-  document.getElementById('m-doc').placeholder   = pj ? '00.000.000/0001-00' : '000.000.000-00';
+  const pj = document.getElementById('m-tipo').value==='PJ';
+  document.getElementById('l-doc').textContent   = pj?'CNPJ':'CPF';
+  document.getElementById('l-razao').textContent = pj?'Razão Social':'Nome Completo';
+  document.getElementById('g-fantasia').style.display = pj?'':'none';
+  document.getElementById('m-doc').placeholder   = pj?'00.000.000/0001-00':'000.000.000-00';
 }
 
 function buscarDoc() {
   const v = document.getElementById('m-doc').value.replace(/\D/g,'');
-  if (v.length === 14) {
-    document.getElementById('m-razao').value = 'Empresa Consulta Receita Ltda';
-    document.getElementById('m-fantasia').value = 'Empresa Modelo';
-  } else if (v.length === 11) {
-    document.getElementById('m-razao').value = 'Nome via CPF';
-  } else {
-    alert('Digite um CNPJ ou CPF válido.');
-  }
+  if (v.length!==14 && v.length!==11) { alert('Digite um CNPJ ou CPF válido.'); }
 }
 
 function buscarCEP(el) {
   const v = el.value.replace(/\D/g,'');
-  if (v.length === 8) {
-    document.getElementById('m-logradouro').value = 'Rua das Flores';
-    document.getElementById('m-bairro').value     = 'Jardim Primavera';
-    document.getElementById('m-municipio').value  = 'São Paulo';
-    document.getElementById('m-uf').value = 'SP';
+  if (v.length===8) {
+    fetch(`https://viacep.com.br/ws/${v}/json/`)
+      .then(r=>r.json()).then(d=>{
+        if (!d.erro) {
+          document.getElementById('m-logradouro').value = d.logradouro||'';
+          document.getElementById('m-bairro').value     = d.bairro||'';
+          document.getElementById('m-municipio').value  = d.localidade||'';
+          document.getElementById('m-uf').value         = d.uf||'SP';
+        }
+      }).catch(()=>{});
   }
 }
 
-async function salvarCliente() {
+async function salvar() {
   const razao = document.getElementById('m-razao').value.trim();
   if (!razao) { alert('Informe a Razão Social / Nome.'); return; }
-
-  const contatos = Array.from(document.querySelectorAll('#contatos-list .contato-row')).map(row => {
-    const inputs = row.querySelectorAll('input');
-    return { nome: inputs[0].value, cargo: inputs[1].value, telefone_email: inputs[2].value };
-  }).filter(ct => ct.nome || ct.telefone_email);
-
-  const obj = {
-    id: editingId || undefined,
-    razao,
-    fantasia: document.getElementById('m-fantasia').value,
-    cnpj: document.getElementById('m-doc').value,
-    tipo: document.getElementById('m-tipo').value,
+  const tipo = document.getElementById('m-tipo').value;
+  const doc  = document.getElementById('m-doc').value;
+  const obj  = {
+    id: editingId||undefined,
+    razao, fantasia: document.getElementById('m-fantasia').value,
+    tipo,
+    cnpj: tipo==='PJ'?doc:'', cpf: tipo==='PF'?doc:'',
     email: document.getElementById('m-email').value,
     tel: document.getElementById('m-tel').value,
     site: document.getElementById('m-site').value,
+    obs: document.getElementById('m-obs').value,
     cep: document.getElementById('m-cep').value,
     logradouro: document.getElementById('m-logradouro').value,
     numero: document.getElementById('m-num').value,
@@ -542,67 +480,40 @@ async function salvarCliente() {
     bairro: document.getElementById('m-bairro').value,
     municipio: document.getElementById('m-municipio').value,
     uf: document.getElementById('m-uf').value,
-    pais: document.getElementById('m-pais').value,
     ie: document.getElementById('m-ie').value,
     im: document.getElementById('m-im').value,
     suframa: document.getElementById('m-suframa').value,
     regime: document.getElementById('m-regime').value,
-    obs: document.getElementById('m-obs').value,
-    clientes_contatos: contatos,
   };
   if (!obj.id) delete obj.id;
-
   try {
-    await dbSaveCliente(obj);
-    showToast(editingId ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'ok');
-    closeModal();
-    await carregarClientes();
-  } catch(e) {
-    showToast('Erro ao salvar: ' + e.message, 'error');
-  }
+    await dbSaveFornecedor(obj);
+    showToast(editingId?'Fornecedor atualizado!':'Fornecedor cadastrado!','ok');
+    closeModal(); await carregar();
+  } catch(e) { showToast('Erro ao salvar: '+e.message,'error'); }
 }
 
-function editarCliente(id) { openModal(id); }
-
-async function excluirCliente(id, razao) {
-  if (confirm(`Excluir cliente "${razao}"?`)) {
-    try {
-      await dbDeleteCliente(id);
-      showToast('Cliente excluído.', 'ok');
-      await carregarClientes();
-    } catch(e) {
-      showToast('Erro ao excluir: ' + e.message, 'error');
-    }
+function editar(id) { openModal(id); }
+async function excluir(id, razao) {
+  if (confirm(`Excluir fornecedor "${razao}"?`)) {
+    try { await dbDeleteFornecedor(id); showToast('Fornecedor excluído.','ok'); await carregar(); }
+    catch(e) { showToast('Erro ao excluir: '+e.message,'error'); }
   }
 }
 
 function exportarCSV() {
-  const header = 'Razão Social,CNPJ/CPF,Tipo,Município,UF,E-mail,Telefone';
-  const rows = todosClientes.map(c => `"${c.razao}","${c.cnpj||''}","${c.tipo||''}","${c.municipio||''}","${c.uf||''}","${c.email||''}","${c.tel||''}"`);
-  const csv = [header, ...rows].join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'clientes.csv'; a.click();
+  const h = 'Razão Social,CNPJ/CPF,Tipo,Município,UF,E-mail,Telefone';
+  const rows = todos.map(f=>`"${f.razao}","${f.cnpj||f.cpf||''}","${f.tipo||''}","${f.municipio||''}","${f.uf||''}","${f.email||''}","${f.tel||''}"`);
+  const csv  = [h,...rows].join('\n');
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = 'fornecedores.csv'; a.click();
 }
-function importarCSV() { alert('Funcionalidade de importação de CSV em desenvolvimento.'); }
-
-function adicionarContato(ct) {
-  const div = document.createElement('div');
-  div.className = 'contato-row';
-  div.style = 'display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end;';
-  div.innerHTML = `
-    <div class="form-group" style="margin:0"><label>Nome</label><input type="text" placeholder="Nome do contato" value="${ct && ct.nome ? ct.nome : ''}"/></div>
-    <div class="form-group" style="margin:0"><label>Cargo</label><input type="text" placeholder="Cargo" value="${ct && ct.cargo ? ct.cargo : ''}"/></div>
-    <div class="form-group" style="margin:0"><label>Telefone / E-mail</label><input type="text" placeholder="(11) 99999-9999" value="${ct && ct.telefone_email ? ct.telefone_email : ''}"/></div>
-    <button onclick="removerContato(this)" style="padding:9px;background:#fef2f2;border:1.5px solid #fecaca;border-radius:7px;cursor:pointer;font-size:14px;color:#dc2626;">🗑</button>`;
-  document.getElementById('contatos-list').appendChild(div);
-}
-function removerContato(btn) { btn.closest('.contato-row').remove(); }
 
 // init
-carregarClientes();
-document.getElementById('modal-cliente').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal-cliente')) closeModal();
+carregar();
+document.getElementById('modal-forn').addEventListener('click', e=>{
+  if(e.target===document.getElementById('modal-forn')) closeModal();
 });
 </script>
 </body>

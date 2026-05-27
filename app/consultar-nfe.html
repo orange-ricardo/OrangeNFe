@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
@@ -6,110 +6,281 @@
   <link rel="shortcut icon" href="assets/orange-icone.ico"/>
   <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
   <title>OrangeNFe · Consultar NF-e</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
-    .consulta-wrap { max-width:860px;margin:0 auto; }
+    /* ── CONSULTA WRAPPER ── */
+    .consulta-wrap { max-width:980px; margin:0 auto; }
 
-    .search-card {
+    /* ── FORM CARD ── */
+    .form-card {
       background:#fff;border-radius:14px;border:1.5px solid #e8eaf0;
       padding:28px 32px;margin-bottom:20px;
     }
-    .search-card h2 { font-size:15px;font-weight:800;color:#1a1a2e;margin-bottom:6px; }
-    .search-card p { font-size:13px;color:#aaa;margin-bottom:20px; }
-
-    .search-tabs { display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid #f0f0f0; }
-    .search-tab {
-      padding:9px 18px;font-size:13px;font-weight:600;color:#aaa;
-      cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;
+    .form-card-header { margin-bottom:18px; }
+    .form-card-header .intro {
+      font-size:13px;color:#555;margin-bottom:8px;line-height:1.6;
     }
-    .search-tab.active { color:#f97316;border-bottom-color:#f97316; }
-    .search-tab:hover { color:#555; }
-
-    .chave-input {
-      font-family:monospace;font-size:13px;letter-spacing:1px;
+    .form-card-header .subhead {
+      display:flex;align-items:center;gap:6px;
+      font-size:12px;font-weight:700;color:#f97316;
+      text-transform:uppercase;letter-spacing:0.8px;
     }
-    .search-btn {
-      display:flex;align-items:center;gap:6px;padding:11px 24px;
-      background:#f97316;color:#fff;border:none;border-radius:8px;
-      font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;
-      width:100%;justify-content:center;margin-top:12px;
-    }
-    .search-btn:hover { background:#ea6c0a; }
 
-    .result-card {
+    /* ── FILTER SECTION BLOCK ── */
+    .fsec {
+      border-bottom:1px solid #f3f4f8;
+      padding:14px 0;
+    }
+    .fsec:last-of-type { border-bottom:none; }
+    .fsec-title {
+      font-size:11px;font-weight:700;color:#aaa;
+      text-transform:uppercase;letter-spacing:0.8px;
+      margin-bottom:10px;
+    }
+
+    /* ── RADIO GROUP ── */
+    .radio-group { display:flex;flex-wrap:wrap;gap:6px 20px; }
+    .radio-group label {
+      display:flex;align-items:center;gap:6px;
+      font-size:13px;color:#333;cursor:pointer;
+      font-weight:500;
+    }
+    .radio-group input[type=radio] { accent-color:#f97316;cursor:pointer; }
+
+    /* ── PERIOD ROW ── */
+    .period-row {
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;
+    }
+    .period-row .form-group { margin:0;flex:1;min-width:140px; }
+    .period-row .form-group label {
+      font-size:11px;font-weight:700;color:#666;
+      text-transform:uppercase;letter-spacing:0.4px;
+      display:block;margin-bottom:5px;
+    }
+    .period-row .form-group input {
+      width:100%;padding:8px 11px;
+      border:1.5px solid #e8eaf0;border-radius:7px;
+      font-size:13px;color:#1a1a2e;background:#fafbfc;
+      font-family:inherit;transition:all 0.15s;
+    }
+    .period-row .form-group input:focus {
+      outline:none;border-color:#f97316;background:#fff;
+      box-shadow:0 0 0 3px rgba(249,115,22,0.08);
+    }
+    .quick-months {
+      display:flex;gap:6px;align-items:flex-end;padding-bottom:1px;
+      flex-shrink:0;
+    }
+    .qm-link {
+      font-size:12px;font-weight:600;color:#f97316;
+      cursor:pointer;text-decoration:underline;
+      white-space:nowrap;transition:color 0.15s;
+    }
+    .qm-link:hover { color:#ea6c0a; }
+
+    /* ── INLINE FIELDS ROW ── */
+    .inline-fields {
+      display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;
+    }
+    .inline-fields .fg {
+      display:flex;flex-direction:column;
+    }
+    .inline-fields .fg label {
+      font-size:10px;font-weight:700;color:#666;
+      text-transform:uppercase;letter-spacing:0.4px;
+      margin-bottom:5px;
+    }
+    .inline-fields .fg input,
+    .inline-fields .fg select {
+      padding:8px 11px;
+      border:1.5px solid #e8eaf0;border-radius:7px;
+      font-size:13px;color:#1a1a2e;background:#fafbfc;
+      font-family:inherit;transition:all 0.15s;
+    }
+    .inline-fields .fg input:focus,
+    .inline-fields .fg select:focus {
+      outline:none;border-color:#f97316;background:#fff;
+      box-shadow:0 0 0 3px rgba(249,115,22,0.08);
+    }
+    .inline-fields .fg input:disabled,
+    .inline-fields .fg select:disabled {
+      background:#f4f4f4;color:#bbb;cursor:not-allowed;
+    }
+    .fg-wide { flex:1;min-width:220px; }
+
+    /* ── CHECKBOX GRID ── */
+    .cb-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px 24px; }
+    .cb-item {
+      display:flex;align-items:center;gap:8px;
+      font-size:13px;color:#333;cursor:pointer;
+    }
+    .cb-item input[type=checkbox] { accent-color:#f97316;cursor:pointer;flex-shrink:0; }
+
+    /* ── DESTINO SECTION ── */
+    .destino-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px 24px; }
+    .destino-email-row { margin-top:10px;display:none; }
+    .destino-email-row.show { display:block; }
+    .destino-email-row input {
+      width:100%;padding:8px 11px;
+      border:1.5px solid #e8eaf0;border-radius:7px;
+      font-size:13px;color:#1a1a2e;background:#fafbfc;
+      font-family:inherit;transition:all 0.15s;
+    }
+    .destino-email-row input:focus {
+      outline:none;border-color:#f97316;background:#fff;
+      box-shadow:0 0 0 3px rgba(249,115,22,0.08);
+    }
+
+    /* ── BUSCAR BUTTON ── */
+    .buscar-btn {
+      width:100%;padding:13px 24px;
+      background:#f97316;color:#fff;
+      border:none;border-radius:9px;
+      font-size:15px;font-weight:700;
+      cursor:pointer;transition:all 0.15s;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      margin-top:20px;letter-spacing:0.4px;
+    }
+    .buscar-btn:hover { background:#ea6c0a;transform:translateY(-1px);box-shadow:0 4px 14px rgba(249,115,22,0.3); }
+    .buscar-btn:active { transform:none; }
+
+    /* ── DISABLED FIELD HINT ── */
+    .field-hint {
+      font-size:12px;color:#bbb;padding:9px 12px;
+      border:1.5px dashed #e8eaf0;border-radius:7px;
+      background:#fafbfc;font-style:italic;width:100%;
+    }
+
+    /* ══════════════════════════════════════════════
+       RESULTS SECTION
+    ══════════════════════════════════════════════ */
+    #results-section { display:none; }
+    #results-section.show { display:block; }
+
+    .results-card {
       background:#fff;border-radius:14px;border:1.5px solid #e8eaf0;
-      padding:0;overflow:hidden;display:none;
-    }
-    .result-card.show { display:block; }
-    .result-header {
-      padding:20px 24px;background:#f8f9fc;border-bottom:1px solid #f0f0f0;
-      display:flex;align-items:center;gap:14px;
-    }
-    .result-icon { font-size:32px;flex-shrink:0; }
-    .result-title { font-size:16px;font-weight:800;color:#1a1a2e; }
-    .result-sub { font-size:12px;color:#aaa;margin-top:2px; }
-
-    .result-grid {
-      display:grid;grid-template-columns:1fr 1fr;gap:0;
-    }
-    .result-field {
-      padding:14px 20px;border-bottom:1px solid #f5f5f5;
-    }
-    .result-field:nth-child(odd):not(:last-child) { border-right:1px solid #f5f5f5; }
-    .rf-label { font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px; }
-    .rf-value { font-size:13px;font-weight:600;color:#1a1a2e;margin-top:3px; }
-
-    .result-actions {
-      padding:16px 24px;background:#f8f9fc;border-top:1px solid #f0f0f0;
-      display:flex;gap:8px;flex-wrap:wrap;
+      overflow:hidden;
     }
 
-    .loading {
-      text-align:center;padding:40px;display:none;
+    /* ── RESULTS TOPBAR ── */
+    .results-topbar {
+      padding:14px 20px;
+      background:#f8f9fc;border-bottom:1px solid #f0f0f0;
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     }
-    .loading.show { display:block; }
+    .results-topbar-left { display:flex;align-items:center;gap:8px;flex:1; }
+    .results-topbar-right { display:flex;align-items:center;gap:8px; }
+
+    /* ── PAGINATION INFO ── */
+    .results-pag-info {
+      padding:10px 20px;
+      background:#fff;border-bottom:1px solid #f3f4f8;
+      display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+      font-size:12px;color:#888;
+    }
+    .pag-info-select {
+      font-size:12px;font-weight:600;color:#333;
+      border:1.5px solid #e8eaf0;border-radius:6px;
+      padding:4px 8px;cursor:pointer;background:#fafbfc;
+    }
+    .pag-refresh-btn {
+      background:none;border:none;cursor:pointer;
+      font-size:14px;color:#f97316;padding:2px 4px;
+    }
+    .pag-count { color:#555;font-weight:500; }
+
+    /* ── TABLE ACTIONS ── */
+    .tbl-action-btn {
+      background:none;border:none;
+      font-size:15px;cursor:pointer;padding:3px 5px;
+      border-radius:5px;transition:background 0.15s;color:#555;
+    }
+    .tbl-action-btn:hover { background:#f4f6f9; }
+
+    /* ── PAGINATION BUTTONS ── */
+    .pag-buttons {
+      padding:14px 20px;background:#f8f9fc;border-top:1px solid #f0f0f0;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+    .pag-btn {
+      padding:6px 14px;font-size:12px;font-weight:600;
+      border:1.5px solid #e8eaf0;border-radius:6px;
+      background:#fff;color:#555;cursor:pointer;
+      transition:all 0.15s;
+    }
+    .pag-btn:hover:not(:disabled) { border-color:#f97316;color:#f97316; }
+    .pag-btn:disabled { opacity:0.4;cursor:not-allowed; }
+    .pag-btn.active { background:#f97316;color:#fff;border-color:#f97316; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align:center;padding:52px 24px;color:#aaa;
+    }
+    .empty-state .es-icon { font-size:40px;margin-bottom:12px; }
+    .empty-state .es-title { font-size:14px;font-weight:600;color:#888;margin-bottom:4px; }
+    .empty-state .es-sub { font-size:12px; }
+
+    /* ── TIPO TAG ── */
+    .tipo-tag {
+      display:inline-flex;align-items:center;
+      padding:2px 8px;border-radius:12px;
+      font-size:10px;font-weight:700;margin-left:4px;
+    }
+    .tipo-tag.saida { background:#fff5ee;color:#f97316; }
+    .tipo-tag.entrada { background:#eff6ff;color:#2563eb; }
+
+    /* ── CHAVE MINI ── */
+    .chave-mini {
+      font-family:monospace;font-size:10px;color:#aaa;
+      display:block;margin-top:2px;max-width:320px;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .nota-nome { font-size:13px;font-weight:600;color:#1a1a2e; }
+    .nota-doc { font-size:11px;color:#999;margin-top:1px; }
+
+    /* ── LOADING OVERLAY ── */
+    .buscar-loading { display:none;text-align:center;padding:40px; }
+    .buscar-loading.show { display:block; }
     .spinner {
       width:32px;height:32px;border:3px solid #f0f0f0;
       border-top:3px solid #f97316;border-radius:50%;
       animation:spin 0.8s linear infinite;display:inline-block;
     }
     @keyframes spin { to { transform:rotate(360deg); } }
-
-    .hist-item {
-      display:flex;align-items:center;gap:12px;padding:12px;
-      border-radius:8px;background:#f8f9fc;border:1px solid #f0f0f0;
-      margin-bottom:8px;cursor:pointer;transition:all 0.15s;
-    }
-    .hist-item:hover { background:#fff8f3;border-color:#f97316; }
-    .hist-icon { font-size:18px;flex-shrink:0; }
-    .hist-info .h-chave { font-family:monospace;font-size:11px;color:#888; }
-    .hist-info .h-desc { font-size:13px;font-weight:600;color:#1a1a2e; }
-    .hist-time { margin-left:auto;font-size:11px;color:#bbb; }
   </style>
 </head>
 <body>
 
+<!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar">
   <a href="../index.html" class="sidebar-logo">
     <div class="icon"><img src="assets/orange-favicon.png" style="width:24px;height:24px;object-fit:contain;border-radius:5px;" alt=""/></div>
     <div class="name">Orange<span>NFe</span></div>
   </a>
+
   <div class="sidebar-section">Principal</div>
   <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
   <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
   <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
-  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas</a>
   <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
   <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+
   <div class="sidebar-section">Cadastros</div>
   <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
   <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="fornecedores.html" class="nav-item"><span class="ni">🏭</span> Fornecedores</a>
+  <a href="transportadoras.html" class="nav-item"><span class="ni">🚛</span> Transportadoras</a>
   <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+
   <div class="sidebar-section">Ferramentas</div>
   <a href="consultar-nfe.html" class="nav-item active"><span class="ni">🔍</span> Consultar NF-e</a>
   <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
   <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
   <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+
   <div class="sidebar-bottom">
     <div class="user-card">
       <div class="user-avatar">R</div>
@@ -125,248 +296,665 @@
   </div>
 </aside>
 
+<!-- ═══ MAIN ═══ -->
 <div class="main">
   <div class="topbar">
-    <div class="topbar-title">Consultar NF-e na SEFAZ</div>
+    <div class="topbar-title">Consultar NF-e</div>
   </div>
 
   <div class="content">
     <div class="consulta-wrap">
 
-      <!-- BUSCA -->
-      <div class="search-card">
-        <h2>🔍 Consultar situação de NF-e</h2>
-        <p>Verifique a situação de qualquer Nota Fiscal Eletrônica diretamente nos servidores da SEFAZ.</p>
+      <!-- ══ FORM SECTION ══ -->
+      <div id="form-section">
 
-        <div class="search-tabs">
-          <div class="search-tab active" onclick="switchSearchMode('chave', this)">Por Chave de Acesso</div>
-          <div class="search-tab" onclick="switchSearchMode('numero', this)">Por Número</div>
-          <div class="search-tab" onclick="switchSearchMode('cnpj', this)">Por CNPJ do Emitente</div>
-        </div>
-
-        <div id="mode-chave">
-          <div class="form-group">
-            <label>Chave de Acesso (44 dígitos)</label>
-            <input type="text" id="input-chave" class="chave-input"
-              placeholder="0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000"
-              maxlength="47" oninput="formatChave(this)"/>
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="intro">Esta rotina possibilita a consulta, download e envio das notas fiscais eletrônicas armazenadas.</div>
+            <div class="subhead">📁 Preencha um ou mais critérios da pesquisa abaixo</div>
           </div>
-          <div style="font-size:12px;color:#aaa;margin-top:6px;">
-            A chave está impressa no DANFE abaixo do código de barras ou pode ser copiada do XML.
-          </div>
-        </div>
 
-        <div id="mode-numero" style="display:none">
-          <div class="form-row cols-3">
-            <div class="form-group">
-              <label>Série</label>
-              <input type="number" id="input-serie" placeholder="1" min="1" max="999"/>
+          <!-- SEÇÃO 1: PERÍODO -->
+          <div class="fsec">
+            <div class="fsec-title">1. Período</div>
+            <div class="radio-group">
+              <label><input type="radio" name="tipo_data" value="emissao" checked/> data de emissão</label>
+              <label><input type="radio" name="tipo_data" value="recepcao"/> data de recepção</label>
             </div>
-            <div class="form-group">
-              <label>Número da NF-e</label>
-              <input type="number" id="input-numero" placeholder="248"/>
-            </div>
-            <div class="form-group">
-              <label>UF de Emissão</label>
-              <select id="input-uf-num">
-                <option selected value="35">SP – São Paulo</option>
-                <option value="33">RJ – Rio de Janeiro</option>
-                <option value="31">MG – Minas Gerais</option>
-                <option value="43">RS – Rio Grande do Sul</option>
-                <option value="41">PR – Paraná</option>
-                <option value="42">SC – Santa Catarina</option>
-                <option value="29">BA – Bahia</option>
-              </select>
+            <div class="period-row">
+              <div class="form-group">
+                <label>Data Inicial</label>
+                <input type="date" id="data-ini" />
+              </div>
+              <div class="form-group">
+                <label>Data Final</label>
+                <input type="date" id="data-fim" />
+              </div>
+              <div class="quick-months">
+                <span class="qm-link" onclick="setMes(0)">mês atual</span>
+                <span class="qm-link" onclick="setMes(-1)">mês anterior</span>
+                <span class="qm-link" onclick="setMes(-2)">mês retrasado</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div id="mode-cnpj" style="display:none">
-          <div class="form-row cols-2">
-            <div class="form-group">
-              <label>CNPJ do Emitente</label>
-              <input type="text" id="input-cnpj-cons" placeholder="00.000.000/0001-00"/>
-            </div>
-            <div class="form-group">
-              <label>Período</label>
-              <select id="input-periodo-cons">
-                <option>Última semana</option>
-                <option selected>Último mês</option>
-                <option>Últimos 3 meses</option>
-                <option>Último ano</option>
-              </select>
+          <!-- SEÇÃO 2: TIPO DE NOTA FISCAL -->
+          <div class="fsec">
+            <div class="fsec-title">2. Tipo de nota fiscal</div>
+            <div class="radio-group">
+              <label><input type="radio" name="tipo_nf" value="ambos" checked onchange="onTipoChange()"/> mostrar ambos</label>
+              <label><input type="radio" name="tipo_nf" value="entrada" onchange="onTipoChange()"/> somente entrada</label>
+              <label><input type="radio" name="tipo_nf" value="saida" onchange="onTipoChange()"/> somente saída</label>
             </div>
           </div>
+
+          <!-- SEÇÃO 3: EMITENTES -->
+          <div class="fsec">
+            <div class="fsec-title">3. Emitentes</div>
+            <div class="inline-fields">
+              <div class="fg fg-wide">
+                <label>Emitente</label>
+                <input type="text" id="filtro-emitente" placeholder="» para habilitar, selecione o tipo entrada acima." disabled/>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 4: DESTINATÁRIOS -->
+          <div class="fsec">
+            <div class="fsec-title">4. Destinatários</div>
+            <div class="inline-fields">
+              <div class="fg fg-wide">
+                <label>Destinatário</label>
+                <input type="text" id="filtro-destinatario" placeholder="» para habilitar, selecione o tipo entrada ou saída acima." disabled/>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 5: CHECKBOXES ESPECIAIS -->
+          <div class="fsec">
+            <div class="fsec-title">5. Filtros especiais</div>
+            <div class="cb-grid">
+              <label class="cb-item"><input type="checkbox" id="cb-somente-emitidas"/> Mostrar somente notas emitidas pela empresa</label>
+              <label class="cb-item"><input type="checkbox" id="cb-nao-emitidas"/> Não mostrar notas emitidas pela empresa</label>
+              <label class="cb-item"><input type="checkbox" id="cb-importacao"/> Mostrar somente notas de importação</label>
+              <label class="cb-item"><input type="checkbox" id="cb-exterior"/> Mostrar somente notas emitidas para exterior</label>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 6: USUÁRIO -->
+          <div class="fsec">
+            <div class="fsec-title">6. Usuário que emitiu a nota fiscal</div>
+            <div class="inline-fields">
+              <div class="fg" style="min-width:240px;">
+                <label>Usuário</label>
+                <select id="filtro-usuario">
+                  <option value="">» todos</option>
+                  <option value="Ricardo B.">Ricardo B.</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 7: MODELO -->
+          <div class="fsec">
+            <div class="fsec-title">7. Modelo de nota fiscal</div>
+            <div class="radio-group">
+              <label><input type="radio" name="modelo_nf" value="todos" checked/> mostrar todos</label>
+              <label><input type="radio" name="modelo_nf" value="nfe"/> somente nf-e</label>
+              <label><input type="radio" name="modelo_nf" value="nfce"/> somente nfc-e</label>
+              <label><input type="radio" name="modelo_nf" value="nfse"/> somente nfs-e</label>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 8: NÚMERO / CHAVE -->
+          <div class="fsec">
+            <div class="fsec-title">8. Número / Chave de acesso</div>
+            <div class="inline-fields">
+              <div class="fg">
+                <label>Número inicial</label>
+                <input type="number" id="num-ini" placeholder="1" min="1" style="width:110px;"/>
+              </div>
+              <div class="fg">
+                <label>Número final</label>
+                <input type="number" id="num-fim" placeholder="999999" min="1" style="width:110px;"/>
+              </div>
+              <div class="fg">
+                <label>Série</label>
+                <input type="text" id="filtro-serie" placeholder="1" style="width:60px;"/>
+              </div>
+              <div class="fg fg-wide">
+                <label>Chave de acesso (44 dígitos)</label>
+                <input type="text" id="filtro-chave" placeholder="Chave de acesso de 44 dígitos" maxlength="44" style="font-family:monospace;font-size:12px;"/>
+              </div>
+              <div class="fg">
+                <label>CFOP</label>
+                <input type="text" id="filtro-cfop" placeholder="5101" style="width:70px;"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 9: STATUS -->
+          <div class="fsec">
+            <div class="fsec-title">9. Status</div>
+            <div class="cb-grid">
+              <label class="cb-item"><input type="checkbox" id="cb-autorizada"/> Mostrar somente notas autorizadas</label>
+              <label class="cb-item"><input type="checkbox" id="cb-cancelada"/> Mostrar somente notas canceladas</label>
+              <label class="cb-item"><input type="checkbox" id="cb-simples"/> Mostrar somente emitentes do simples nacional</label>
+              <label class="cb-item"><input type="checkbox" id="cb-denegada"/> Mostrar somente notas denegadas</label>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 10: DESTINO -->
+          <div class="fsec">
+            <div class="fsec-title">10. Destino</div>
+            <div class="destino-grid">
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <label class="cb-item"><input type="radio" name="destino" value="tela" checked onchange="onDestinoChange()"/> Exibir na tela</label>
+                <label class="cb-item"><input type="radio" name="destino" value="danfe_zip" onchange="onDestinoChange()"/> Gerar DANFe unificado (somente NF-e)</label>
+                <label class="cb-item"><input type="radio" name="destino" value="zip_xml" onchange="onDestinoChange()"/> Gerar arquivo ZIP (apenas XML)</label>
+                <label class="cb-item"><input type="radio" name="destino" value="zip_xml_danfe" onchange="onDestinoChange()"/> Gerar arquivo ZIP (XML e DANFe)</label>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <label class="cb-item"><input type="radio" name="destino" value="email_xml" onchange="onDestinoChange()"/> Enviar por E-mail (apenas XML)</label>
+                <label class="cb-item"><input type="radio" name="destino" value="email_xml_danfe" onchange="onDestinoChange()"/> Enviar por E-mail (XML e DANFe)</label>
+                <div class="destino-email-row" id="email-row">
+                  <input type="email" id="destino-email" placeholder="destinatario@email.com"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTÃO BUSCAR -->
+          <button class="buscar-btn" onclick="buscar()">
+            🔍 BUSCAR
+          </button>
         </div>
 
-        <button class="search-btn" onclick="consultar()">
-          🔍 Consultar no SEFAZ
-        </button>
-      </div>
+      </div><!-- /#form-section -->
 
-      <!-- LOADING -->
-      <div class="loading" id="loading">
+      <!-- ══ LOADING ══ -->
+      <div class="buscar-loading" id="buscar-loading">
         <div class="spinner"></div>
-        <p style="margin-top:12px;color:#aaa;font-size:13px;">Consultando servidores da SEFAZ...</p>
+        <p style="margin-top:12px;color:#aaa;font-size:13px;">Consultando notas fiscais...</p>
       </div>
 
-      <!-- RESULTADO -->
-      <div class="result-card" id="resultado">
-        <div class="result-header">
-          <div class="result-icon" id="res-icon">✅</div>
-          <div>
-            <div class="result-title" id="res-title">NF-e Autorizada pelo SEFAZ</div>
-            <div class="result-sub" id="res-sub">Protocolo: 135240001234567 · Consultado em: 23/05/2026 14:32</div>
-          </div>
-          <div id="res-badge" style="margin-left:auto;"></div>
-        </div>
+      <!-- ══ RESULTS SECTION ══ -->
+      <div id="results-section">
 
-        <div class="result-grid">
-          <div class="result-field">
-            <div class="rf-label">Chave de Acesso</div>
-            <div class="rf-value" id="res-chave" style="font-family:monospace;font-size:11px;word-break:break-all"></div>
-          </div>
-          <div class="result-field">
-            <div class="rf-label">Protocolo de Autorização</div>
-            <div class="rf-value" id="res-protocolo">135240001234567</div>
-          </div>
-          <div class="result-field">
-            <div class="rf-label">Data de Autorização</div>
-            <div class="rf-value" id="res-data-auth">23/05/2026 às 14:30:22</div>
-          </div>
-          <div class="result-field">
-            <div class="rf-label">Emitente</div>
-            <div class="rf-value" id="res-emitente">Orange Sistemas Ltda – CNPJ: 12.345.678/0001-90</div>
-          </div>
-          <div class="result-field">
-            <div class="rf-label">Destinatário</div>
-            <div class="rf-value" id="res-destinatario">Supermercado Bom Preço Ltda</div>
-          </div>
-          <div class="result-field">
-            <div class="rf-label">Valor Total</div>
-            <div class="rf-value" id="res-valor" style="color:#f97316;font-size:16px;">R$ 4.520,80</div>
-          </div>
-          <div class="result-field">
-            <div class="rf-label">Número / Série</div>
-            <div class="rf-value" id="res-num">Nº 000248 / Série 1</div>
-          </div>
-          <div class="result-field">
-            <div class="rf-label">Data de Emissão</div>
-            <div class="rf-value" id="res-data-emissao">23/05/2026</div>
-          </div>
-        </div>
+        <div class="results-card">
 
-        <div class="result-actions">
-          <button class="btn primary" onclick="alert('Baixando XML...')">⬇ Baixar XML</button>
-          <button class="btn secondary" onclick="alert('Abrindo DANFE...')">👁 Visualizar DANFE</button>
-          <button class="btn secondary" onclick="copiarChave()">📋 Copiar chave</button>
-          <button class="btn danger" onclick="alert('Cancelamento: apenas disponível para notas próprias.')">🚫 Cancelar NF-e</button>
-        </div>
-      </div>
+          <!-- TOP BAR -->
+          <div class="results-topbar">
+            <div class="results-topbar-left">
+              <button class="btn secondary sm" onclick="voltarFiltro()">← Voltar</button>
+              <button class="btn secondary sm" onclick="voltarFiltro()">🔍 Filtrar</button>
+            </div>
+            <div class="results-topbar-right">
+              <button class="btn secondary sm" onclick="exportarZip()">⬇ Exportar ZIP</button>
+            </div>
+          </div>
 
-      <!-- HISTÓRICO -->
-      <div class="card" style="margin-top:20px;">
-        <div class="card-title">Consultas recentes</div>
-        <div id="hist-container">
-          <div class="hist-item" onclick="reConsultar('35260512345678000190550010000001011234567890')">
-            <div class="hist-icon">✅</div>
-            <div class="hist-info">
-              <div class="h-chave">3526...7890</div>
-              <div class="h-desc">NF-e 000247 – Orange Sistemas → Bom Preço · R$ 4.520,80</div>
-            </div>
-            <div class="hist-time">há 2h</div>
+          <!-- PAGINATION INFO -->
+          <div class="results-pag-info">
+            <span>» Mostrar</span>
+            <select class="pag-info-select" id="per-page" onchange="renderPage(1)">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span>registros por página</span>
+            <span style="margin-left:auto;">
+              Atualizado às <span id="last-update-time">--:--</span>
+              <button class="pag-refresh-btn" onclick="buscar(true)" title="Atualizar">🔄</button>
+            </span>
+            <span class="pag-count" id="pag-count-info">Mostrando página 1 de 1 de um total de 0 registros</span>
           </div>
-          <div class="hist-item" onclick="reConsultar('35260598765432000118550010000002021111111111')">
-            <div class="hist-icon">✅</div>
-            <div class="hist-info">
-              <div class="h-chave">3526...1111</div>
-              <div class="h-desc">NF-e 000246 – Orange Sistemas → Norte Sul · R$ 18.200,00</div>
-            </div>
-            <div class="hist-time">ontem</div>
+
+          <!-- TABLE -->
+          <div class="table-wrap">
+            <table id="results-table">
+              <thead>
+                <tr>
+                  <th style="width:30px;"><input type="checkbox" id="chk-all" onchange="toggleAllCheck(this)"/></th>
+                  <th>Emissão</th>
+                  <th>Processamento</th>
+                  <th>Número / Tipo</th>
+                  <th>Emitente / Destinatário · CNPJ · Chave</th>
+                  <th style="text-align:right;">Valor NF-e</th>
+                  <th>Status SEFAZ</th>
+                  <th style="width:70px;text-align:center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="results-tbody">
+                <tr><td colspan="8" style="text-align:center;color:#aaa;padding:36px;">Nenhum resultado.</td></tr>
+              </tbody>
+            </table>
           </div>
-          <div class="hist-item" onclick="reConsultar('35260522334455000177550010000004041333333333')">
-            <div class="hist-icon">🚫</div>
-            <div class="hist-info">
-              <div class="h-chave">3526...3333</div>
-              <div class="h-desc">NF-e 000244 – Orange Sistemas → Comércio Gama · R$ 2.340,00 (Cancelada)</div>
-            </div>
-            <div class="hist-time">20/05</div>
+
+          <!-- PAGINATION BUTTONS -->
+          <div class="pag-buttons">
+            <button class="pag-btn" id="pag-primeira" onclick="renderPage(1)">PRIMEIRA</button>
+            <button class="pag-btn" id="pag-anterior" onclick="renderPage(currentPage - 1)">ANTERIOR</button>
+            <span id="pag-pages" style="display:flex;gap:4px;"></span>
+            <button class="pag-btn" id="pag-proxima" onclick="renderPage(currentPage + 1)">PRÓXIMA</button>
+            <button class="pag-btn" id="pag-ultima" onclick="renderPage(totalPages)">ÚLTIMA</button>
           </div>
+
         </div>
-      </div>
+      </div><!-- /#results-section -->
 
     </div>
   </div>
-</div>
+</div><!-- /.main -->
 
 <script>
-let lastChave = '';
-let currentMode = 'chave';
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let allRows = [];         // combined & sorted result rows
+let currentPage = 1;
+let totalPages  = 1;
 
-function switchSearchMode(mode, el) {
-  currentMode = mode;
-  document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  ['mode-chave','mode-numero','mode-cnpj'].forEach(id => {
-    document.getElementById(id).style.display = id === 'mode-' + mode ? '' : 'none';
-  });
+/* ══════════════════════════════════════════════
+   INIT — pre-fill current month dates
+══════════════════════════════════════════════ */
+(function init() {
+  setMes(0);
+})();
+
+/* ══════════════════════════════════════════════
+   setMes(offset)
+   0 = current month, -1 = previous, -2 = two months ago
+══════════════════════════════════════════════ */
+function setMes(offset) {
+  const now   = new Date();
+  const year  = now.getFullYear();
+  const month = now.getMonth() + offset; // may go negative — Date handles it
+  const ini   = new Date(year, month,  1);
+  const fim   = new Date(year, month + 1, 0); // last day
+
+  document.getElementById('data-ini').value = toInputDate(ini);
+  document.getElementById('data-fim').value = toInputDate(fim);
 }
 
-function formatChave(input) {
-  let v = input.value.replace(/\D/g,'').substring(0,44);
-  // Format: groups of 4
-  v = v.replace(/(.{4})/g,'$1 ').trim();
-  input.value = v;
+function toInputDate(d) {
+  const y  = d.getFullYear();
+  const m  = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
 }
 
-function consultar() {
-  let chave = '';
-  if (currentMode === 'chave') {
-    chave = document.getElementById('input-chave').value.replace(/\s/g,'');
-    if (chave.length !== 44) { alert('A chave de acesso deve ter 44 dígitos.'); return; }
-  } else if (currentMode === 'numero') {
-    const num = document.getElementById('input-numero').value;
-    if (!num) { alert('Informe o número da NF-e.'); return; }
-    chave = '35260512345678000190550010000' + num.padStart(6,'0') + '00000000';
+/* ══════════════════════════════════════════════
+   TIPO CHANGE — enable/disable emitente & destinatario
+══════════════════════════════════════════════ */
+function onTipoChange() {
+  const tipo    = document.querySelector('input[name="tipo_nf"]:checked').value;
+  const emField = document.getElementById('filtro-emitente');
+  const dsField = document.getElementById('filtro-destinatario');
+
+  // Emitente: enabled when "entrada" or "ambos"
+  emField.disabled = (tipo === 'saida');
+  if (tipo === 'saida') {
+    emField.value = '';
+    emField.placeholder = '» para habilitar, selecione o tipo entrada acima.';
   } else {
-    const cnpj = document.getElementById('input-cnpj-cons').value.replace(/\D/g,'');
-    if (cnpj.length !== 14) { alert('CNPJ inválido.'); return; }
-    chave = '35260512345678000190550010000001011234567890';
+    emField.placeholder = 'Filtrar por nome do emitente…';
   }
 
-  document.getElementById('loading').classList.add('show');
-  document.getElementById('resultado').classList.remove('show');
-
-  setTimeout(() => {
-    document.getElementById('loading').classList.remove('show');
-    showResult(chave);
-  }, 1400);
+  // Destinatário: enabled when "saida" or "ambos"
+  dsField.disabled = (tipo === 'entrada');
+  if (tipo === 'entrada') {
+    dsField.value = '';
+    dsField.placeholder = '» para habilitar, selecione o tipo saída acima.';
+  } else {
+    dsField.placeholder = 'Filtrar por nome do destinatário…';
+  }
 }
 
-function showResult(chave) {
-  lastChave = chave;
-  const isCancel = chave.includes('3333');
-  document.getElementById('res-icon').textContent   = isCancel ? '🚫' : '✅';
-  document.getElementById('res-title').textContent  = isCancel ? 'NF-e Cancelada' : 'NF-e Autorizada pelo SEFAZ';
-  document.getElementById('res-sub').textContent    = `Protocolo: 135240001234567 · Consultado em: ${new Date().toLocaleString('pt-BR')}`;
-  document.getElementById('res-chave').textContent  = chave.replace(/(.{4})/g,'$1 ').trim();
-  document.getElementById('res-badge').innerHTML    = `<span class="badge ${isCancel ? 'cancelada' : 'autorizada'}">${isCancel ? 'Cancelada' : 'Autorizada'}</span>`;
-  document.getElementById('resultado').classList.add('show');
+/* ══════════════════════════════════════════════
+   DESTINO CHANGE — show/hide e-mail input
+══════════════════════════════════════════════ */
+function onDestinoChange() {
+  const destino   = document.querySelector('input[name="destino"]:checked').value;
+  const emailRow  = document.getElementById('email-row');
+  const isEmail   = (destino === 'email_xml' || destino === 'email_xml_danfe');
+  emailRow.classList.toggle('show', isEmail);
 }
 
-function reConsultar(chave) {
-  document.getElementById('input-chave').value = chave.replace(/(.{4})/g,'$1 ').trim();
-  switchSearchMode('chave', document.querySelectorAll('.search-tab')[0]);
-  document.getElementById('loading').classList.add('show');
-  document.getElementById('resultado').classList.remove('show');
-  setTimeout(() => {
-    document.getElementById('loading').classList.remove('show');
-    showResult(chave);
-  }, 900);
+/* ══════════════════════════════════════════════
+   BUSCAR
+══════════════════════════════════════════════ */
+async function buscar(silent = false) {
+  if (!silent) {
+    document.getElementById('form-section').style.display    = 'none';
+    document.getElementById('results-section').classList.remove('show');
+    document.getElementById('buscar-loading').classList.add('show');
+  }
+
+  try {
+    const filters = buildFilters();
+    const tipo    = document.querySelector('input[name="tipo_nf"]:checked').value;
+
+    const emitidas   = (tipo === 'entrada') ? [] : await fetchEmitidas(filters);
+    const recebidas  = (tipo === 'saida')   ? [] : await fetchRecebidas(filters);
+
+    renderResults(emitidas, recebidas);
+
+  } catch (err) {
+    console.error('Busca error:', err);
+    showToast('Erro ao consultar notas: ' + err.message, 'error');
+    if (!silent) {
+      document.getElementById('form-section').style.display = '';
+    }
+  } finally {
+    document.getElementById('buscar-loading').classList.remove('show');
+  }
 }
 
-function copiarChave() {
-  navigator.clipboard.writeText(lastChave).then(() => alert('✅ Chave de acesso copiada para a área de transferência!'));
+/* ── Build query filters from form ── */
+function buildFilters() {
+  return {
+    dataIni      : document.getElementById('data-ini').value,
+    dataFim      : document.getElementById('data-fim').value,
+    tipoData     : document.querySelector('input[name="tipo_data"]:checked').value,
+    emitente     : document.getElementById('filtro-emitente').value.trim(),
+    destinatario : document.getElementById('filtro-destinatario').value.trim(),
+    serie        : document.getElementById('filtro-serie').value.trim(),
+    numIni       : document.getElementById('num-ini').value,
+    numFim       : document.getElementById('num-fim').value,
+    chave        : document.getElementById('filtro-chave').value.replace(/\s/g,''),
+    modelo       : document.querySelector('input[name="modelo_nf"]:checked').value,
+    cbAutorizada : document.getElementById('cb-autorizada').checked,
+    cbCancelada  : document.getElementById('cb-cancelada').checked,
+    cbDenegada   : document.getElementById('cb-denegada').checked,
+  };
+}
+
+/* ── Fetch notas_emitidas with filters ── */
+async function fetchEmitidas(f) {
+  let q = getDB().from('notas_emitidas').select('*');
+
+  // Date filter
+  const dateField = (f.tipoData === 'recepcao') ? 'updated_at' : 'data_emissao';
+  if (f.dataIni) q = q.gte(dateField, f.dataIni);
+  if (f.dataFim) q = q.lte(dateField, f.dataFim + (dateField === 'updated_at' ? 'T23:59:59' : ''));
+
+  // Destinatário
+  if (f.destinatario) q = q.ilike('destinatario_nome', `%${f.destinatario}%`);
+
+  // Série
+  if (f.serie) q = q.eq('serie', f.serie);
+
+  // Número
+  if (f.numIni) q = q.gte('numero', f.numIni);
+  if (f.numFim) q = q.lte('numero', f.numFim);
+
+  // Chave
+  if (f.chave && f.chave.length === 44) q = q.eq('chave_acesso', f.chave);
+
+  // Modelo
+  if (f.modelo === 'nfe')   q = q.eq('tipo_nota', 'NF-e');
+  if (f.modelo === 'nfce')  q = q.eq('tipo_nota', 'NFC-e');
+  if (f.modelo === 'nfse')  q = q.eq('tipo_nota', 'NFS-e');
+
+  // Status checkboxes (OR logic)
+  const statusFilters = [];
+  if (f.cbAutorizada) statusFilters.push('status.eq.autorizada');
+  if (f.cbCancelada)  statusFilters.push('status.eq.cancelada');
+  if (f.cbDenegada)   statusFilters.push('status.eq.denegada');
+  if (statusFilters.length) q = q.or(statusFilters.join(','));
+
+  q = q.order('data_emissao', { ascending: false });
+
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data || []).map(n => ({ _src: 'emitida', ...n }));
+}
+
+/* ── Fetch notas_recebidas with filters ── */
+async function fetchRecebidas(f) {
+  let q = getDB().from('notas_recebidas').select('*');
+
+  // Date filter
+  if (f.tipoData === 'recepcao') {
+    if (f.dataIni) q = q.gte('created_at', f.dataIni);
+    if (f.dataFim) q = q.lte('created_at', f.dataFim + 'T23:59:59');
+  } else {
+    if (f.dataIni) q = q.gte('data_emissao', f.dataIni);
+    if (f.dataFim) q = q.lte('data_emissao', f.dataFim);
+  }
+
+  // Emitente
+  if (f.emitente) q = q.ilike('emitente', `%${f.emitente}%`);
+
+  // Série
+  if (f.serie) q = q.eq('serie', f.serie);
+
+  // Número
+  if (f.numIni) q = q.gte('num', f.numIni);
+  if (f.numFim) q = q.lte('num', f.numFim);
+
+  // Chave
+  if (f.chave && f.chave.length === 44) q = q.eq('chave', f.chave);
+
+  q = q.order('data_emissao', { ascending: false });
+
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data || []).map(n => ({ _src: 'recebida', ...n }));
+}
+
+/* ══════════════════════════════════════════════
+   renderResults(emitidas, recebidas)
+══════════════════════════════════════════════ */
+function renderResults(emitidas, recebidas) {
+  // Merge & sort by emission date desc
+  const emiRows = emitidas.map(n => buildRowEmitida(n));
+  const recRows = recebidas.map(n => buildRowRecebida(n));
+  allRows = [...emiRows, ...recRows].sort((a, b) => (b._rawDate || '').localeCompare(a._rawDate || ''));
+
+  // Update time
+  const now = new Date();
+  document.getElementById('last-update-time').textContent =
+    now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+
+  document.getElementById('results-section').classList.add('show');
+  renderPage(1);
+}
+
+/* ── Build normalized row objects ── */
+function buildRowEmitida(n) {
+  const badgeMap = {
+    autorizada: 'autorizada', cancelada: 'cancelada',
+    denegada: 'cancelada', em_digitacao: 'pendente',
+    validada: 'pendente', processando: 'pendente', rejeitada: 'rejeitada'
+  };
+  return {
+    _rawDate     : n.data_emissao || '',
+    _src         : 'emitida',
+    _xmlData     : n.xml,
+    _id          : n.id,
+    emissao      : fmtDateStr(n.data_emissao),
+    processamento: fmtDateTimeStr(n.updated_at),
+    numero       : n.numero || '—',
+    tipo         : n.tipo_nota || 'NF-e',
+    direcao      : 'saída',
+    parteNome    : n.destinatario_nome || '—',
+    parteDoc     : fmtDoc(n.destinatario_doc),
+    chave        : n.chave_acesso || '',
+    valor        : n.valor_total,
+    statusRaw    : n.status || '—',
+    statusClass  : badgeMap[n.status] || 'pendente',
+  };
+}
+
+function buildRowRecebida(n) {
+  const manifest = n.manifest ? ` (${n.manifest})` : '';
+  return {
+    _rawDate     : n.data_emissao || '',
+    _src         : 'recebida',
+    _xmlData     : n.xml,
+    _id          : n.id,
+    emissao      : fmtDateStr(n.data_emissao),
+    processamento: fmtDateTimeStr(n.created_at),
+    numero       : n.num || '—',
+    tipo         : 'NF-e',
+    direcao      : 'entrada',
+    parteNome    : n.emitente || '—',
+    parteDoc     : fmtCnpj(n.emitente_cnpj),
+    chave        : n.chave || '',
+    valor        : n.valor,
+    statusRaw    : (n.sit || '—') + manifest,
+    statusClass  : (n.sit === 'autorizada' ? 'autorizada' : n.sit === 'cancelada' ? 'cancelada' : 'pendente'),
+  };
+}
+
+/* ══════════════════════════════════════════════
+   renderPage(page)
+══════════════════════════════════════════════ */
+function renderPage(page) {
+  const perPage   = parseInt(document.getElementById('per-page').value, 10);
+  totalPages      = Math.max(1, Math.ceil(allRows.length / perPage));
+  currentPage     = Math.min(Math.max(1, page), totalPages);
+
+  const start = (currentPage - 1) * perPage;
+  const slice = allRows.slice(start, start + perPage);
+
+  const tbody = document.getElementById('results-tbody');
+
+  if (!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="8">
+      <div class="empty-state">
+        <div class="es-icon">📄</div>
+        <div class="es-title">Nenhuma nota encontrada</div>
+        <div class="es-sub">Ajuste os filtros e tente novamente.</div>
+      </div>
+    </td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map((r, i) => buildTableRow(r, start + i)).join('');
+  }
+
+  // Update pag info
+  const total = allRows.length;
+  const pageOf = `Mostrando página ${currentPage} de ${totalPages} de um total de ${total} registro${total !== 1 ? 's' : ''}`;
+  document.getElementById('pag-count-info').textContent = pageOf;
+
+  // Buttons state
+  document.getElementById('pag-primeira').disabled = (currentPage <= 1);
+  document.getElementById('pag-anterior').disabled = (currentPage <= 1);
+  document.getElementById('pag-proxima').disabled  = (currentPage >= totalPages);
+  document.getElementById('pag-ultima').disabled   = (currentPage >= totalPages);
+
+  // Page numbers
+  const pagesEl = document.getElementById('pag-pages');
+  let pagesHtml = '';
+  const lo = Math.max(1, currentPage - 2);
+  const hi = Math.min(totalPages, currentPage + 2);
+  for (let p = lo; p <= hi; p++) {
+    pagesHtml += `<button class="pag-btn${p === currentPage ? ' active' : ''}" onclick="renderPage(${p})">${p}</button>`;
+  }
+  pagesEl.innerHTML = pagesHtml;
+}
+
+function buildTableRow(r, idx) {
+  const tipoClass = r.direcao === 'saída' ? 'saida' : 'entrada';
+  const chaveShort = r.chave
+    ? r.chave.substring(0, 8) + '…' + r.chave.substring(36)
+    : '—';
+  return `
+    <tr>
+      <td><input type="checkbox" class="row-chk" data-idx="${idx}"/></td>
+      <td>${r.emissao}</td>
+      <td style="font-size:11px;color:#999;">${r.processamento}</td>
+      <td>
+        <b>${r.numero}</b>
+        <span class="tipo-tag ${tipoClass}">${r.tipo} · ${r.direcao}</span>
+      </td>
+      <td>
+        <div class="nota-nome">${escHtml(r.parteNome)}</div>
+        <div class="nota-doc">${r.parteDoc}</div>
+        <span class="chave-mini" title="${r.chave}">${chaveShort}</span>
+      </td>
+      <td style="text-align:right;font-weight:700;">R$ ${fmtMoney(r.valor)}</td>
+      <td><span class="badge ${r.statusClass}">${escHtml(r.statusRaw)}</span></td>
+      <td style="text-align:center;">
+        <button class="tbl-action-btn" title="Baixar XML" onclick="downloadXml('${idx}')">⬇</button>
+        <button class="tbl-action-btn" title="DANFe" onclick="openDanfe('${idx}')">📄</button>
+      </td>
+    </tr>`;
+}
+
+/* ══════════════════════════════════════════════
+   voltarFiltro()
+══════════════════════════════════════════════ */
+function voltarFiltro() {
+  document.getElementById('results-section').classList.remove('show');
+  document.getElementById('form-section').style.display = '';
+}
+
+/* ══════════════════════════════════════════════
+   ACTIONS
+══════════════════════════════════════════════ */
+function toggleAllCheck(masterChk) {
+  document.querySelectorAll('.row-chk').forEach(c => c.checked = masterChk.checked);
+}
+
+function downloadXml(rowIdx) {
+  const r = allRows[parseInt(rowIdx, 10)];
+  if (!r) return;
+  if (!r._xmlData) { showToast('XML não disponível para esta nota.', 'info'); return; }
+  const blob = new Blob([r._xmlData], { type: 'application/xml' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `nfe_${r.numero}_${r._id}.xml`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function openDanfe(rowIdx) {
+  showToast('Geração de DANFe disponível em breve.', 'info');
+}
+
+function exportarZip() {
+  showToast('Exportação ZIP disponível em breve.', 'info');
+}
+
+/* ══════════════════════════════════════════════
+   FORMATTING HELPERS
+══════════════════════════════════════════════ */
+function fmtDateStr(v) {
+  if (!v) return '—';
+  // handles both ISO datetime and date-only strings
+  const d = new Date(v + (v.includes('T') ? '' : 'T00:00:00'));
+  return d.toLocaleDateString('pt-BR');
+}
+
+function fmtDateTimeStr(v) {
+  if (!v) return '—';
+  const d = new Date(v);
+  return d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function fmtDoc(v) {
+  if (!v) return '';
+  const d = v.replace(/\D/g, '');
+  if (d.length === 14) return fmtCnpj(d);
+  if (d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  return v;
+}
+
+function fmtCnpj(v) {
+  if (!v) return '';
+  const d = v.replace(/\D/g, '');
+  if (d.length !== 14) return v;
+  return d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>

@@ -86,6 +86,8 @@
   <div class="sidebar-section">Cadastros</div>
   <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
   <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="fornecedores.html" class="nav-item"><span class="ni">🏭</span> Fornecedores</a>
+  <a href="transportadoras.html" class="nav-item"><span class="ni">🚛</span> Transportadoras</a>
   <a href="minha-empresa.html" class="nav-item active"><span class="ni">🏢</span> Minha Empresa</a>
   <div class="sidebar-section">Ferramentas</div>
   <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
@@ -239,49 +241,39 @@
     <div id="tab-certificado" style="display:none">
       <div class="card" style="margin-bottom:16px;">
         <div class="card-title">Certificado A1 instalado</div>
-
-        <div class="cert-card">
+        <div id="cert-card-loaded" class="cert-card" style="display:none">
           <div class="cert-icon">🔐</div>
           <div class="cert-info">
-            <div class="cert-name">ORANGE SISTEMAS LTDA:12345678000190</div>
-            <div class="cert-sub">Emitido por: AC SAFEWEB RFB v5 • Série: 07B4F2A103</div>
-            <div class="cert-sub">Validade: 15/03/2027 • Tipo: A1 (PFX)</div>
+            <div class="cert-name" id="ce-cn">—</div>
+            <div class="cert-sub" id="ce-issuer">—</div>
+            <div class="cert-sub" id="ce-validade">—</div>
           </div>
-          <span class="cert-status valid">✓ Válido</span>
+          <span class="cert-status" id="ce-status-badge">—</span>
         </div>
-
-        <div class="section-divider"><span>Trocar certificado</span></div>
-        <div class="form-row cols-2">
-          <div class="form-group">
-            <label>Arquivo .PFX / .P12</label>
-            <input type="file" accept=".pfx,.p12" id="cert-file"/>
-          </div>
-          <div class="form-group">
-            <label>Senha do certificado</label>
-            <input type="password" id="cert-senha" placeholder="Digite a senha"/>
-          </div>
+        <div id="cert-card-empty" style="padding:20px;text-align:center;color:#aaa;font-size:13px;">
+          Nenhum certificado instalado.
         </div>
-        <button class="btn primary" onclick="instalarCert()" style="margin-top:4px">🔐 Instalar certificado</button>
+        <div style="margin-top:14px;padding:12px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:13px;color:#1d4ed8;">
+          ℹ️ O gerenciamento do certificado A1 é feito em
+          <a href="configuracoes.html" style="font-weight:700;color:#1d4ed8;">Configurações → Certificado Digital</a>.
+        </div>
       </div>
 
       <div class="card">
         <div class="card-title">Ambiente SEFAZ</div>
         <div class="env-toggle">
-          <div class="env-btn prod active" onclick="setAmbiente('prod', this)">
+          <div class="env-btn prod" id="env-prod" onclick="setAmbiente('prod',this)">
             <div style="font-size:20px;margin-bottom:4px;">✅</div>
             Produção
             <div style="font-size:11px;font-weight:400;margin-top:2px;">Notas válidas com valor legal</div>
           </div>
-          <div class="env-btn hom" onclick="setAmbiente('hom', this)">
+          <div class="env-btn hom active" id="env-hom" onclick="setAmbiente('hom',this)">
             <div style="font-size:20px;margin-bottom:4px;">🧪</div>
             Homologação
             <div style="font-size:11px;font-weight:400;margin-top:2px;">Apenas para testes</div>
           </div>
         </div>
-        <div style="padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:13px;color:#16a34a;font-weight:600;">
-          ✅ Conexão com SEFAZ ativa — Último teste: 23/05/2026 às 14:32
-        </div>
-        <button class="btn secondary" onclick="testarConexao()" style="margin-top:12px">🔄 Testar conexão</button>
+        <button class="btn secondary" onclick="testarConexao()" style="margin-top:4px">🔄 Testar conexão SEFAZ</button>
       </div>
     </div>
 
@@ -420,7 +412,12 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="db.js"></script>
 <script>
+let _logoB64 = null;
+
+/* ── Abas ── */
 function switchTab(id, el) {
   document.querySelectorAll('.tab-nav .t').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
@@ -429,42 +426,131 @@ function switchTab(id, el) {
   });
 }
 
+/* ── Ambiente SEFAZ (reflete configuracoes) ── */
 function setAmbiente(amb, btn) {
   document.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
-function instalarCert() {
-  const f = document.getElementById('cert-file').files[0];
-  const s = document.getElementById('cert-senha').value;
-  if (!f) { alert('Selecione o arquivo .PFX.'); return; }
-  if (!s) { alert('Informe a senha do certificado.'); return; }
-  alert('✅ Certificado instalado com sucesso!\n\nVigência: até 15/03/2027');
-}
-
+/* ── Teste conexão SEFAZ (simulado) ── */
 function testarConexao() {
   const btn = event.target;
-  btn.textContent = '🔄 Testando...';
+  btn.disabled = true; btn.textContent = '🔄 Testando...';
   setTimeout(() => {
-    btn.textContent = '🔄 Testar conexão';
-    alert('✅ Conexão com SEFAZ OK!\nLatência: 42ms');
-  }, 1500);
+    btn.disabled = false; btn.textContent = '🔄 Testar conexão SEFAZ';
+    showToast('✅ Conexão com SEFAZ OK! Latência: 42 ms');
+  }, 1400);
 }
 
+/* ── Preview logo ── */
 function previewLogo(input) {
-  const file = input.files[0];
-  if (!file) return;
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    document.getElementById('logo-img').src = e.target.result;
+    _logoB64 = e.target.result;
+    document.getElementById('logo-img').src = _logoB64;
     document.getElementById('logo-preview').style.display = 'block';
   };
   reader.readAsDataURL(file);
 }
 
-function salvar() {
-  alert('✅ Dados da empresa salvos com sucesso!');
+/* ── Carregar dados ao abrir ── */
+async function loadEmpresa() {
+  try {
+    const emp = await dbGetEmpresa();
+    const sV = (id, v) => { const e = document.getElementById(id); if (e && v != null) e.value = v; };
+
+    sV('e-cnpj',     emp.cnpj);
+    sV('e-ie',       emp.ie);
+    sV('e-im',       emp.im);
+    sV('e-razao',    emp.razao);
+    sV('e-fantasia', emp.fantasia);
+    sV('e-cnae',     emp.cnae);
+    sV('e-regime',   emp.regime);
+    sV('e-cep',      emp.cep);
+    sV('e-end',      emp.logradouro);
+    sV('e-num',      emp.numero);
+    sV('e-comp',     emp.complemento);
+    sV('e-bairro',   emp.bairro);
+    sV('e-municipio',emp.municipio);
+    sV('e-uf',       emp.uf);
+    sV('e-ibge',     emp.ibge);
+    sV('e-tel',      emp.tel);
+    sV('e-email',    emp.email);
+    sV('e-email-nfe',emp.email_nfe);
+    sV('e-resp',     emp.resp_fiscal);
+
+    if (emp.logo_b64) {
+      _logoB64 = emp.logo_b64;
+      document.getElementById('logo-img').src = emp.logo_b64;
+      document.getElementById('logo-preview').style.display = 'block';
+    }
+  } catch(e) {
+    console.error('loadEmpresa:', e);
+  }
+
+  /* carrega cert info de configuracoes */
+  try {
+    const cfg = await dbGetConfig();
+    if (cfg?.cert_cn) {
+      const validade = cfg.cert_validade ? new Date(cfg.cert_validade) : null;
+      const expired  = validade && validade < new Date();
+      const expStr   = validade ? validade.toLocaleDateString('pt-BR') : '—';
+      document.getElementById('ce-cn').textContent       = cfg.cert_cn;
+      document.getElementById('ce-issuer').textContent   = cfg.cert_issuer ? 'Emissor: ' + cfg.cert_issuer : '—';
+      document.getElementById('ce-validade').textContent = 'Validade: ' + expStr + ' · Tipo: A1 (PFX)';
+      const badge = document.getElementById('ce-status-badge');
+      badge.textContent  = expired ? '✗ Vencido' : '✓ Válido';
+      badge.className    = 'cert-status ' + (expired ? 'expired' : 'valid');
+      document.getElementById('cert-card-loaded').style.display = 'flex';
+      document.getElementById('cert-card-empty').style.display  = 'none';
+      /* reflete ambiente */
+      const amb = cfg.ambiente || 'homologacao';
+      document.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(amb === 'producao' ? 'env-prod' : 'env-hom').classList.add('active');
+    }
+  } catch(e) { /* sem cert ainda */ }
 }
+
+/* ── Salvar ── */
+async function salvar() {
+  const gV = id => { const e = document.getElementById(id); return e ? e.value.trim() || null : null; };
+  const emp = {
+    cnpj:       gV('e-cnpj'),
+    ie:         gV('e-ie'),
+    im:         gV('e-im'),
+    razao:      gV('e-razao'),
+    fantasia:   gV('e-fantasia'),
+    cnae:       gV('e-cnae'),
+    regime:     gV('e-regime'),
+    cep:        gV('e-cep'),
+    logradouro: gV('e-end'),
+    numero:     gV('e-num'),
+    complemento:gV('e-comp'),
+    bairro:     gV('e-bairro'),
+    municipio:  gV('e-municipio'),
+    uf:         gV('e-uf'),
+    ibge:       gV('e-ibge'),
+    tel:        gV('e-tel'),
+    email:      gV('e-email'),
+    email_nfe:  gV('e-email-nfe'),
+    resp_fiscal:gV('e-resp'),
+    logo_b64:   _logoB64,
+  };
+  const btn = document.querySelector('.topbar-btn.primary');
+  btn.disabled = true; btn.textContent = '⏳ Salvando...';
+  try {
+    await dbSaveEmpresa(emp);
+    showToast('✅ Dados da empresa salvos!');
+  } catch(e) {
+    showToast('❌ Erro ao salvar: ' + (e.message || e), 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Salvar alterações';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadEmpresa);
 </script>
 </body>
 </html>

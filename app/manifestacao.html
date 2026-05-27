@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
@@ -10,77 +10,207 @@
   <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
-    .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
-    .filters input,.filters select {
-      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
-      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+    /* ── FILTER ROW (collapsible) ── */
+    .filter-row {
+      display:none;
+      gap:10px;align-items:center;flex-wrap:wrap;
+      padding:12px 16px;background:#f8f9fc;
+      border-bottom:1px solid #f0f0f0;
     }
-    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
-    .filters input[type=text] { min-width:260px; }
+    .filter-row.open { display:flex; }
+    .filter-row input[type=text] {
+      flex:1;min-width:260px;padding:8px 12px;
+      border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;
+      transition:border-color 0.15s;
+    }
+    .filter-row input[type=text]:focus { outline:none;border-color:#f97316; }
+    .filter-row select {
+      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;
+      transition:border-color 0.15s;cursor:pointer;
+    }
+    .filter-row select:focus { outline:none;border-color:#f97316; }
 
+    /* ── SUMMARY CHIPS ── */
     .summary-strip { display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap; }
     .sum-chip {
-      display:flex;align-items:center;gap:5px;padding:5px 12px;
-      border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
-      border:1.5px solid transparent;transition:all 0.15s;white-space:nowrap;
+      display:inline-flex;align-items:center;gap:5px;padding:5px 14px;
+      border-radius:20px;font-size:12px;font-weight:600;
+      border:1.5px solid transparent;transition:all 0.15s;white-space:nowrap;cursor:default;
     }
-    .sum-chip.all    { background:#f4f6f9;color:#555; }
-    .sum-chip.pend   { background:#fffbeb;color:#d97706;border-color:#fde68a; }
-    .sum-chip.conf   { background:#f0fdf4;color:#16a34a;border-color:#bbf7d0; }
-    .sum-chip.neg    { background:#fef2f2;color:#dc2626;border-color:#fecaca; }
-    .sum-chip.active-filter { box-shadow:0 0 0 2px #f97316; }
+    .sum-chip.all  { background:#f4f6f9;color:#555;border-color:#e8eaf0; }
+    .sum-chip.pend { background:#fffbeb;color:#d97706;border-color:#fde68a; }
+    .sum-chip.conf { background:#f0fdf4;color:#16a34a;border-color:#bbf7d0; }
+    .sum-chip.neg  { background:#fef2f2;color:#dc2626;border-color:#fecaca; }
+    .sum-chip.desc { background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe; }
 
+    /* ── PAGINATION INFO ROW ── */
+    .pg-info-row {
+      display:flex;align-items:center;gap:0;
+      padding:8px 16px;background:#f8f9fc;
+      border-bottom:1px solid #f0f0f0;
+      font-size:12px;color:#666;
+      flex-wrap:wrap;gap:8px;
+    }
+    .pg-info-row .pi-left  { display:flex;align-items:center;gap:6px; }
+    .pg-info-row .pi-center { flex:1;text-align:center; }
+    .pg-info-row .pi-right { margin-left:auto; }
+    .pg-info-row select {
+      padding:3px 8px;border:1.5px solid #e8eaf0;border-radius:6px;
+      font-size:12px;background:#fff;color:#333;cursor:pointer;
+    }
+    .refresh-btn {
+      background:none;border:none;cursor:pointer;font-size:14px;
+      padding:2px 6px;border-radius:5px;transition:background 0.15s;
+      color:#f97316;
+    }
+    .refresh-btn:hover { background:#fff0e5; }
+
+    /* ── TOOLBAR ── */
     .tb-btn {
-      display:flex;align-items:center;gap:5px;padding:6px 12px;
+      display:inline-flex;align-items:center;gap:5px;padding:6px 12px;
       border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
       font-weight:600;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;text-decoration:none;white-space:nowrap;
+    }
+    .tb-btn:hover { background:#f4f6f9;border-color:#d0d3db; }
+    .tb-btn:disabled { opacity:0.45;cursor:not-allowed; }
+
+    /* ── STATUS BADGES for manifest ── */
+    .ms-pend { color:#d97706;font-weight:700;font-size:12px; }
+    .ms-conf { color:#16a34a;font-weight:700;font-size:12px; }
+    .ms-neg  { color:#dc2626;font-weight:700;font-size:12px; }
+    .ms-desc { color:#7c3aed;font-weight:700;font-size:12px; }
+    .ms-canc { color:#dc2626;font-weight:700;font-size:12px; }
+
+    .dot {
+      display:inline-block;width:7px;height:7px;
+      border-radius:50%;margin-right:5px;vertical-align:middle;
+    }
+    .dot-pend { background:#d97706; }
+    .dot-conf { background:#16a34a; }
+    .dot-neg  { background:#dc2626; }
+    .dot-desc { background:#7c3aed; }
+    .dot-canc { background:#dc2626; }
+
+    /* ── ENTRY TAG ── */
+    .tag-entrada {
+      display:inline-block;padding:1px 7px;border-radius:10px;
+      font-size:10px;font-weight:700;background:#f0fdf4;color:#16a34a;
+      border:1px solid #bbf7d0;margin-top:3px;
+    }
+
+    /* ── PAGINATION BAR ── */
+    .pg-bar {
+      display:flex;gap:4px;padding:10px 16px;
+      border-top:1px solid #f0f0f0;background:#fafbfc;
+      align-items:center;justify-content:center;
+    }
+    .pg-btn {
+      padding:6px 13px;border:1.5px solid #e8eaf0;border-radius:7px;
+      font-size:12px;font-weight:700;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;
+    }
+    .pg-btn:hover:not(:disabled) { background:#f4f6f9;border-color:#d0d3db; }
+    .pg-btn:disabled { opacity:0.4;cursor:not-allowed; }
+    .pg-btn.active { background:#f97316;color:#fff;border-color:#f97316; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,0.45);z-index:1000;
+      align-items:center;justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:#fff;border-radius:14px;width:440px;max-width:96vw;
+      box-shadow:0 20px 60px rgba(0,0,0,0.22);
+      overflow:hidden;
+    }
+    .modal-header {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:18px 22px;border-bottom:1px solid #f0f0f0;
+    }
+    .modal-header h2 { font-size:15px;font-weight:800;color:#1a1a2e; }
+    .modal-close {
+      background:none;border:none;font-size:20px;cursor:pointer;
+      color:#aaa;line-height:1;transition:color 0.15s;padding:2px 6px;
+    }
+    .modal-close:hover { color:#333; }
+    .modal-body { padding:22px; }
+    .modal-footer {
+      padding:14px 22px;border-top:1px solid #f0f0f0;
+      display:flex;justify-content:flex-end;align-items:center;gap:10px;
+    }
+    .modal-body label {
+      display:block;font-size:11px;font-weight:700;color:#666;
+      text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;
+    }
+    .modal-body select {
+      width:100%;padding:10px 12px;border:1.5px solid #e8eaf0;border-radius:7px;
+      font-size:13px;color:#1a1a2e;background:#fafbfc;
+      transition:all 0.15s;cursor:pointer;
+    }
+    .modal-body select:focus { outline:none;border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,0.08); }
+    .modal-count {
+      font-size:13px;color:#888;font-weight:600;margin-top:14px;
+    }
+    .btn-confirm {
+      padding:10px 24px;background:#f97316;color:#fff;border:none;
+      border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;
+      transition:background 0.15s;
+    }
+    .btn-confirm:hover { background:#ea6c0a; }
+    .btn-cancel-modal {
+      padding:10px 18px;background:#f4f6f9;color:#555;
+      border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;
+    }
+    .btn-cancel-modal:hover { background:#eaecf0; }
+
+    /* action icon btns */
+    .act-btn {
+      display:inline-flex;align-items:center;justify-content:center;
+      width:28px;height:28px;border:1.5px solid #e8eaf0;border-radius:6px;
+      background:#fff;cursor:pointer;font-size:14px;
       transition:all 0.15s;text-decoration:none;
     }
-    .tb-btn:hover { background:#f4f6f9; }
-
-    .prazo-chip {
-      display:inline-flex;align-items:center;padding:2px 8px;
-      border-radius:12px;font-size:11px;font-weight:700;
-    }
-    .prazo-chip.ok      { background:#f0fdf4;color:#16a34a; }
-    .prazo-chip.urgent  { background:#fffbeb;color:#d97706; }
-    .prazo-chip.expired { background:#fef2f2;color:#dc2626; }
-
-    .manifest-action {
-      display:inline-flex;align-items:center;gap:4px;padding:5px 11px;
-      border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;
-      border:none;transition:all 0.15s;
-    }
-    .manifest-action.confirm { background:#f97316;color:#fff; }
-    .manifest-action.confirm:hover { background:#ea6c0a; }
-    .manifest-action.deny    { background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca; }
-    .manifest-action.deny:hover { background:#fee2e2; }
-    .manifest-action.unknown { background:#fffbeb;color:#d97706;border:1.5px solid #fde68a; }
+    .act-btn:hover { background:#f4f6f9;border-color:#d0d3db; }
   </style>
 </head>
 <body>
 
+<!-- ══════ SIDEBAR ══════ -->
 <aside class="sidebar">
   <a href="../index.html" class="sidebar-logo">
-    <div class="icon"><img src="assets/orange-favicon.png" style="width:24px;height:24px;object-fit:contain;border-radius:5px;" alt=""/></div>
+    <div class="icon">
+      <img src="assets/orange-favicon.png" style="width:24px;height:24px;object-fit:contain;border-radius:5px;" alt=""/>
+    </div>
     <div class="name">Orange<span>NFe</span></div>
   </a>
+
   <div class="sidebar-section">Principal</div>
-  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
-  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
-  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
-  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="dashboard.html"       class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html"     class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html"    class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html"           class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
   <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
-  <a href="manifestacao.html" class="nav-item active"><span class="ni">🔔</span> Manifestação</a>
+  <a href="manifestacao.html"    class="nav-item active"><span class="ni">🔔</span> Manifestação</a>
+
   <div class="sidebar-section">Cadastros</div>
-  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
-  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
-  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <a href="clientes.html"         class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html"         class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="fornecedores.html"     class="nav-item"><span class="ni">🏭</span> Fornecedores</a>
+  <a href="transportadoras.html"  class="nav-item"><span class="ni">🚚</span> Transportadoras</a>
+  <a href="minha-empresa.html"    class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+
   <div class="sidebar-section">Ferramentas</div>
-  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="consultar-nfe.html"    class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
   <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
-  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
-  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <a href="relatorios.html"       class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html"    class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+
   <div class="sidebar-bottom">
     <div class="user-card">
       <div class="user-avatar">R</div>
@@ -96,189 +226,403 @@
   </div>
 </aside>
 
+<!-- ══════ MAIN ══════ -->
 <div class="main">
+
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-title">Manifestação do Destinatário</div>
-    <div class="topbar-actions">
-      <button class="topbar-btn ghost" onclick="sincronizar()">🔄 Sincronizar</button>
-      <button class="topbar-btn primary" onclick="manifestarPendentes()">✅ Confirmar todos pendentes</button>
+    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+      <button class="topbar-btn ghost" onclick="history.back()">← Voltar</button>
+      <button class="topbar-btn ghost" id="btn-filtrar" onclick="toggleFilterRow()">🔍 Filtrar</button>
+      <span class="topbar-title" style="flex:1;">Manifestação do Destinatário</span>
     </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn primary" id="btn-realizar"
+              style="background:#f97316;color:#fff;opacity:0.45;cursor:not-allowed;"
+              onclick="abrirModal()" disabled>
+        ⚡ Realizar Manifestação
+      </button>
+    </div>
+  </div>
+
+  <!-- FILTER ROW (collapsible) -->
+  <div class="filter-row" id="filter-row">
+    <input type="text" id="search-input"
+           placeholder="Buscar por emitente, número ou chave..."
+           oninput="applyFilters()"/>
+    <select id="manifest-filter" onchange="applyFilters()">
+      <option value="">Todos os status</option>
+      <option value="pendente">Pendentes</option>
+      <option value="confirmada">Confirmadas</option>
+      <option value="negada">Negadas</option>
+      <option value="desconhecida">Desconhecidas</option>
+    </select>
+    <button class="tb-btn" style="background:#f97316;color:#fff;border-color:#f97316;"
+            onclick="applyFilters()">Filtrar</button>
   </div>
 
   <div class="content">
 
-    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#1d4ed8;">
-      <strong>ℹ️ Manifestação do Destinatário (MDe):</strong> O prazo para manifestar NF-e recebidas é de <strong>30 dias</strong> após a data de emissão. Notas não manifestadas ficam disponíveis para que o emitente solicite cancelamento extemporâneo.
+    <!-- SUMMARY CHIPS -->
+    <div class="summary-strip" id="summary-strip">
+      <span class="sum-chip all">📋 Total <strong id="chip-total">0</strong></span>
+      <span class="sum-chip pend">⏳ Pendentes <strong id="chip-pend">0</strong></span>
+      <span class="sum-chip conf">✅ Confirmadas <strong id="chip-conf">0</strong></span>
+      <span class="sum-chip neg">🚫 Negadas <strong id="chip-neg">0</strong></span>
+      <span class="sum-chip desc">❓ Desconhecidas <strong id="chip-desc">0</strong></span>
     </div>
 
-    <div class="summary-strip">
-      <div class="sum-chip all active-filter" onclick="filtrarStatus('',this)">📋 Todas (28)</div>
-      <div class="sum-chip pend" onclick="filtrarStatus('pendente',this)">⏳ Pendentes (7)</div>
-      <div class="sum-chip conf" onclick="filtrarStatus('confirmada',this)">✅ Confirmadas (18)</div>
-      <div class="sum-chip neg" onclick="filtrarStatus('negada',this)">🚫 Negadas (1)</div>
-      <div class="sum-chip" style="background:#fdf4ff;color:#9333ea;border-color:#e9d5ff;" onclick="filtrarStatus('desconhecida',this)">❓ Desconhecidas (2)</div>
-    </div>
-
-    <div class="filters">
-      <input type="text" id="search-input" placeholder="🔍  Buscar por emitente ou número..." oninput="filtrar()"/>
-      <select id="sit-filter" onchange="filtrar()">
-        <option value="">Todas as situações</option>
-        <option value="pendente">Sem manifestação</option>
-        <option value="confirmada">Confirmada</option>
-        <option value="negada">Negada</option>
-        <option value="desconhecida">Desconhecida</option>
-      </select>
-      <div style="flex:1"></div>
-      <span id="count-label" style="font-size:12px;color:#aaa;font-weight:600;"></span>
-    </div>
-
+    <!-- TABLE CARD -->
     <div class="card" style="padding:0;overflow:hidden;">
+
+      <!-- PAGINATION INFO ROW -->
+      <div class="pg-info-row">
+        <div class="pi-left">
+          <span>» Mostrar</span>
+          <select id="per-page" onchange="changePerPage()">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+          <span>registros por página</span>
+        </div>
+        <div class="pi-center">
+          <span id="update-time" style="color:#aaa;">Atualizado às —</span>
+          <button class="refresh-btn" onclick="loadManifest()" title="Atualizar">🔄</button>
+        </div>
+        <div class="pi-right">
+          <span id="pg-desc" style="color:#aaa;">—</span>
+        </div>
+      </div>
+
+      <!-- TABLE -->
       <div class="table-wrap">
         <table id="manifest-table">
           <thead>
             <tr>
-              <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"/></th>
-              <th>Emitente</th>
-              <th>Nº / Série</th>
+              <th style="width:36px;">
+                <input type="checkbox" id="chk-all" onchange="toggleSelectAll(this)" title="Selecionar todos"/>
+              </th>
               <th>Emissão</th>
-              <th>Valor</th>
-              <th>Prazo restante</th>
-              <th>Situação</th>
-              <th>Ações</th>
+              <th>Processamento</th>
+              <th>Número</th>
+              <th>Emitente</th>
+              <th>Valor da NF-e</th>
+              <th>Status da Manifestação</th>
+              <th style="width:72px;text-align:center;">Ações</th>
             </tr>
           </thead>
-          <tbody id="manifest-body"></tbody>
+          <tbody id="manifest-body">
+            <tr>
+              <td colspan="8" style="text-align:center;padding:48px;color:#aaa;font-size:13px;">
+                ⏳ Carregando...
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
-    </div>
 
+      <!-- PAGINATION BAR -->
+      <div class="pg-bar">
+        <button class="pg-btn" id="pg-first"    onclick="paginate(1)">PRIMEIRA</button>
+        <button class="pg-btn" id="pg-prev"     onclick="paginate(currentPage - 1)">ANTERIOR</button>
+        <button class="pg-btn" id="pg-next"     onclick="paginate(currentPage + 1)">PRÓXIMA</button>
+        <button class="pg-btn" id="pg-last"     onclick="paginate(totalPages)">ÚLTIMA</button>
+      </div>
+
+    </div><!-- /card -->
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══════ MODAL - REALIZAR MANIFESTAÇÃO ══════ -->
+<div class="modal-overlay" id="modal-manifest">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Realizar ação de manifestação</h2>
+      <button class="modal-close" onclick="fecharModal()" title="Fechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <label for="modal-tipo">Tipo da manifestação</label>
+      <select id="modal-tipo">
+        <option value="">:: selecione</option>
+        <option value="confirmada">1 - Operação Confirmada</option>
+        <option value="desconhecida">2 - Operação Desconhecida</option>
+        <option value="negada">3 - Operação não Realizada</option>
+      </select>
+      <div class="modal-count" id="modal-count">0 nota(s) selecionada(s)</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmarManifestacao()">CONFIRMAR</button>
+    </div>
   </div>
 </div>
 
+<!-- ══════ SCRIPT ══════ -->
 <script>
-let todasNotasManifest = [];
-let statusFiltro = '';
+/* ── State ── */
+let allNotas       = [];   // raw data from DB
+let filteredNotas  = [];   // after search + status filter
+let currentPage    = 1;
+let perPage        = 10;
+let totalPages     = 1;
 
-function prazoChip(prazo_manifest, data_emissao) {
-  // Calculate remaining days from data_emissao + prazo_manifest days
-  if (!data_emissao) return '<span class="prazo-chip ok">—</span>';
-  const emissao = new Date(data_emissao + 'T00:00:00');
-  const prazo = prazo_manifest || 30;
-  const limite = new Date(emissao.getTime() + prazo * 86400000);
-  const hoje = new Date();
-  const diff = Math.ceil((limite - hoje) / 86400000);
-  if (diff <= 0)  return `<span class="prazo-chip expired">Expirado</span>`;
-  if (diff <= 3)  return `<span class="prazo-chip urgent">${diff} dia${diff>1?'s':''}</span>`;
-  return `<span class="prazo-chip ok">${diff} dias</span>`;
+/* ── Helpers ── */
+function fmtEmissao(d) {
+  if (!d) return '—';
+  // d is a date string like "2025-05-21"
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${String(y).slice(-2)}`;
 }
-
-function manifestChip(m) {
-  const cfg = {
-    pendente:     { cls:'badge pendente',   text:'Pendente' },
-    confirmada:   { cls:'badge autorizada', text:'Confirmada' },
-    negada:       { cls:'badge cancelada',  text:'Negada' },
-    desconhecida: { cls:'badge rejeitada',  text:'Desconhecida' },
-  };
-  return cfg[m] ? `<span class="${cfg[m].cls}">${cfg[m].text}</span>` : '—';
+function fmtProcessamento(iso) {
+  if (!iso) return '—';
+  const dt = new Date(iso);
+  const day = String(dt.getDate()).padStart(2,'0');
+  const mon = String(dt.getMonth()+1).padStart(2,'0');
+  const yr  = String(dt.getFullYear()).slice(-2);
+  const hh  = String(dt.getHours()).padStart(2,'0');
+  const mm  = String(dt.getMinutes()).padStart(2,'0');
+  return `${day}/${mon}/${yr} ${hh}:${mm}`;
 }
-
-function render(data) {
-  const tbody = document.getElementById('manifest-body');
-  document.getElementById('count-label').textContent = data.length + ' nota' + (data.length !== 1 ? 's' : '');
-  if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#aaa;">Nenhuma nota encontrada.</td></tr>`;
-    return;
+function fmtHora(iso) {
+  if (!iso) return '—';
+  const dt = new Date(iso);
+  return String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0');
+}
+function fmtCNPJ(v) {
+  if (!v) return '';
+  const n = v.replace(/\D/g,'');
+  if (n.length === 14)
+    return n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
+  return v;
+}
+function manifestStatus(n) {
+  if (n.sit === 'cancelada') {
+    return `<span class="ms-canc"><span class="dot dot-canc"></span>NF-e cancelada</span>`;
   }
-  tbody.innerHTML = data.map(n => {
-    const dataStr = n.data_emissao ? new Date(n.data_emissao + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
-    const idEsc = n.id;
-    const numEsc = (n.num||'').replace(/'/g,'');
-    return `<tr>
-      <td><input type="checkbox" class="row-chk"/></td>
-      <td><div style="font-weight:600;color:#1a1a2e">${n.emitente||'—'}</div></td>
-      <td style="font-family:monospace;font-size:12px">Nº ${n.num||'—'} / ${n.serie||'1'}</td>
-      <td style="font-size:12px;color:#555">${dataStr}</td>
-      <td style="font-weight:700;color:#1a1a2e">R$ ${fmtMoney(n.valor)}</td>
-      <td>${prazoChip(n.prazo_manifest, n.data_emissao)}</td>
-      <td>${manifestChip(n.manifest)}</td>
-      <td>
-        ${n.manifest === 'pendente' || n.manifest === 'desconhecida' ? `
-          <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            <button class="manifest-action confirm" onclick="manifestar('${idEsc}','confirmada','${numEsc}')">✅ Confirmar</button>
-            <button class="manifest-action unknown" onclick="manifestar('${idEsc}','desconhecida','${numEsc}')">❓ Desconhecida</button>
-            <button class="manifest-action deny" onclick="manifestar('${idEsc}','negada','${numEsc}')">🚫 Negar</button>
-          </div>` : `<span style="font-size:12px;color:#aaa">Já manifestada</span>`}
-      </td>
-    </tr>`;
-  }).join('');
+  const map = {
+    pendente:     ['dot-pend','ms-pend','Ciência da operação registrada'],
+    confirmada:   ['dot-conf','ms-conf','Operação confirmada'],
+    negada:       ['dot-neg', 'ms-neg', 'Operação não realizada'],
+    desconhecida: ['dot-desc','ms-desc','Operação desconhecida'],
+  };
+  const cfg = map[n.manifest];
+  if (!cfg) return '<span style="color:#aaa;font-size:12px;">—</span>';
+  return `<span class="${cfg[1]}"><span class="dot ${cfg[0]}"></span>${cfg[2]}</span>`;
 }
 
-async function carregarManifest() {
+/* ── Load ── */
+async function loadManifest() {
   document.getElementById('manifest-body').innerHTML =
-    `<tr><td colspan="8" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">⏳ Carregando...</td></tr>`;
+    `<tr><td colspan="8" style="text-align:center;padding:48px;color:#aaa;font-size:13px;">⏳ Carregando...</td></tr>`;
   try {
-    const filters = {};
-    if (statusFiltro) filters.manifest = statusFiltro;
-    todasNotasManifest = await dbGetNotasRecebidas(filters);
-    filtrar();
+    allNotas = await dbGetNotasRecebidas();
+    document.getElementById('update-time').textContent = 'Atualizado às ' + fmtHora(new Date().toISOString());
+    updateSummaryChips();
+    applyFilters();
   } catch(e) {
     showToast('Erro ao carregar: ' + e.message, 'error');
     document.getElementById('manifest-body').innerHTML =
-      `<tr><td colspan="8" style="text-align:center;padding:40px;color:#dc2626;">Erro ao carregar. Recarregue a página.</td></tr>`;
+      `<tr><td colspan="8" style="text-align:center;padding:48px;color:#dc2626;font-size:13px;">Erro ao carregar. Recarregue a página.</td></tr>`;
   }
 }
 
-function filtrar() {
-  const q = document.getElementById('search-input').value.toLowerCase();
-  const sit = document.getElementById('sit-filter').value || statusFiltro;
-  const r = todasNotasManifest.filter(n =>
-    (!sit || n.manifest === sit) &&
-    (!q || (n.emitente||'').toLowerCase().includes(q) || (n.num||'').includes(q))
-  );
-  render(r);
+/* ── Summary chips ── */
+function updateSummaryChips() {
+  document.getElementById('chip-total').textContent = allNotas.length;
+  document.getElementById('chip-pend').textContent  = allNotas.filter(n => n.manifest === 'pendente').length;
+  document.getElementById('chip-conf').textContent  = allNotas.filter(n => n.manifest === 'confirmada').length;
+  document.getElementById('chip-neg').textContent   = allNotas.filter(n => n.manifest === 'negada').length;
+  document.getElementById('chip-desc').textContent  = allNotas.filter(n => n.manifest === 'desconhecida').length;
 }
 
-function filtrarStatus(s, el) {
-  statusFiltro = s;
-  document.getElementById('sit-filter').value = '';
-  document.querySelectorAll('.sum-chip').forEach(c => c.classList.remove('active-filter'));
-  el.classList.add('active-filter');
-  carregarManifest();
+/* ── Filters ── */
+function applyFilters() {
+  const q   = (document.getElementById('search-input').value || '').toLowerCase().trim();
+  const ms  = document.getElementById('manifest-filter').value;
+  filteredNotas = allNotas.filter(n => {
+    const matchQ = !q ||
+      (n.emitente || '').toLowerCase().includes(q) ||
+      (n.num || '').toLowerCase().includes(q) ||
+      (n.chave || '').toLowerCase().includes(q);
+    const matchMs = !ms || n.manifest === ms;
+    return matchQ && matchMs;
+  });
+  currentPage = 1;
+  totalPages  = Math.max(1, Math.ceil(filteredNotas.length / perPage));
+  render(filteredNotas);
+  updateManifestBtn();
 }
 
-async function manifestar(id, tipo, numNota) {
-  const labels = { confirmada:'Confirmada ✅', desconhecida:'Desconhecida ❓', negada:'Negada 🚫' };
-  if (confirm(`Manifestar nota ${numNota} como "${labels[tipo]}"?\nEsta ação será transmitida ao SEFAZ.`)) {
-    try {
+/* ── Render ── */
+function render(data) {
+  const tbody = document.getElementById('manifest-body');
+
+  // update pagination desc
+  const start = data.length === 0 ? 0 : (currentPage - 1) * perPage + 1;
+  const end   = Math.min(currentPage * perPage, data.length);
+  document.getElementById('pg-desc').textContent =
+    data.length === 0
+      ? 'Nenhum registro'
+      : `Mostrando página ${currentPage} de ${totalPages} de um total de ${data.length} registros`;
+
+  // pagination button states
+  document.getElementById('pg-first').disabled = currentPage <= 1;
+  document.getElementById('pg-prev').disabled  = currentPage <= 1;
+  document.getElementById('pg-next').disabled  = currentPage >= totalPages;
+  document.getElementById('pg-last').disabled  = currentPage >= totalPages;
+
+  const slice = data.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  if (slice.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:48px;color:#aaa;font-size:13px;">Nenhuma nota encontrada.</td></tr>`;
+    document.getElementById('chk-all').checked = false;
+    return;
+  }
+
+  tbody.innerHTML = slice.map((n, i) => {
+    const globalIdx = (currentPage - 1) * perPage + i;
+    const chave = n.chave || '';
+    const cnpjFmt = fmtCNPJ(n.emitente_cnpj);
+    return `<tr>
+      <td style="text-align:center;">
+        <input type="checkbox" class="row-chk" data-id="${n.id}" data-idx="${globalIdx}"
+               onchange="updateManifestBtn()"/>
+      </td>
+      <td style="font-size:12px;color:#555;white-space:nowrap;">${fmtEmissao(n.data_emissao)}</td>
+      <td style="font-size:12px;color:#777;white-space:nowrap;">${fmtProcessamento(n.created_at)}</td>
+      <td style="font-family:monospace;font-size:12px;white-space:nowrap;">
+        <div style="font-weight:700;color:#1a1a2e;">Nº ${n.num || '—'}</div>
+        <div style="color:#999;font-size:11px;">Série ${n.serie || '1'}</div>
+        <div><span class="tag-entrada">entrada</span></div>
+      </td>
+      <td style="max-width:260px;">
+        <div style="font-weight:700;color:#1a1a2e;font-size:13px;">${n.emitente || '—'}</div>
+        ${cnpjFmt ? `<div style="font-size:11px;color:#888;margin-top:1px;">${cnpjFmt}</div>` : ''}
+        ${chave ? `<div style="font-family:monospace;font-size:9px;color:#bbb;margin-top:2px;letter-spacing:0.3px;word-break:break-all;" title="${chave}">${chave}</div>` : ''}
+      </td>
+      <td style="font-weight:700;color:#1a1a2e;white-space:nowrap;">R$ ${fmtMoney(n.valor)}</td>
+      <td>${manifestStatus(n)}</td>
+      <td style="text-align:center;">
+        <div style="display:inline-flex;gap:4px;align-items:center;">
+          <button class="act-btn" title="Baixar XML"
+                  onclick="alert('Baixando XML da nota ${n.num || ''}...')">⬇</button>
+          <button class="act-btn" title="DANFE"
+                  onclick="alert('Abrindo DANFE da nota ${n.num || ''}...')">📄</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // sync select-all state
+  const chks = document.querySelectorAll('.row-chk');
+  const all  = document.getElementById('chk-all');
+  all.checked = chks.length > 0 && Array.from(chks).every(c => c.checked);
+  all.indeterminate = !all.checked && Array.from(chks).some(c => c.checked);
+}
+
+/* ── Paginate ── */
+function paginate(page) {
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  render(filteredNotas);
+  updateManifestBtn();
+}
+
+/* ── Per-page change ── */
+function changePerPage() {
+  perPage     = parseInt(document.getElementById('per-page').value, 10);
+  totalPages  = Math.max(1, Math.ceil(filteredNotas.length / perPage));
+  currentPage = 1;
+  render(filteredNotas);
+}
+
+/* ── Select all / deselect ── */
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.row-chk').forEach(c => { c.checked = cb.checked; });
+  updateManifestBtn();
+}
+
+/* ── Enable/disable Realizar Manifestação button ── */
+function updateManifestBtn() {
+  const n   = document.querySelectorAll('.row-chk:checked').length;
+  const btn = document.getElementById('btn-realizar');
+  if (n > 0) {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor  = 'pointer';
+  } else {
+    btn.disabled = true;
+    btn.style.opacity = '0.45';
+    btn.style.cursor  = 'not-allowed';
+  }
+  // sync indeterminate on chk-all
+  const all  = document.getElementById('chk-all');
+  const chks = document.querySelectorAll('.row-chk');
+  if (chks.length > 0) {
+    const checkedCount = document.querySelectorAll('.row-chk:checked').length;
+    all.checked = checkedCount === chks.length;
+    all.indeterminate = checkedCount > 0 && checkedCount < chks.length;
+  }
+}
+
+/* ── Toggle filter row ── */
+function toggleFilterRow() {
+  const row = document.getElementById('filter-row');
+  const btn = document.getElementById('btn-filtrar');
+  row.classList.toggle('open');
+  btn.style.background = row.classList.contains('open') ? '#fff0e5' : '';
+  btn.style.color      = row.classList.contains('open') ? '#f97316' : '';
+  btn.style.borderColor= row.classList.contains('open') ? '#f97316' : '';
+}
+
+/* ── Modal open/close ── */
+function abrirModal() {
+  const n = document.querySelectorAll('.row-chk:checked').length;
+  if (n === 0) return;
+  document.getElementById('modal-count').textContent = n + ' nota(s) selecionada(s)';
+  document.getElementById('modal-tipo').value = '';
+  document.getElementById('modal-manifest').classList.add('open');
+}
+function fecharModal() {
+  document.getElementById('modal-manifest').classList.remove('open');
+}
+
+/* ── Confirm manifestation ── */
+async function confirmarManifestacao() {
+  const tipo = document.getElementById('modal-tipo').value;
+  if (!tipo) {
+    showToast('Selecione o tipo de manifestação.', 'info');
+    return;
+  }
+  const checked = Array.from(document.querySelectorAll('.row-chk:checked'));
+  if (checked.length === 0) { fecharModal(); return; }
+  const ids = checked.map(c => c.dataset.id);
+  const labels = {
+    confirmada:   'Operação Confirmada',
+    desconhecida: 'Operação Desconhecida',
+    negada:       'Operação não Realizada',
+  };
+  fecharModal();
+  try {
+    for (const id of ids) {
       await dbUpdateManifest(id, tipo);
-      showToast('Manifestação registrada!', 'ok');
-      await carregarManifest();
-    } catch(e) {
-      showToast('Erro: ' + e.message, 'error');
     }
+    showToast(`${ids.length} nota(s) manifestada(s) como "${labels[tipo]}"!`, 'ok');
+    await loadManifest();
+  } catch(e) {
+    showToast('Erro ao manifestar: ' + e.message, 'error');
   }
 }
 
-async function manifestarPendentes() {
-  const pend = todasNotasManifest.filter(n => n.manifest === 'pendente');
-  if (pend.length === 0) { alert('Não há notas pendentes.'); return; }
-  if (confirm(`Confirmar todas as ${pend.length} notas pendentes?\nEsta ação será transmitida ao SEFAZ.`)) {
-    try {
-      for (const n of pend) {
-        await dbUpdateManifest(n.id, 'confirmada');
-      }
-      showToast(`${pend.length} notas manifestadas com sucesso!`, 'ok');
-      await carregarManifest();
-    } catch(e) {
-      showToast('Erro ao manifestar: ' + e.message, 'error');
-    }
-  }
-}
+/* ── Close modal on overlay click ── */
+document.getElementById('modal-manifest').addEventListener('click', function(e) {
+  if (e.target === this) fecharModal();
+});
 
-function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c => c.checked = cb.checked); }
-function sincronizar() { alert('🔄 Consultando NSU no SEFAZ...\n\n3 novas notas encontradas.'); }
-
-carregarManifest();
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', loadManifest);
 </script>
 </body>
 </html>

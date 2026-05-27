@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="icon" type="image/x-icon" href="assets/orange-icone.ico"/>
+  <link rel="shortcut icon" href="assets/orange-icone.ico"/>
+  <link rel="apple-touch-icon" href="assets/orange-favicon.png"/>
+  <title>OrangeNFe · Transportadoras</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="db.js"></script>
+  <link rel="stylesheet" href="layout.css"/>
+  <style>
+    .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
+    .filters input,.filters select {
+      padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
+      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+    }
+    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
+    .filters input[type=text] { min-width:280px; }
+    .filters .spacer { flex:1; }
+
+    .table-toolbar {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 16px;background:#f8f9fc;border-bottom:1px solid #f0f0f0;
+      flex-wrap:wrap;gap:8px;
+    }
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:6px 12px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;
+      transition:all 0.15s;text-decoration:none;
+    }
+    .tb-btn:hover { background:#f4f6f9;border-color:#d0d3db; }
+
+    .tipo-chip {
+      display:inline-flex;align-items:center;gap:4px;
+      padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;
+    }
+    .tipo-chip.pj { background:#eff6ff;color:#2563eb; }
+    .tipo-chip.pf { background:#f0fdf4;color:#16a34a; }
+
+    .modal-overlay {
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+      z-index:1000;align-items:center;justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:#fff;border-radius:14px;width:680px;max-width:95vw;
+      max-height:90vh;overflow-y:auto;
+      box-shadow:0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:20px 24px;border-bottom:1px solid #f0f0f0;
+    }
+    .modal-header h2 { font-size:15px;font-weight:800;color:#1a1a2e; }
+    .modal-close { background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;transition:color 0.15s; }
+    .modal-close:hover { color:#333; }
+    .modal-body { padding:24px; }
+    .modal-footer { padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px; }
+
+    .tab-strip { display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px; }
+    .tab-strip .tab {
+      padding:8px 16px;font-size:13px;font-weight:600;
+      color:#aaa;cursor:pointer;border-bottom:2px solid transparent;
+      margin-bottom:-2px;transition:all 0.15s;
+    }
+    .tab-strip .tab.active { color:#f97316;border-bottom-color:#f97316; }
+
+    .antt-badge {
+      display:inline-flex;align-items:center;gap:5px;
+      padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;
+      background:#fef3c7;color:#92400e;border:1px solid #fcd34d;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a href="../index.html" class="sidebar-logo">
+    <div class="icon"><img src="assets/orange-favicon.png" style="width:24px;height:24px;object-fit:contain;border-radius:5px;" alt=""/></div>
+    <div class="name">Orange<span>NFe</span></div>
+  </a>
+  <div class="sidebar-section">Principal</div>
+  <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
+  <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
+  <a href="emissao-nfse.html" class="nav-item"><span class="ni">🧾</span> Emitir NFS-e</a>
+  <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
+  <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
+  <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
+  <div class="sidebar-section">Cadastros</div>
+  <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
+  <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
+  <a href="fornecedores.html" class="nav-item"><span class="ni">🏭</span> Fornecedores</a>
+  <a href="transportadoras.html" class="nav-item active"><span class="ni">🚛</span> Transportadoras</a>
+  <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
+  <div class="sidebar-section">Ferramentas</div>
+  <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
+  <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
+  <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
+  <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">R</div>
+      <div class="user-info">
+        <div class="name">Ricardo B.</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </div>
+  <div class="powered-by-strip">
+    <span class="pb-label">Powered by</span>
+    <img class="pb-orange" src="assets/orange-logotipo.png" alt="Orange Custom Systems"/>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Transportadoras</div>
+    <div class="topbar-actions">
+      <button class="topbar-btn primary" onclick="openModal()">＋ Nova Transportadora</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="filters">
+      <input type="text" id="search-input" placeholder="🔍  Buscar por nome, CNPJ, RNTRC ou cidade..." oninput="filtrar()"/>
+      <select id="tipo-filter" onchange="filtrar()">
+        <option value="">Todos os tipos</option>
+        <option value="PJ">Pessoa Jurídica</option>
+        <option value="PF">Pessoa Física (Autônomo)</option>
+      </select>
+      <select id="uf-filter" onchange="filtrar()">
+        <option value="">Todos os estados</option>
+        <option>SP</option><option>RJ</option><option>MG</option>
+        <option>RS</option><option>PR</option><option>SC</option>
+        <option>BA</option><option>GO</option><option>DF</option>
+      </select>
+      <div class="spacer"></div>
+      <span id="count-label" style="font-size:12px;color:#aaa;font-weight:600;"></span>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-toolbar">
+        <div style="display:flex;gap:6px;">
+          <button class="tb-btn" onclick="exportarCSV()">⬇ Exportar CSV</button>
+        </div>
+        <div style="font-size:12px;color:#aaa;" id="sel-info"></div>
+      </div>
+      <div class="table-wrap">
+        <table id="transp-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"/></th>
+              <th>Razão Social / Nome</th>
+              <th>CNPJ / CPF</th>
+              <th>Tipo</th>
+              <th>RNTRC (ANTT)</th>
+              <th>Cidade / UF</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="transp-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-transp">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-titulo">Nova Transportadora</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-strip">
+        <div class="tab active" onclick="modalTab('tab-dados',this)">Dados Gerais</div>
+        <div class="tab" onclick="modalTab('tab-end',this)">Endereço</div>
+        <div class="tab" onclick="modalTab('tab-fiscal',this)">Fiscal / ANTT</div>
+      </div>
+
+      <!-- TAB DADOS -->
+      <div id="tab-dados">
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="m-tipo" onchange="switchTipo()">
+              <option value="PJ">Pessoa Jurídica (Empresa)</option>
+              <option value="PF">Pessoa Física (Autônomo)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="l-doc">CNPJ</label>
+            <input type="text" id="m-doc" placeholder="00.000.000/0001-00"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label id="l-razao">Razão Social</label>
+            <input type="text" id="m-razao" placeholder="Razão social ou nome do motorista"/>
+          </div>
+          <div class="form-group">
+            <label>Inscrição Estadual</label>
+            <input type="text" id="m-ie" placeholder="Isento ou número"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="m-email" placeholder="email@transportadora.com.br"/>
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" id="m-tel" placeholder="(11) 99999-9999"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Observações</label>
+            <textarea id="m-obs" rows="3" placeholder="Veículos, rotas, contatos adicionais..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB ENDEREÇO -->
+      <div id="tab-end" style="display:none">
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>CEP</label>
+            <input type="text" id="m-cep" placeholder="00000-000" oninput="buscarCEP(this)"/>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Logradouro</label>
+            <input type="text" id="m-logradouro" placeholder="Rua, Avenida, Rodovia..."/>
+          </div>
+        </div>
+        <div class="form-row cols-4">
+          <div class="form-group">
+            <label>Número</label>
+            <input type="text" id="m-num" placeholder="Nº"/>
+          </div>
+          <div class="form-group">
+            <label>Complemento</label>
+            <input type="text" id="m-comp" placeholder="Sala, Galpão..."/>
+          </div>
+          <div class="form-group">
+            <label>Bairro</label>
+            <input type="text" id="m-bairro" placeholder="Bairro"/>
+          </div>
+          <div class="form-group">
+            <label>Município</label>
+            <input type="text" id="m-municipio" placeholder="Cidade"/>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>UF</label>
+            <select id="m-uf">
+              <option>SP</option><option>RJ</option><option>MG</option>
+              <option>RS</option><option>PR</option><option>SC</option>
+              <option>BA</option><option>GO</option><option>DF</option>
+              <option>ES</option><option>PE</option><option>CE</option>
+              <option>MT</option><option>MS</option><option>PA</option>
+              <option>AM</option><option>MA</option><option>PI</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>País</label>
+            <input type="text" id="m-pais" value="Brasil"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB FISCAL / ANTT -->
+      <div id="tab-fiscal" style="display:none">
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>RNTRC / ANTT</label>
+            <input type="text" id="m-antt" placeholder="Número de registro ANTT (8 dígitos)"/>
+          </div>
+          <div class="form-group">
+            <label>Inscrição Estadual</label>
+            <input type="text" id="m-ie2" placeholder="Isento ou número"/>
+          </div>
+        </div>
+        <div style="padding:12px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;font-size:12px;color:#78350f;margin-top:4px;">
+          ⚠️ O RNTRC (Registro Nacional de Transportadores Rodoviários de Cargas) é obrigatório para transportadoras de carga e é informado nas NF-e de transporte.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="salvar()">💾 Salvar transportadora</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let todos = [];
+let editingId = null;
+
+function setLoading(msg) {
+  document.getElementById('transp-body').innerHTML =
+    `<tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">${msg}</td></tr>`;
+}
+
+function render(data) {
+  const tbody = document.getElementById('transp-body');
+  document.getElementById('count-label').textContent = data.length + ' transportadora' + (data.length !== 1 ? 's' : '');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div style="text-align:center;padding:60px 20px;">
+      <div style="font-size:48px;margin-bottom:12px;">🚛</div>
+      <h3 style="font-size:15px;font-weight:700;color:#333;margin-bottom:6px;">Nenhuma transportadora encontrada</h3>
+      <p style="font-size:13px;color:#aaa;">Cadastre sua primeira transportadora clicando em "+ Nova Transportadora".</p>
+    </div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(t => `
+    <tr>
+      <td><input type="checkbox" class="row-chk" onchange="updateSel()"/></td>
+      <td style="font-weight:600;color:#1a1a2e">${t.razao}</td>
+      <td style="font-family:monospace;font-size:12px;color:#555">${t.cnpj||t.cpf||'—'}</td>
+      <td><span class="tipo-chip ${(t.tipo||'PJ')==='PJ'?'pj':'pf'}">${t.tipo||'PJ'}</span></td>
+      <td>${t.antt ? `<span class="antt-badge">🚚 ${t.antt}</span>` : '<span style="color:#aaa;font-size:12px">—</span>'}</td>
+      <td>${t.municipio||'—'} / ${t.uf||'—'}</td>
+      <td style="font-size:12px;color:#555">${t.email||'—'}</td>
+      <td style="font-size:12px;color:#555">${t.tel||'—'}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="tb-btn" onclick='editar("${t.id}")' title="Editar">✏️</button>
+          <button class="tb-btn" onclick='excluir("${t.id}","${(t.razao||'').replace(/"/g,'&quot;')}")' title="Excluir" style="color:#dc2626">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function carregar() {
+  setLoading('⏳ Carregando transportadoras...');
+  try { todos = await dbGetTransportadoras(); filtrar(); }
+  catch(e) { showToast('Erro ao carregar: '+e.message,'error'); setLoading('Erro ao carregar. Recarregue a página.'); }
+}
+
+function filtrar() {
+  const q    = document.getElementById('search-input').value.toLowerCase();
+  const tipo = document.getElementById('tipo-filter').value;
+  const uf   = document.getElementById('uf-filter').value;
+  render(todos.filter(t =>
+    (!q || (t.razao||'').toLowerCase().includes(q) || (t.cnpj||'').includes(q) || (t.antt||'').includes(q) || (t.municipio||'').toLowerCase().includes(q)) &&
+    (!tipo || t.tipo === tipo) &&
+    (!uf   || t.uf === uf)
+  ));
+}
+
+function toggleAll(cb) { document.querySelectorAll('.row-chk').forEach(c=>c.checked=cb.checked); updateSel(); }
+function updateSel() {
+  const n = document.querySelectorAll('.row-chk:checked').length;
+  document.getElementById('sel-info').textContent = n>0?n+' selecionado(s)':'';
+}
+
+function openModal(id) {
+  editingId = id||null;
+  document.getElementById('modal-titulo').textContent = id?'Editar Transportadora':'Nova Transportadora';
+  const fields = ['m-doc','m-razao','m-ie','m-ie2','m-email','m-tel','m-obs','m-antt',
+                  'm-cep','m-logradouro','m-num','m-comp','m-bairro','m-municipio'];
+  if (id) {
+    const t = todos.find(x=>x.id===id);
+    if (t) {
+      document.getElementById('m-tipo').value      = t.tipo||'PJ';
+      document.getElementById('m-doc').value       = t.cnpj||t.cpf||'';
+      document.getElementById('m-razao').value     = t.razao||'';
+      document.getElementById('m-ie').value        = t.ie||'';
+      document.getElementById('m-ie2').value       = t.ie||'';
+      document.getElementById('m-email').value     = t.email||'';
+      document.getElementById('m-tel').value       = t.tel||'';
+      document.getElementById('m-obs').value       = t.obs||'';
+      document.getElementById('m-antt').value      = t.antt||'';
+      document.getElementById('m-cep').value       = t.cep||'';
+      document.getElementById('m-logradouro').value= t.logradouro||'';
+      document.getElementById('m-num').value       = t.numero||'';
+      document.getElementById('m-comp').value      = t.complemento||'';
+      document.getElementById('m-bairro').value    = t.bairro||'';
+      document.getElementById('m-municipio').value = t.municipio||'';
+      document.getElementById('m-uf').value        = t.uf||'SP';
+      document.getElementById('m-pais').value      = 'Brasil';
+    }
+  } else {
+    fields.forEach(fid=>{const el=document.getElementById(fid);if(el)el.value='';});
+    document.getElementById('m-tipo').value = 'PJ';
+    document.getElementById('m-uf').value   = 'SP';
+    document.getElementById('m-pais').value = 'Brasil';
+  }
+  switchTipo();
+  document.querySelectorAll('.tab-strip .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  ['tab-dados','tab-end','tab-fiscal'].forEach((t,i)=>document.getElementById(t).style.display=i===0?'':'none');
+  document.getElementById('modal-transp').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-transp').classList.remove('open'); }
+
+function modalTab(id, el) {
+  document.querySelectorAll('.tab-strip .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-dados','tab-end','tab-fiscal'].forEach(t=>document.getElementById(t).style.display=t===id?'':'none');
+}
+
+function switchTipo() {
+  const pj = document.getElementById('m-tipo').value==='PJ';
+  document.getElementById('l-doc').textContent   = pj?'CNPJ':'CPF';
+  document.getElementById('l-razao').textContent = pj?'Razão Social':'Nome Completo';
+  document.getElementById('m-doc').placeholder   = pj?'00.000.000/0001-00':'000.000.000-00';
+}
+
+function buscarCEP(el) {
+  const v = el.value.replace(/\D/g,'');
+  if (v.length===8) {
+    fetch(`https://viacep.com.br/ws/${v}/json/`)
+      .then(r=>r.json()).then(d=>{
+        if (!d.erro) {
+          document.getElementById('m-logradouro').value = d.logradouro||'';
+          document.getElementById('m-bairro').value     = d.bairro||'';
+          document.getElementById('m-municipio').value  = d.localidade||'';
+          document.getElementById('m-uf').value         = d.uf||'SP';
+        }
+      }).catch(()=>{});
+  }
+}
+
+async function salvar() {
+  const razao = document.getElementById('m-razao').value.trim();
+  if (!razao) { alert('Informe a Razão Social / Nome.'); return; }
+  const tipo = document.getElementById('m-tipo').value;
+  const doc  = document.getElementById('m-doc').value;
+  // sync ie from both tabs
+  const ie = document.getElementById('m-ie').value || document.getElementById('m-ie2').value;
+  const obj = {
+    id: editingId||undefined,
+    razao, tipo,
+    cnpj: tipo==='PJ'?doc:'', cpf: tipo==='PF'?doc:'',
+    ie,
+    email: document.getElementById('m-email').value,
+    tel: document.getElementById('m-tel').value,
+    obs: document.getElementById('m-obs').value,
+    antt: document.getElementById('m-antt').value,
+    cep: document.getElementById('m-cep').value,
+    logradouro: document.getElementById('m-logradouro').value,
+    numero: document.getElementById('m-num').value,
+    complemento: document.getElementById('m-comp').value,
+    bairro: document.getElementById('m-bairro').value,
+    municipio: document.getElementById('m-municipio').value,
+    uf: document.getElementById('m-uf').value,
+  };
+  if (!obj.id) delete obj.id;
+  try {
+    await dbSaveTransportadora(obj);
+    showToast(editingId?'Transportadora atualizada!':'Transportadora cadastrada!','ok');
+    closeModal(); await carregar();
+  } catch(e) { showToast('Erro ao salvar: '+e.message,'error'); }
+}
+
+function editar(id) { openModal(id); }
+async function excluir(id, razao) {
+  if (confirm(`Excluir transportadora "${razao}"?`)) {
+    try { await dbDeleteTransportadora(id); showToast('Transportadora excluída.','ok'); await carregar(); }
+    catch(e) { showToast('Erro ao excluir: '+e.message,'error'); }
+  }
+}
+
+function exportarCSV() {
+  const h = 'Razão Social,CNPJ/CPF,Tipo,RNTRC,Município,UF,E-mail,Telefone';
+  const rows = todos.map(t=>`"${t.razao}","${t.cnpj||t.cpf||''}","${t.tipo||''}","${t.antt||''}","${t.municipio||''}","${t.uf||''}","${t.email||''}","${t.tel||''}"`);
+  const csv  = [h,...rows].join('\n');
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = 'transportadoras.csv'; a.click();
+}
+
+// init
+carregar();
+document.getElementById('modal-transp').addEventListener('click', e=>{
+  if(e.target===document.getElementById('modal-transp')) closeModal();
+});
+</script>
+</body>
+</html>
