@@ -12,7 +12,6 @@
   <style>
     .cfop-wrap { max-width: 1100px; margin: 0 auto; }
 
-    /* ── FILTER BAR ── */
     .filter-bar {
       display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
       background: #fff; border-radius: 12px; border: 1.5px solid #e8eaf0;
@@ -24,102 +23,85 @@
       font-size: 13px; color: #1a1a2e; background: #fafbfc;
       font-family: inherit; transition: all 0.15s;
     }
-    .filter-bar input[type=text]:focus {
-      outline: none; border-color: #f97316; background: #fff;
-      box-shadow: 0 0 0 3px rgba(249,115,22,0.08);
-    }
+    .filter-bar input[type=text]:focus { outline:none;border-color:#f97316;background:#fff; }
     .filter-bar select {
       padding: 8px 12px; border: 1.5px solid #e8eaf0; border-radius: 8px;
       font-size: 13px; color: #1a1a2e; background: #fafbfc;
-      font-family: inherit; cursor: pointer; transition: all 0.15s;
-    }
-    .filter-bar select:focus {
-      outline: none; border-color: #f97316;
-      box-shadow: 0 0 0 3px rgba(249,115,22,0.08);
+      font-family: inherit; cursor: pointer;
     }
     .badge-count {
       background: #f97316; color: #fff; border-radius: 20px;
-      padding: 4px 12px; font-size: 12px; font-weight: 700;
-      white-space: nowrap; flex-shrink: 0;
+      padding: 4px 12px; font-size: 12px; font-weight: 700; white-space: nowrap;
     }
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:7px 14px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;transition:all 0.15s;
+    }
+    .tb-btn:hover { background:#f4f6f9;border-color:#d0d3db; }
+    .tb-btn.orange { background:#f97316;color:#fff;border-color:#f97316; }
+    .tb-btn.orange:hover { background:#ea6c0a; }
 
-    /* ── TABLE WRAP ── */
-    .table-wrap {
-      background: #fff; border-radius: 12px; border: 1.5px solid #e8eaf0;
-      overflow: hidden;
+    .table-wrap { background:#fff;border-radius:12px;border:1.5px solid #e8eaf0;overflow:hidden; }
+    .table-wrap table { width:100%;border-collapse:collapse; }
+    .table-wrap thead th {
+      background:#f8f9fc;padding:11px 16px;
+      font-size:11px;font-weight:700;color:#888;
+      text-transform:uppercase;letter-spacing:.7px;
+      border-bottom:1.5px solid #e8eaf0;text-align:left;
     }
-    .table-wrap table {
-      width: 100%; border-collapse: collapse;
-    }
-    .table-wrap table thead th {
-      background: #f8f9fc; padding: 11px 16px;
-      font-size: 11px; font-weight: 700; color: #888;
-      text-transform: uppercase; letter-spacing: 0.7px;
-      border-bottom: 1.5px solid #e8eaf0; text-align: left;
-    }
-    .table-wrap table tbody tr {
-      border-bottom: 1px solid #f3f4f8;
-      transition: background 0.12s; cursor: pointer;
-    }
-    .table-wrap table tbody tr:nth-child(even) { background: #fafbfc; }
-    .table-wrap table tbody tr:hover { background: #fff5ee; }
-    .table-wrap table tbody td {
-      padding: 10px 16px; font-size: 13px; color: #333;
-    }
+    .table-wrap tbody tr { border-bottom:1px solid #f3f4f8;transition:background .12s;cursor:pointer; }
+    .table-wrap tbody tr:nth-child(even) { background:#fafbfc; }
+    .table-wrap tbody tr:hover { background:#fff5ee; }
+    .table-wrap tbody td { padding:10px 16px;font-size:13px;color:#333; }
 
-    /* ── CODE COL ── */
-    .cfop-code {
-      font-family: monospace; font-size: 14px; font-weight: 700;
-      color: #1a1a2e; letter-spacing: 0.5px;
-    }
+    .cfop-code { font-family:monospace;font-size:14px;font-weight:700;color:#1a1a2e; }
+    .chip { display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700; }
+    .chip.entrada { background:#eff6ff;color:#2563eb; }
+    .chip.saida   { background:#f0fdf4;color:#16a34a; }
 
-    /* ── GROUP CHIP ── */
-    .chip {
-      display: inline-flex; align-items: center;
-      padding: 2px 10px; border-radius: 20px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
-    }
-    .chip.entrada { background: #eff6ff; color: #2563eb; }
-    .chip.saida   { background: #f0fdf4; color: #16a34a; }
-
-    /* ── EMPTY BANNER ── */
     .empty-banner {
-      display:flex; align-items:center; gap:12px;
-      padding:16px 20px; border-radius:10px;
-      background:#fffbeb; border:1px solid #fde68a;
-      color:#92400e; font-size:13px; font-weight:600;
-      margin-bottom:16px;
+      display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:10px;
+      background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:13px;font-weight:600;margin-bottom:16px;
     }
+    .empty-state { text-align:center;padding:52px 24px;color:#aaa; }
+    .empty-state .es-icon { font-size:38px;margin-bottom:10px; }
+    .empty-state .es-title { font-size:14px;font-weight:600;color:#888; }
 
-    /* ── EMPTY STATE ── */
-    .empty-state {
-      text-align: center; padding: 52px 24px; color: #aaa;
+    /* ── MODAL ── */
+    .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff;border-radius:14px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2); }
+    .modal-header { display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #f0f0f0; }
+    .modal-header h2 { font-size:15px;font-weight:800;color:#1a1a2e;margin:0; }
+    .modal-close { background:none;border:none;font-size:20px;cursor:pointer;color:#aaa; }
+    .modal-close:hover { color:#333; }
+    .modal-body { padding:24px;display:flex;flex-direction:column;gap:14px; }
+    .modal-footer { padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:8px; }
+    .modal-footer .spacer { flex:1; }
+
+    .grupo-preview {
+      display:none;align-items:center;gap:8px;padding:10px 14px;
+      background:#f8f9fc;border-radius:8px;border:1px solid #e8eaf0;font-size:12px;
     }
-    .empty-state .es-icon { font-size: 38px; margin-bottom: 10px; }
-    .empty-state .es-title { font-size: 14px; font-weight: 600; color: #888; }
 
     /* ── TOAST ── */
     .toast-cfop {
-      position: fixed; bottom: 24px; right: 24px;
-      background: #1a1a2e; color: #fff;
-      padding: 12px 20px; border-radius: 10px;
-      font-size: 13px; font-weight: 600;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
-      opacity: 0; transform: translateY(10px);
-      transition: all 0.25s; pointer-events: none; z-index: 9999;
+      position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:#fff;
+      padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;
+      box-shadow:0 4px 18px rgba(0,0,0,.25);opacity:0;transform:translateY(10px);
+      transition:all .25s;pointer-events:none;z-index:9999;
     }
-    .toast-cfop.show { opacity: 1; transform: translateY(0); }
+    .toast-cfop.show { opacity:1;transform:translateY(0); }
   </style>
 </head>
 <body>
 
-<!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar">
   <a href="../index.html" class="sidebar-logo">
     <div class="icon"><img src="assets/orange-favicon.png" style="width:24px;height:24px;object-fit:contain;border-radius:5px;" alt=""/></div>
     <div class="name">Orange<span>NFe</span></div>
   </a>
-
   <div class="sidebar-section">Principal</div>
   <a href="dashboard.html" class="nav-item"><span class="ni">📊</span> Dashboard</a>
   <a href="emissao-nfe.html" class="nav-item"><span class="ni">📄</span> Emitir NF-e</a>
@@ -127,27 +109,25 @@
   <a href="notas.html" class="nav-item"><span class="ni">📋</span> Notas Emitidas <span class="nav-badge">12</span></a>
   <a href="notas-recebidas.html" class="nav-item"><span class="ni">📥</span> Notas Recebidas</a>
   <a href="manifestacao.html" class="nav-item"><span class="ni">🔔</span> Manifestação</a>
-
   <div class="sidebar-section">Cadastros</div>
   <a href="clientes.html" class="nav-item"><span class="ni">👥</span> Clientes</a>
   <a href="produtos.html" class="nav-item"><span class="ni">📦</span> Produtos</a>
   <a href="fornecedores.html" class="nav-item"><span class="ni">🏭</span> Fornecedores</a>
   <a href="transportadoras.html" class="nav-item"><span class="ni">🚛</span> Transportadoras</a>
   <a href="minha-empresa.html" class="nav-item"><span class="ni">🏢</span> Minha Empresa</a>
-
   <div class="sidebar-section">Ferramentas</div>
   <a href="consultar-nfe.html" class="nav-item"><span class="ni">🔍</span> Consultar NF-e</a>
   <a href="arquivos-recebidos.html" class="nav-item"><span class="ni">📁</span> Arquivos Recebidos</a>
   <a href="relatorios.html" class="nav-item"><span class="ni">📊</span> Relatórios</a>
   <a href="configuracoes.html" class="nav-item"><span class="ni">⚙️</span> Configurações</a>
-
+  <div class="sidebar-section">Tabelas</div>
+  <a href="cfop.html" class="nav-item active"><span class="ni">📋</span> CFOP</a>
+  <a href="paises.html" class="nav-item"><span class="ni">🌍</span> Países</a>
+  <a href="cidades-estados.html" class="nav-item"><span class="ni">🗺️</span> Municípios</a>
   <div class="sidebar-bottom">
     <div class="user-card">
       <div class="user-avatar">R</div>
-      <div class="user-info">
-        <div class="name">Ricardo B.</div>
-        <div class="role">Administrador</div>
-      </div>
+      <div class="user-info"><div class="name">Ricardo B.</div><div class="role">Administrador</div></div>
     </div>
   </div>
   <div class="powered-by-strip">
@@ -156,22 +136,18 @@
   </div>
 </aside>
 
-<!-- ═══ MAIN ═══ -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-title">Tabela de CFOP</div>
   </div>
-
   <div class="content">
     <div class="cfop-wrap">
 
-      <!-- EMPTY BANNER -->
       <div id="empty-banner" class="empty-banner" style="display:none">
         <span>⚠️</span>
-        <span>Tabela vazia. Execute a migration <strong>007_cfop.sql</strong> no Supabase SQL Editor para popular os CFOPs.</span>
+        <span>Tabela vazia. Execute a migration <strong>007_cfop.sql</strong> no Supabase SQL Editor.</span>
       </div>
 
-      <!-- FILTER BAR -->
       <div class="filter-bar">
         <input type="text" id="search-input" placeholder="Buscar por código ou descrição…" oninput="applyFilters()"/>
         <select id="grupo-select" onchange="applyFilters()">
@@ -184,16 +160,16 @@
           <option value="7">7.xxx – Saídas para o Exterior</option>
         </select>
         <span class="badge-count" id="badge-count">— CFOPs</span>
+        <button class="tb-btn orange" onclick="abrirCFOP(null)">＋ Novo CFOP</button>
       </div>
 
-      <!-- TABLE -->
       <div class="table-wrap">
-        <table id="cfop-table">
+        <table>
           <thead>
             <tr>
               <th style="width:100px">Código</th>
               <th>Descrição</th>
-              <th style="width:220px">Grupo</th>
+              <th style="width:230px">Grupo</th>
             </tr>
           </thead>
           <tbody id="cfop-tbody">
@@ -202,7 +178,7 @@
         </table>
         <div class="empty-state" id="empty-state" style="display:none">
           <div class="es-icon">🔍</div>
-          <div class="es-title">Nenhum CFOP encontrado para os filtros selecionados.</div>
+          <div class="es-title">Nenhum CFOP encontrado.</div>
         </div>
       </div>
 
@@ -210,101 +186,183 @@
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- MODAL CFOP -->
+<div class="modal-overlay" id="modal-cfop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Novo CFOP</h2>
+      <button class="modal-close" onclick="fecharModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Código CFOP</label>
+          <input type="text" id="f-codigo" placeholder="Ex: 5.102" maxlength="5"
+                 style="font-family:monospace;font-size:14px;font-weight:700;letter-spacing:.5px"
+                 oninput="atualizarGrupoPreview()"/>
+          <small style="color:#aaa;font-size:11px">Formato: X.XXX — onde X é 1, 2, 3, 5, 6 ou 7</small>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea id="f-descricao" rows="4" placeholder="Descrição completa do CFOP…"></textarea>
+        </div>
+      </div>
+      <div id="grupo-preview" class="grupo-preview">
+        <span style="color:#888">Grupo:</span>
+        <span id="grupo-preview-text"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn danger sm" id="btn-delete" onclick="deletarCFOP()" style="display:none">🗑 Excluir</button>
+      <div class="spacer"></div>
+      <button class="btn secondary sm" onclick="fecharModal()">Cancelar</button>
+      <button class="btn primary sm" onclick="salvarCFOP()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-cfop" id="toast-cfop"></div>
 
 <script>
-// ══════════════════════════════════════════════
-// CFOP — carregado do Supabase (tabela cfop)
-// Schema: codigo, descricao, grupo, tipo
-// ══════════════════════════════════════════════
 let ALL_CFOPS = [];
+let currentCFOP = null;
 
+const GRUPO_MAP = {
+  '1': { grupo: '1.xxx – Entradas no Estado',         tipo: 'entrada' },
+  '2': { grupo: '2.xxx – Entradas de Outros Estados', tipo: 'entrada' },
+  '3': { grupo: '3.xxx – Entradas do Exterior',       tipo: 'entrada' },
+  '5': { grupo: '5.xxx – Saídas no Estado',           tipo: 'saida'   },
+  '6': { grupo: '6.xxx – Saídas para Outros Estados', tipo: 'saida'   },
+  '7': { grupo: '7.xxx – Saídas para o Exterior',     tipo: 'saida'   },
+};
+
+// ── Carregamento ──────────────────────────────
 async function init() {
   try {
-    const { data, error } = await getDB()
-      .from('cfop')
-      .select('*')
-      .order('codigo');
-
+    const { data, error } = await getDB().from('cfop').select('*').order('codigo');
     if (error) throw error;
-
     if (!data || data.length === 0) {
       document.getElementById('empty-banner').style.display = 'flex';
       document.getElementById('badge-count').textContent = '0 CFOPs';
       document.getElementById('cfop-tbody').innerHTML = '';
       return;
     }
-
     ALL_CFOPS = data;
     renderTable(ALL_CFOPS);
   } catch (e) {
     document.getElementById('cfop-tbody').innerHTML =
-      `<tr><td colspan="3" style="text-align:center;padding:30px;color:#dc2626;font-size:13px;">❌ Erro ao carregar: ${e.message}</td></tr>`;
+      `<tr><td colspan="3" style="text-align:center;padding:30px;color:#dc2626;font-size:13px;">❌ Erro: ${e.message}</td></tr>`;
   }
 }
 
-// ── Filtros (client-side sobre cache) ──────────
+// ── Filtros ───────────────────────────────────
 function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase().trim();
   const grupo  = document.getElementById('grupo-select').value;
-
   const filtered = ALL_CFOPS.filter(c => {
-    const matchSearch = !search ||
-      c.codigo.toLowerCase().includes(search) ||
-      c.descricao.toLowerCase().includes(search);
-    const matchGrupo = !grupo || c.codigo.startsWith(grupo + '.');
-    return matchSearch && matchGrupo;
+    const mS = !search || c.codigo.toLowerCase().includes(search) || c.descricao.toLowerCase().includes(search);
+    const mG = !grupo  || c.codigo.startsWith(grupo + '.');
+    return mS && mG;
   });
-
   renderTable(filtered);
 }
 
 function renderTable(data) {
+  const badge = document.getElementById('badge-count');
   const tbody = document.getElementById('cfop-tbody');
   const empty = document.getElementById('empty-state');
-  const badge = document.getElementById('badge-count');
-
   badge.textContent = data.length + ' CFOP' + (data.length !== 1 ? 's' : '');
-
-  if (data.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
+  if (!data.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-
-  tbody.innerHTML = data.map(c => {
-    const chipClass = c.tipo === 'saida' ? 'saida' : 'entrada';
-    return `<tr onclick="copyCFOP('${c.codigo}')">
+  tbody.innerHTML = data.map(c => `
+    <tr onclick="abrirCFOP('${c.codigo}')">
       <td><span class="cfop-code">${c.codigo}</span></td>
       <td>${c.descricao}</td>
-      <td><span class="chip ${chipClass}">${c.grupo}</span></td>
-    </tr>`;
-  }).join('');
+      <td><span class="chip ${c.tipo}">${c.grupo}</span></td>
+    </tr>`).join('');
 }
 
-// ── Copy + Toast ───────────────────────────────
-let toastTimer = null;
-function copyCFOP(codigo) {
-  navigator.clipboard.writeText(codigo).then(() => {
-    showToast('Código ' + codigo + ' copiado!');
-  }).catch(() => {
-    showToast('Código ' + codigo);
-  });
+// ── Modal ─────────────────────────────────────
+function abrirCFOP(codigo) {
+  currentCFOP = codigo ? ALL_CFOPS.find(x => x.codigo === codigo) || null : null;
+  const isNew = !currentCFOP;
+  document.getElementById('modal-title').textContent = isNew ? 'Novo CFOP' : 'Editar CFOP';
+  document.getElementById('f-codigo').value       = currentCFOP?.codigo    || '';
+  document.getElementById('f-codigo').readOnly    = !isNew;
+  document.getElementById('f-descricao').value    = currentCFOP?.descricao || '';
+  document.getElementById('btn-delete').style.display = isNew ? 'none' : 'inline-flex';
+  atualizarGrupoPreview();
+  document.getElementById('modal-cfop').classList.add('open');
+  setTimeout(() => (isNew ? document.getElementById('f-codigo') : document.getElementById('f-descricao')).focus(), 80);
 }
 
+function fecharModal() {
+  document.getElementById('modal-cfop').classList.remove('open');
+  currentCFOP = null;
+}
+
+function atualizarGrupoPreview() {
+  const cod = document.getElementById('f-codigo').value.trim();
+  const gi  = GRUPO_MAP[cod.charAt(0)];
+  const el  = document.getElementById('grupo-preview');
+  if (gi && cod.length > 1) {
+    el.style.display = 'flex';
+    document.getElementById('grupo-preview-text').innerHTML =
+      `<span class="chip ${gi.tipo}">${gi.grupo}</span>`;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+async function salvarCFOP() {
+  const codigo    = document.getElementById('f-codigo').value.trim();
+  const descricao = document.getElementById('f-descricao').value.trim();
+  if (!codigo)    { showToast('Informe o código CFOP.'); return; }
+  if (!descricao) { showToast('Informe a descrição.'); return; }
+  if (!/^\d\.\d{3}$/.test(codigo)) { showToast('Formato inválido. Use X.XXX (ex: 5.102)'); return; }
+  const gi = GRUPO_MAP[codigo.charAt(0)];
+  if (!gi) { showToast('Grupo inválido. Primeiro dígito deve ser 1, 2, 3, 5, 6 ou 7.'); return; }
+  try {
+    const { error } = await getDB()
+      .from('cfop')
+      .upsert({ codigo, descricao, grupo: gi.grupo, tipo: gi.tipo }, { onConflict: 'codigo' });
+    if (error) throw error;
+    fecharModal();
+    showToast(currentCFOP ? 'CFOP atualizado!' : 'CFOP criado!');
+    await init();
+  } catch (e) { showToast('Erro: ' + e.message); }
+}
+
+async function deletarCFOP() {
+  if (!currentCFOP) return;
+  if (!confirm(`Excluir CFOP ${currentCFOP.codigo}?\n"${currentCFOP.descricao}"`)) return;
+  try {
+    const { error } = await getDB().from('cfop').delete().eq('codigo', currentCFOP.codigo);
+    if (error) throw error;
+    const codigo = currentCFOP.codigo;
+    fecharModal();
+    showToast(`CFOP ${codigo} excluído.`);
+    await init();
+  } catch (e) { showToast('Erro: ' + e.message); }
+}
+
+// ── Toast ─────────────────────────────────────
+let _tt = null;
 function showToast(msg) {
   const t = document.getElementById('toast-cfop');
-  t.textContent = msg;
-  t.classList.add('show');
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  t.textContent = msg; t.classList.add('show');
+  if (_tt) clearTimeout(_tt);
+  _tt = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-// ── Init ───────────────────────────────────────
+// Fechar modal clicando fora
+document.getElementById('modal-cfop').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fecharModal();
+});
+
 init();
 </script>
-
 </body>
 </html>

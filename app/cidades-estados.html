@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
@@ -10,70 +10,66 @@
   <script src="db.js"></script>
   <link rel="stylesheet" href="layout.css"/>
   <style>
-    .filters {
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;
-    }
-    .filters input, .filters select {
+    .filters { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px; }
+    .filters input,.filters select {
       padding:8px 12px;border:1.5px solid #e8eaf0;border-radius:8px;
-      font-size:13px;background:#fff;color:#333;transition:border-color 0.15s;
+      font-size:13px;background:#fff;color:#333;transition:border-color .15s;
     }
-    .filters input:focus, .filters select:focus {
-      outline:none;border-color:#f97316;
-    }
+    .filters input:focus,.filters select:focus { outline:none;border-color:#f97316; }
     .filters input[type=text] { min-width:280px; }
     .filters .spacer { flex:1; }
 
     .count-badge {
-      background:#fff5ee;color:#f97316;
-      border:1px solid #fde0c8;
-      padding:4px 12px;border-radius:20px;
-      font-size:12px;font-weight:700;
-      white-space:nowrap;
+      background:#fff5ee;color:#f97316;border:1px solid #fde0c8;
+      padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;
     }
+    .tb-btn {
+      display:flex;align-items:center;gap:5px;padding:7px 14px;
+      border:1.5px solid #e8eaf0;border-radius:7px;font-size:12px;
+      font-weight:600;cursor:pointer;background:#fff;color:#555;transition:all .15s;
+    }
+    .tb-btn:hover { background:#f4f6f9; }
+    .tb-btn.orange { background:#f97316;color:#fff;border-color:#f97316; }
+    .tb-btn.orange:hover { background:#ea6c0a; }
 
     .empty-banner {
-      display:flex;align-items:center;gap:12px;
-      padding:16px 20px;border-radius:10px;
-      background:#fffbeb;border:1px solid #fde68a;
-      color:#92400e;font-size:13px;font-weight:600;
-      margin-bottom:16px;
+      display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:10px;
+      background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:13px;font-weight:600;margin-bottom:16px;
     }
-    .empty-banner a {
-      color:#f97316;text-decoration:underline;
-    }
+    .empty-banner a { color:#f97316;text-decoration:underline; }
 
-    .ibge-code {
-      font-family:monospace;font-size:12px;color:#f97316;
-      cursor:pointer;font-weight:700;
-      transition:opacity 0.15s;
-    }
-    .ibge-code:hover { opacity:0.7; }
-
+    .ibge-code { font-family:monospace;font-size:12px;color:#f97316;font-weight:700; }
     .uf-chip {
-      display:inline-block;
-      padding:2px 8px;border-radius:12px;
-      background:#f1f5f9;color:#475569;
-      font-size:11px;font-weight:700;
+      display:inline-block;padding:2px 8px;border-radius:12px;
+      background:#f1f5f9;color:#475569;font-size:11px;font-weight:700;
     }
 
     .pagination {
       display:flex;align-items:center;justify-content:space-between;
-      padding:12px 16px;
-      border-top:1px solid #f0f0f0;
-      font-size:12px;color:#888;
-      flex-wrap:wrap;gap:8px;
+      padding:12px 16px;border-top:1px solid #f0f0f0;
+      font-size:12px;color:#888;flex-wrap:wrap;gap:8px;
     }
     .pagination .pag-info { font-weight:600; }
     .pag-btns { display:flex;gap:6px; }
     .pag-btn {
       padding:6px 14px;border:1.5px solid #e8eaf0;border-radius:7px;
-      font-size:12px;font-weight:600;cursor:pointer;
-      background:#fff;color:#555;transition:all 0.15s;
+      font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#555;transition:all .15s;
     }
     .pag-btn:hover:not(:disabled) { background:#f4f6f9;border-color:#d0d3db; }
-    .pag-btn:disabled { opacity:0.4;cursor:not-allowed; }
-
+    .pag-btn:disabled { opacity:.4;cursor:not-allowed; }
     tbody tr { cursor:pointer; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff;border-radius:14px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2); }
+    .modal-header { display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #f0f0f0; }
+    .modal-header h2 { font-size:15px;font-weight:800;color:#1a1a2e;margin:0; }
+    .modal-close { background:none;border:none;font-size:20px;cursor:pointer;color:#aaa; }
+    .modal-close:hover { color:#333; }
+    .modal-body { padding:24px;display:flex;flex-direction:column;gap:14px; }
+    .modal-footer { padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:8px; }
+    .modal-footer .spacer { flex:1; }
   </style>
 </head>
 <body>
@@ -104,7 +100,7 @@
   <div class="sidebar-section">Tabelas</div>
   <a href="cfop.html" class="nav-item"><span class="ni">📋</span> CFOP</a>
   <a href="paises.html" class="nav-item"><span class="ni">🌍</span> Países</a>
-  <a href="cidades-estados.html" class="nav-item"><span class="ni">🗺️</span> Municípios</a>
+  <a href="cidades-estados.html" class="nav-item active"><span class="ni">🗺️</span> Municípios</a>
   <div class="sidebar-bottom">
     <div class="user-card">
       <div class="user-avatar">R</div>
@@ -121,7 +117,6 @@
   <div class="topbar">
     <div class="topbar-title">Municípios e Estados (IBGE)</div>
   </div>
-
   <div class="content">
 
     <div id="empty-banner" class="empty-banner" style="display:none">
@@ -130,13 +125,13 @@
     </div>
 
     <div class="filters">
-      <input type="text" id="search-input" placeholder="🔍  Buscar por município ou código IBGE..."
-             oninput="debounceSearch()" />
+      <input type="text" id="search-input" placeholder="🔍  Buscar por município ou código IBGE…" oninput="debounceSearch()"/>
       <select id="uf-filter" onchange="currentPage=0;carregar()">
         <option value="">Todos os estados</option>
       </select>
       <div class="spacer"></div>
       <span class="count-badge" id="count-badge">— municípios</span>
+      <button class="tb-btn orange" onclick="abrirMunicipio(null)">＋ Novo Município</button>
     </div>
 
     <div class="card" style="padding:0;overflow:hidden;">
@@ -167,55 +162,102 @@
   </div>
 </div>
 
+<!-- MODAL MUNICÍPIO -->
+<div class="modal-overlay" id="modal-municipio">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Novo Município</h2>
+      <button class="modal-close" onclick="fecharModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Código IBGE (7 dígitos)</label>
+          <input type="text" id="f-ibge" placeholder="Ex: 3550308" maxlength="7"
+                 style="font-family:monospace;font-size:14px;font-weight:700;color:#f97316"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome do Município</label>
+          <input type="text" id="f-nome" placeholder="Ex: São Paulo"/>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label>UF</label>
+          <select id="f-uf" onchange="preencherNomeUF()">
+            <option value="">Selecione…</option>
+            <option value="AC">AC</option><option value="AL">AL</option>
+            <option value="AP">AP</option><option value="AM">AM</option>
+            <option value="BA">BA</option><option value="CE">CE</option>
+            <option value="DF">DF</option><option value="ES">ES</option>
+            <option value="GO">GO</option><option value="MA">MA</option>
+            <option value="MT">MT</option><option value="MS">MS</option>
+            <option value="MG">MG</option><option value="PA">PA</option>
+            <option value="PB">PB</option><option value="PR">PR</option>
+            <option value="PE">PE</option><option value="PI">PI</option>
+            <option value="RJ">RJ</option><option value="RN">RN</option>
+            <option value="RS">RS</option><option value="RO">RO</option>
+            <option value="RR">RR</option><option value="SC">SC</option>
+            <option value="SP">SP</option><option value="SE">SE</option>
+            <option value="TO">TO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nome do Estado</label>
+          <input type="text" id="f-nome-uf" placeholder="Auto-preenchido"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn danger sm" id="btn-delete" onclick="deletarMunicipio()" style="display:none">🗑 Excluir</button>
+      <div class="spacer"></div>
+      <button class="btn secondary sm" onclick="fecharModal()">Cancelar</button>
+      <button class="btn primary sm" onclick="salvarMunicipio()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const PAGE_SIZE = 200;
 let currentPage = 0;
-let totalCount = 0;
+let totalCount  = 0;
 let searchTimer = null;
+let currentMunicipio = null;
+
+const UF_NOMES = {
+  AC:'Acre', AL:'Alagoas', AP:'Amapá', AM:'Amazonas',
+  BA:'Bahia', CE:'Ceará', DF:'Distrito Federal', ES:'Espírito Santo',
+  GO:'Goiás', MA:'Maranhão', MT:'Mato Grosso', MS:'Mato Grosso do Sul',
+  MG:'Minas Gerais', PA:'Pará', PB:'Paraíba', PR:'Paraná',
+  PE:'Pernambuco', PI:'Piauí', RJ:'Rio de Janeiro', RN:'Rio Grande do Norte',
+  RS:'Rio Grande do Sul', RO:'Rondônia', RR:'Roraima', SC:'Santa Catarina',
+  SP:'São Paulo', SE:'Sergipe', TO:'Tocantins'
+};
 
 function debounceSearch() {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => { currentPage = 0; carregar(); }, 300);
 }
 
-async function dbGetMunicipiosCount() {
-  const { count, error } = await getDB()
-    .from('municipios')
-    .select('ibge', { count: 'exact', head: true });
-  if (error) throw error;
-  return count || 0;
-}
-
 async function carregarUFs() {
   try {
-    const { data, error } = await getDB()
-      .from('municipios')
-      .select('uf, nome_uf')
-      .order('uf');
-    if (error) throw error;
-
+    const { data } = await getDB().from('municipios').select('uf,nome_uf').order('uf');
     const seen = new Set();
-    const ufs = (data || []).filter(r => {
-      if (seen.has(r.uf)) return false;
-      seen.add(r.uf);
-      return true;
-    });
-
-    const sel = document.getElementById('uf-filter');
+    const ufs  = (data||[]).filter(r => { if (seen.has(r.uf)) return false; seen.add(r.uf); return true; });
+    const sel  = document.getElementById('uf-filter');
     ufs.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r.uf;
-      opt.textContent = `${r.uf} — ${r.nome_uf}`;
-      sel.appendChild(opt);
+      const o = document.createElement('option');
+      o.value = r.uf; o.textContent = `${r.uf} — ${r.nome_uf}`;
+      sel.appendChild(o);
     });
-  } catch (_) {
-    // silencioso — UFs são bonus
-  }
+  } catch(_) {}
 }
 
 async function carregar() {
-  const q   = document.getElementById('search-input').value.trim();
-  const uf  = document.getElementById('uf-filter').value;
+  const q    = document.getElementById('search-input').value.trim();
+  const uf   = document.getElementById('uf-filter').value;
   const from = currentPage * PAGE_SIZE;
   const to   = from + PAGE_SIZE - 1;
 
@@ -225,21 +267,13 @@ async function carregar() {
   try {
     let query = getDB()
       .from('municipios')
-      .select('ibge, nome, uf, nome_uf', { count: 'exact' })
+      .select('ibge,nome,uf,nome_uf', { count:'exact' })
       .order('nome')
       .range(from, to);
-
-    if (q) {
-      // Busca por nome OU código IBGE
-      query = query.or(`nome.ilike.%${q}%,ibge.ilike.%${q}%`);
-    }
-    if (uf) {
-      query = query.eq('uf', uf);
-    }
-
+    if (q)  query = query.or(`nome.ilike.%${q}%,ibge.ilike.%${q}%`);
+    if (uf) query = query.eq('uf', uf);
     const { data, count, error } = await query;
     if (error) throw error;
-
     totalCount = count || 0;
     renderTabela(data || []);
     renderPaginacao(from, to);
@@ -252,21 +286,19 @@ async function carregar() {
 function renderTabela(rows) {
   const badge = document.getElementById('count-badge');
   badge.textContent = totalCount.toLocaleString('pt-BR') + ' município' + (totalCount !== 1 ? 's' : '');
-
   const tbody = document.getElementById('municipios-body');
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="4"><div style="text-align:center;padding:60px 20px;">
       <div style="font-size:40px;margin-bottom:10px;">🗺️</div>
       <h3 style="font-size:14px;font-weight:700;color:#333;margin-bottom:6px;">Nenhum município encontrado</h3>
-      <p style="font-size:13px;color:#aaa;">Tente ajustar os filtros de busca.</p>
+      <p style="font-size:13px;color:#aaa;">Tente ajustar os filtros.</p>
     </div></td></tr>`;
     document.getElementById('pagination').style.display = 'none';
     return;
   }
-
   tbody.innerHTML = rows.map(m => `
-    <tr onclick="copiarIBGE('${m.ibge}','${m.nome.replace(/'/g,"\\'")}','${m.uf}')">
-      <td><span class="ibge-code" title="Clique para copiar">${m.ibge}</span></td>
+    <tr onclick="abrirMunicipio('${m.ibge}')">
+      <td><span class="ibge-code">${m.ibge}</span></td>
       <td style="font-weight:600;color:#1a1a2e">${m.nome}</td>
       <td><span class="uf-chip">${m.uf}</span></td>
       <td style="font-size:13px;color:#555">${m.nome_uf}</td>
@@ -277,36 +309,92 @@ function renderPaginacao(from, to) {
   const pag = document.getElementById('pagination');
   if (totalCount === 0) { pag.style.display = 'none'; return; }
   pag.style.display = 'flex';
-
   const inicio = from + 1;
   const fim    = Math.min(from + PAGE_SIZE, totalCount);
   document.getElementById('pag-info').textContent =
     `${inicio.toLocaleString('pt-BR')}–${fim.toLocaleString('pt-BR')} de ${totalCount.toLocaleString('pt-BR')}`;
-
   document.getElementById('btn-prev').disabled = currentPage === 0;
   document.getElementById('btn-next').disabled = fim >= totalCount;
 }
 
-function pagAnterior() {
-  if (currentPage > 0) { currentPage--; carregar(); }
+function pagAnterior() { if (currentPage > 0) { currentPage--; carregar(); } }
+function pagProxima()  { if ((currentPage + 1) * PAGE_SIZE < totalCount) { currentPage++; carregar(); } }
+
+// ── Modal ─────────────────────────────────────
+async function abrirMunicipio(ibge) {
+  if (ibge) {
+    const { data } = await getDB().from('municipios').select('*').eq('ibge', ibge).maybeSingle();
+    currentMunicipio = data || null;
+  } else {
+    currentMunicipio = null;
+  }
+  const isNew = !currentMunicipio;
+  document.getElementById('modal-title').textContent  = isNew ? 'Novo Município' : 'Editar Município';
+  document.getElementById('f-ibge').value             = currentMunicipio?.ibge    || '';
+  document.getElementById('f-ibge').readOnly          = !isNew;
+  document.getElementById('f-nome').value             = currentMunicipio?.nome    || '';
+  document.getElementById('f-uf').value               = currentMunicipio?.uf      || '';
+  document.getElementById('f-nome-uf').value          = currentMunicipio?.nome_uf || '';
+  document.getElementById('btn-delete').style.display = isNew ? 'none' : 'inline-flex';
+  document.getElementById('modal-municipio').classList.add('open');
+  setTimeout(() => (isNew ? document.getElementById('f-ibge') : document.getElementById('f-nome')).focus(), 80);
 }
 
-function pagProxima() {
-  if ((currentPage + 1) * PAGE_SIZE < totalCount) { currentPage++; carregar(); }
+function fecharModal() {
+  document.getElementById('modal-municipio').classList.remove('open');
+  currentMunicipio = null;
 }
 
-function copiarIBGE(ibge, nome, uf) {
-  navigator.clipboard.writeText(ibge).then(() => {
-    showToast(`IBGE ${ibge} — ${nome}/${uf} copiado!`, 'ok');
-  }).catch(() => {
-    showToast(`IBGE: ${ibge}`, 'info');
-  });
+function preencherNomeUF() {
+  const uf = document.getElementById('f-uf').value;
+  document.getElementById('f-nome-uf').value = UF_NOMES[uf] || '';
 }
 
+async function salvarMunicipio() {
+  const ibge    = document.getElementById('f-ibge').value.trim();
+  const nome    = document.getElementById('f-nome').value.trim();
+  const uf      = document.getElementById('f-uf').value;
+  const nome_uf = document.getElementById('f-nome-uf').value.trim() || UF_NOMES[uf] || uf;
+  if (!ibge || !/^\d{7}$/.test(ibge)) { showToast('Código IBGE deve ter 7 dígitos.', 'error'); return; }
+  if (!nome)  { showToast('Informe o nome do município.', 'error'); return; }
+  if (!uf)    { showToast('Selecione a UF.', 'error'); return; }
+  try {
+    const { error } = await getDB()
+      .from('municipios')
+      .upsert({ ibge, nome, uf, nome_uf }, { onConflict: 'ibge' });
+    if (error) throw error;
+    fecharModal();
+    showToast(currentMunicipio ? 'Município atualizado!' : 'Município criado!', 'ok');
+    await carregar();
+  } catch (e) { showToast('Erro: ' + e.message, 'error'); }
+}
+
+async function deletarMunicipio() {
+  if (!currentMunicipio) return;
+  if (!confirm(`Excluir ${currentMunicipio.nome} (IBGE ${currentMunicipio.ibge})?`)) return;
+  try {
+    const { error } = await getDB().from('municipios').delete().eq('ibge', currentMunicipio.ibge);
+    if (error) throw error;
+    const nome = currentMunicipio.nome;
+    fecharModal();
+    showToast(`${nome} excluído.`, 'ok');
+    await carregar();
+  } catch (e) { showToast('Erro: ' + e.message, 'error'); }
+}
+
+document.getElementById('modal-municipio').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fecharModal();
+});
+
+// showToast já definido em db.js — usando diretamente como showToast(msg, 'info')
+
+// ── Init ─────────────────────────────────────
 async function init() {
   try {
-    const count = await dbGetMunicipiosCount();
-    if (count === 0) {
+    const { count, error } = await getDB()
+      .from('municipios').select('ibge', { count:'exact', head:true });
+    if (error) throw error;
+    if ((count || 0) === 0) {
       document.getElementById('empty-banner').style.display = 'flex';
       document.getElementById('count-badge').textContent = '0 municípios';
       document.getElementById('municipios-body').innerHTML =
