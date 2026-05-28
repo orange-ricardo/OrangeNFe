@@ -267,6 +267,27 @@ async function dbSaveConfig(cfg) {
   }
 }
 
+/* ── AUTH ── */
+async function dbAuthGuard(loginPath='../login.html') {
+  const { data:{ session } } = await getDB().auth.getSession();
+  if (!session) { window.location.replace(loginPath); return null; }
+  const user = session.user;
+  // Preenche sidebar com dados do usuário logado
+  const nameEl   = document.querySelector('.user-card .name');
+  const roleEl   = document.querySelector('.user-card .role');
+  const avatarEl = document.querySelector('.user-avatar');
+  const nome = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário';
+  if (nameEl)   nameEl.textContent   = nome;
+  if (roleEl)   roleEl.textContent   = user.email || '';
+  if (avatarEl) avatarEl.textContent = nome[0].toUpperCase();
+  return session;
+}
+
+async function dbLogout() {
+  await getDB().auth.signOut();
+  window.location.replace('../login.html');
+}
+
 /* ── Toast CSS injected ── */
 (function(){
   const s = document.createElement('style');

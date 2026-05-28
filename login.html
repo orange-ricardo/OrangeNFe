@@ -7,6 +7,7 @@
   <link rel="apple-touch-icon" href="app/assets/orange-favicon.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OrangeNFe | Entrar</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -289,26 +290,36 @@
     <a href="index.html" class="back-link">← Voltar ao site</a>
   </header>
 
-  <div class="login-title">Bem-vindo de volta 👋</div>
-  <div class="login-sub">Entre na sua conta para emitir notas fiscais</div>
+  <div class="login-title" id="form-title">Bem-vindo de volta 👋</div>
+  <div class="login-sub" id="form-sub">Entre na sua conta para emitir notas fiscais</div>
 
+  <div id="msg-area" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:16px;"></div>
+
+  <div class="form-group" id="g-nome" style="display:none">
+    <label>Seu nome</label>
+    <input type="text" id="nome" placeholder="Como devemos te chamar?"/>
+  </div>
   <div class="form-group">
     <label>E-mail</label>
-    <input type="email" id="email" placeholder="seu@email.com.br"/>
+    <input type="email" id="email" placeholder="seu@email.com.br" onkeydown="if(event.key==='Enter')handleAcao()"/>
   </div>
-  <div class="form-group">
+  <div class="form-group" id="g-senha">
     <label>Senha</label>
-    <input type="password" id="senha" placeholder="••••••••"/>
+    <input type="password" id="senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleAcao()"/>
+  </div>
+  <div class="form-group" id="g-confirmar" style="display:none">
+    <label>Confirmar senha</label>
+    <input type="password" id="confirmar" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleAcao()"/>
   </div>
 
-  <div class="form-row">
+  <div class="form-row" id="g-opcoes">
     <label class="remember">
-      <input type="checkbox"/> Lembrar de mim
+      <input type="checkbox" id="lembrar"/> Lembrar de mim
     </label>
-    <a href="#" class="forgot">Esqueci a senha</a>
+    <a href="#" class="forgot" onclick="setModo('reset');return false">Esqueci a senha</a>
   </div>
 
-  <button class="btn-enter" onclick="handleLogin()">Entrar no sistema</button>
+  <button class="btn-enter" id="btn-acao" onclick="handleAcao()">Entrar no sistema</button>
 
   <div class="spinner" id="spinner">
     <div></div><div></div><div></div>
@@ -316,8 +327,8 @@
 
   <div class="divider">ou</div>
 
-  <div class="register-link">
-    Não tem conta? <a href="#">Crie grátis por 7 dias</a>
+  <div class="register-link" id="link-alterno">
+    Não tem conta? <a href="#" onclick="setModo('signup');return false">Crie grátis</a>
   </div>
 
   <div class="security-note">
@@ -330,18 +341,126 @@
 </a>
 
 <script>
-function handleLogin() {
-  const e = document.getElementById('email').value;
-  const s = document.getElementById('senha').value;
-  if (!e || !s) { alert('Preencha e-mail e senha.'); return; }
-  document.querySelector('.btn-enter').disabled = true;
-  document.getElementById('spinner').style.display = 'flex';
-  setTimeout(() => {
-    document.querySelector('.btn-enter').disabled = false;
-    document.getElementById('spinner').style.display = 'none';
-    alert('Login simulado — tela de demonstração OrangeNFe.');
-  }, 1800);
+/* ── Supabase client ── */
+const SUPA_URL = 'https://erueerxquddtuucrllim.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVydWVlcnhxdWRkdHV1Y3JsbGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTgxOTAsImV4cCI6MjA5NTI5NDE5MH0.Mf1lN4V9AT81yMKbOIXA9ihX9pGc1NF6mkPbnq5yyWA';
+const _sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let modo = 'login'; // 'login' | 'signup' | 'reset'
+
+/* ── UI helpers ── */
+function setModo(m) {
+  modo = m;
+  limparMsg();
+  const isSignup = m === 'signup';
+  const isReset  = m === 'reset';
+  const isLogin  = m === 'login';
+
+  document.getElementById('g-nome').style.display      = isSignup ? '' : 'none';
+  document.getElementById('g-confirmar').style.display = isSignup ? '' : 'none';
+  document.getElementById('g-opcoes').style.display    = isLogin  ? '' : 'none';
+  document.getElementById('g-senha').style.display     = isReset  ? 'none' : '';
+
+  document.getElementById('form-title').textContent =
+    isSignup ? 'Criar sua conta' :
+    isReset  ? 'Recuperar senha' : 'Bem-vindo de volta 👋';
+  document.getElementById('form-sub').textContent =
+    isSignup ? 'Comece grátis hoje, sem cartão de crédito' :
+    isReset  ? 'Enviaremos um link para redefinir sua senha' :
+    'Entre na sua conta para emitir notas fiscais';
+  document.getElementById('btn-acao').textContent =
+    isSignup ? 'Criar conta gratuita' :
+    isReset  ? 'Enviar link de recuperação' : 'Entrar no sistema';
+  document.getElementById('link-alterno').innerHTML =
+    isLogin  ? 'Não tem conta? <a href="#" onclick="setModo(\'signup\');return false">Crie grátis</a>' :
+    isReset  ? '<a href="#" onclick="setModo(\'login\');return false">← Voltar ao login</a>' :
+    'Já tem conta? <a href="#" onclick="setModo(\'login\');return false">Entre aqui</a>';
 }
+
+function showMsg(msg, tipo='error') {
+  const el = document.getElementById('msg-area');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = tipo === 'ok' ? '#f0fdf4' : '#fef2f2';
+  el.style.color      = tipo === 'ok' ? '#16a34a' : '#dc2626';
+  el.style.border     = `1px solid ${tipo === 'ok' ? '#bbf7d0' : '#fecaca'}`;
+}
+function limparMsg() { document.getElementById('msg-area').style.display = 'none'; }
+
+function setCarregando(on) {
+  document.getElementById('btn-acao').disabled  = on;
+  document.getElementById('spinner').style.display = on ? 'flex' : 'none';
+}
+
+/* ── Ações principais ── */
+async function handleAcao() {
+  if (modo === 'reset')  { await handleReset();  return; }
+  if (modo === 'signup') { await handleSignup(); return; }
+  await handleLogin();
+}
+
+async function handleLogin() {
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value;
+  if (!email || !senha) { showMsg('Preencha e-mail e senha.'); return; }
+
+  setCarregando(true);
+  const { error } = await _sb.auth.signInWithPassword({ email, password: senha });
+  setCarregando(false);
+
+  if (error) {
+    const msgs = {
+      'Invalid login credentials': 'E-mail ou senha incorretos.',
+      'Email not confirmed':        'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.',
+      'Too many requests':          'Muitas tentativas. Aguarde alguns minutos.',
+    };
+    showMsg(msgs[error.message] || error.message);
+    return;
+  }
+  window.location.replace('app/dashboard.html');
+}
+
+async function handleSignup() {
+  const nome     = document.getElementById('nome').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const senha    = document.getElementById('senha').value;
+  const confirmar = document.getElementById('confirmar').value;
+
+  if (!email)              { showMsg('Informe o e-mail.'); return; }
+  if (!senha)              { showMsg('Defina uma senha.'); return; }
+  if (senha.length < 6)   { showMsg('A senha deve ter pelo menos 6 caracteres.'); return; }
+  if (senha !== confirmar) { showMsg('As senhas não conferem.'); return; }
+
+  setCarregando(true);
+  const { error } = await _sb.auth.signUp({
+    email, password: senha,
+    options: { data: { full_name: nome || email.split('@')[0] } }
+  });
+  setCarregando(false);
+
+  if (error) { showMsg(error.message); return; }
+  showMsg('✅ Conta criada! Verifique seu e-mail para confirmar o cadastro.', 'ok');
+}
+
+async function handleReset() {
+  const email = document.getElementById('email').value.trim();
+  if (!email) { showMsg('Informe seu e-mail cadastrado.'); return; }
+
+  setCarregando(true);
+  const { error } = await _sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/login.html'
+  });
+  setCarregando(false);
+
+  if (error) { showMsg(error.message); return; }
+  showMsg('✅ Link enviado! Verifique sua caixa de entrada.', 'ok');
+}
+
+/* ── Redirecionar se já autenticado ── */
+(async () => {
+  const { data: { session } } = await _sb.auth.getSession();
+  if (session) window.location.replace('app/dashboard.html');
+})();
 </script>
 </body>
 </html>

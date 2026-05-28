@@ -93,11 +93,12 @@
   <a href="cidades-estados.html" class="nav-item"><span class="ni">🗺️</span> Municípios</a>
   <div class="sidebar-bottom">
     <div class="user-card">
-      <div class="user-avatar">R</div>
+      <div class="user-avatar">?</div>
       <div class="user-info">
-        <div class="name">Ricardo B.</div>
-        <div class="role">Administrador</div>
+        <div class="name">Carregando...</div>
+        <div class="role"></div>
       </div>
+      <button onclick="dbLogout()" title="Sair" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:18px;color:#ccc;padding:4px 6px;border-radius:4px;line-height:1;" onmouseenter="this.style.color='#dc2626'" onmouseleave="this.style.color='#ccc'">&#9211;</button>
     </div>
   </div>
   <div class="powered-by-strip">
@@ -321,6 +322,7 @@
 </div>
 
 <script>
+dbAuthGuard('../login.html');
 const dadosMes = [18000,12000,22000,8000,31000,27000,14000,19000,25000,9000,33000,21000,17000,28000,11000,24000,36000,18500,29000,22000,15000,41000,12800];
 
 function renderBarChart(dados) {

@@ -287,11 +287,12 @@
 
   <div class="sidebar-bottom">
     <div class="user-card">
-      <div class="user-avatar">R</div>
+      <div class="user-avatar">?</div>
       <div class="user-info">
-        <div class="name">Ricardo B.</div>
-        <div class="role">Administrador</div>
+        <div class="name">Carregando...</div>
+        <div class="role"></div>
       </div>
+      <button onclick="dbLogout()" title="Sair" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:18px;color:#ccc;padding:4px 6px;border-radius:4px;line-height:1;" onmouseenter="this.style.color='#dc2626'" onmouseleave="this.style.color='#ccc'">&#9211;</button>
     </div>
   </div>
   <div class="powered-by-strip">
@@ -553,6 +554,7 @@
 </div><!-- /.main -->
 
 <script>
+dbAuthGuard('../login.html');
 /* ══════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════ */
